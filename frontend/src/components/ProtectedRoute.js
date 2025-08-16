@@ -15,7 +15,7 @@ const ProtectedRoute = ({ children }) => {
       // Nếu accessToken hết hạn → cố gắng gọi refresh
       if (err.response?.status === 401) {
         try {
-          await api.post("/auth/refresh");
+          await api.post('/auth/refresh', {}, { withCredentials: true });
           // Sau khi refresh thành công, thử lại
           await api.get("/auth/check");
           setLoggedIn(true);

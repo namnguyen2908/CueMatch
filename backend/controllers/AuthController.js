@@ -65,7 +65,7 @@ const AuthController = {
             // Set cookies
             res.cookie('accessToken', accessToken, {
                 httpOnly: true,
-                maxAge: 5 * 60 * 1000,
+                maxAge: 30 * 60 * 1000,
                 sameSite: 'Strict',
                 secure: false, // true nếu dùng HTTPS
             });
@@ -91,10 +91,12 @@ const AuthController = {
         if (!refreshToken) {
             return res.status(401).json({ message: 'No refresh token provided' });
         }
-        jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, async (err, user) => {
+        jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, async (err, decoded) => {
             if(err) {
                 return res.status(403).json({ message: 'Invalid refresh token' });
             }
+            const user = await User.findById(decoded.id);
+            if (!user) return res.status(404).json({ message: 'User not found' });
             const newAccessToken = generateAccessToken(user);
             const newRefreshToken = generateRefreshToken(user);
             res.cookie('accessToken', newAccessToken, {
@@ -151,7 +153,7 @@ const AuthController = {
 
             res.cookie('accessToken', accessToken, {
                 httpOnly: true,
-                maxAge: 5 * 60 * 1000,
+                maxAge: 30 * 60 * 1000,
                 sameSite: 'Strict',
                 secure: false,
             });

@@ -1,40 +1,66 @@
 // src/pages/HomeFeed.jsx
-import React, { useState } from 'react';
-import Header from '../components/Header/Header';
-import Sidebar from '../components/Sidebar/Sidebar';
-import PostCard from '../components/PostCard';
-import PostModal from '../components/PostModal/PostModal';
-
+import React, { useState, useRef } from "react";
+import Header from "../components/Header/Header";
+import Sidebar from "../components/Sidebar/Sidebar";
+import PostCard from "../components/PostCard";
+import PostModal from "../components/PostModal/PostModal";
+import { motion } from "framer-motion";
+import AnimatedBackground from "../components/AnimatedBackground";
+import "../components/animations.css";
 
 const HomeFeed = () => {
-  const [activeTab, setActiveTab] = useState('home');
+  const [activeTab, setActiveTab] = useState("home");
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
+  const postCardRef = useRef();
 
   const handleOpenPostModal = () => setIsPostModalOpen(true);
   const handleClosePostModal = () => setIsPostModalOpen(false);
-
+  const handlePostCreated = () => {
+    postCardRef.current?.reloadPosts();
+  };
 
   return (
-    <div className="bg-gray-100 min-h-screen">
+    <div className="relative min-h-screen text-gray-200 overflow-hidden">
+      {/* Background hiệu ứng sao lấp lánh */}
+      <AnimatedBackground />
+
       <Header />
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
-      <main className="pt-24 pl-72 pr-4 max-w-5xl mx-auto">
-        <div className="bg-white rounded-xl shadow-md p-4 mb-6 border border-gray-200 hover:shadow-lg transition-shadow duration-300 cursor-pointer"
-        onClick={handleOpenPostModal}>
-        <div className="flex items-center space-x-4">
-          <div className="w-10 h-10 rounded-full overflow-hidden">
-            <img src={"https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face"} alt="User" className="w-full h-full object-cover"/>
+
+      <main className="pt-28 pl-72 pr-6 max-w-5xl mx-auto">
+        {/* Composer card */}
+        <motion.div
+          whileHover={{ y: -2 }}
+          whileTap={{ scale: 0.995 }}
+          className="bg-black/40 border border-yellow-500/20 backdrop-blur-xl rounded-2xl p-4 mb-6
+                     shadow-[0_0_40px_-10px_rgba(255,215,0,.25)] hover:shadow-yellow-500/30
+                     transition-all duration-500 cursor-pointer"
+          onClick={handleOpenPostModal}
+        >
+          <div className="flex items-center space-x-4">
+            <div className="w-12 h-12 rounded-full overflow-hidden ring-2 ring-yellow-400/60">
+              <img
+                src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=96&h=96&fit=crop&crop=face"
+                alt="User"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div
+              className="flex-1 bg-[#1e1e1f] text-gray-400 hover:text-gray-100
+                         hover:bg-[#27272a] rounded-full px-4 py-2 transition-colors duration-300"
+            >
+              Share your achievements...
+            </div>
           </div>
-          <div className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-full px-4 py-2 transition-colors duration-200">
-            Share your achievements...
-          </div>
-        </div>
-      </div>
-        <PostCard />
+        </motion.div>
+
+        <PostCard ref={postCardRef} />
       </main>
-      <PostModal 
-        isOpen={isPostModalOpen} 
-        onClose={handleClosePostModal} 
+
+      <PostModal
+        isOpen={isPostModalOpen}
+        onClose={handleClosePostModal}
+        onPostCreated={handlePostCreated}
       />
     </div>
   );

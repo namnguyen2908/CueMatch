@@ -1,0 +1,20 @@
+@keyframes ballFly {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(120vw, 40vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+.animate-ball-fly {
+  animation: ballFly 18s linear infinite;
+}
