@@ -1,0 +1,294 @@
+.register {
+  height: 100vh;
+  width: 100%;
+  /* background: linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 50%, #16213e 100%); */
+  background-image: url('https://imgs.search.brave.com/zTyruqUQr-Z9D0NPqakQN8atnaUkDszORA4DdbGwwH0/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly92YW5o/b2Fkb2lzb25nLnZu/L3dwLWNvbnRlbnQv/dXBsb2Fkcy8yMDIy/LzA5LzEwMC1oaW5o/LW5lbi1hbmgtYm9u/Zy1kYS1kZXAtZnVs/bC1oZC1jaG8tbWF5/LXRpbmgtZGllbi10/aG9haS00Ny5qcGc');
+  background-repeat: no-repeat;
+  background-size: cover;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.register::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  /* background-image: url('https://vanhoadoisong.vn/100-hinh-nen-anh-bong-da-dep-full-hd-cho-may-tinh-dien-thoai-1865/'); */
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  opacity: 0.3;
+  z-index: -1;
+}
+
+.wrapper {
+  width: 900px;
+  height: 550px;
+  display: flex;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 25px 45px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+/* Left Panel - TeamHost Info */
+.panel {
+  flex: 1;
+  background: rgba(52, 52, 52, 0.203);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.logoContainer {
+  text-align: center;
+  color: white;
+}
+
+.logo {
+  width: 150px;
+  height: 150px;
+  object-fit: contain;
+  border-radius: 50%;
+  position: relative;
+}
+
+.logo::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 30px;
+  height: 30px;
+  background: #ff6b35;
+  border-radius: 50%;
+}
+
+.title {
+  font-size: 2.8rem;
+  font-weight: 300;
+  margin: 0 0 10px 0;
+  color: white;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.slogan {
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+  font-weight: 300;
+}
+
+/* Right Panel - Login Form */
+.registerPanel {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+}
+
+.registerForm {
+  width: 100%;
+  max-width: 350px;
+  padding: 40px 30px;
+}
+
+/* Input Fields */
+.input-group {
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.input-field {
+  width: 100%;
+  padding: 15px 20px;
+  border: 1.6px solid #bebebe;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: rgba(244, 244, 244, 0.95);
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: #ffae00;
+  background: rgba(244, 244, 244, 0.95);
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+}
+
+.input-field::placeholder {
+  color: #999;
+}
+
+.labelName, .labelEmail, .labelPassword {
+  position: absolute;
+  left: 10px;
+  top: 14px;
+  background: transparent;
+  padding:  0 4px;
+  transition: 0.3s ease all;
+  pointer-events: none;
+}
+
+input:focus + label,
+input:not(:placeholder-shown) + label {
+  top: -13px;
+  font-size: 16px;
+  color: rgba(251, 173, 47, 0.874);
+  background: rgba(244, 244, 244, 0.95);
+}
+
+.toggle-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: #999;
+}
+
+/* Login Button */
+.btRegister {
+  width: 100%;
+  padding: 15px;
+  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+}
+
+.btRegister:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+}
+
+/* Register Link */
+.login {
+  text-align: center;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.login a {
+  color: #ff6b35;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.login a:hover {
+  color: #e55a2b;
+}
+
+/* Social Login Buttons */
+.socialLogin {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.socialBtn {
+  width: 50px;
+  height: 50px;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.socialBtn:nth-child(1) {
+  background: #fff;
+  border: 1px solid #ddd;
+}
+
+.socialBtn:nth-child(2) {
+  background: #1877F2;
+}
+
+.socialBtn:nth-child(3) {
+  background: #1DA1F2;
+}
+
+.socialBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.socialBtn img {
+  width: 20px;
+  height: 20px;
+}
+
+/* Divider */
+.divider {
+  text-align: center;
+  margin: 30px 0;
+  position: relative;
+  font-size: 0.9rem;
+}
+
+.divider::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgb(144, 144, 144);
+  z-index: 1;
+}
+
+.divider span {
+  background: rgb(243, 243, 243);
+  padding: 0 20px;
+  position: relative;
+  z-index: 2;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .wrapper {
+    width: 95%;
+    height: auto;
+    flex-direction: column;
+  }
+  
+  .panel {
+    padding: 30px;
+  }
+  
+  .title {
+    font-size: 2rem;
+  }
+  
+  .loginForm {
+    padding: 30px 20px;
+  }
+}

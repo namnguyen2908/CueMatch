@@ -1,0 +1,127 @@
+.container {
+  display: flex;
+  background-color: #e6e5e5ca;
+  min-height: 100vh;
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-left: 250px;
+}
+
+.feed {
+  padding: 20px;
+  width: 650px;
+  margin: 0 auto;
+  padding-top: 120px;
+}
+
+.inputBox {
+  display: flex;
+  align-items: center;
+  background: white;
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+}
+
+.inputBox input {
+  flex: 1;
+  padding: 10px;
+  margin-left: 10px;
+  border: none;
+  outline: none;
+  background-color: #f0f2f5;
+  border-radius: 12px;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  background-color: #ccc;
+  border-radius: 50%;
+}
+
+.avatar img{
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+.post {
+  background: white;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 20px;
+  /* height: 520px; */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+}
+
+.postHeader {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.name {
+  font-weight: bold;
+}
+
+.time {
+  font-size: 12px;
+  color: gray;
+}
+
+.postContent {
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* hiển thị tối đa 3 dòng */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.more {
+  color: #888;
+  font-size: 14px;
+}
+
+.postImage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.postImage img {
+  max-width: 100%;
+  border-radius: 8px;
+}
+
+.postStats {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-around;
+  border-top: 1px solid #eee;
+  padding-top: 10px;
+}
+
+.actions button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
