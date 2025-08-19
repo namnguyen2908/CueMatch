@@ -65,7 +65,7 @@ const AuthController = {
             // Set cookies
             res.cookie('accessToken', accessToken, {
                 httpOnly: true,
-                maxAge: 30 * 60 * 1000,
+                maxAge: 60 * 60 * 1000,
                 sameSite: 'Strict',
                 secure: false, // true nếu dùng HTTPS
             });
@@ -153,7 +153,7 @@ const AuthController = {
 
             res.cookie('accessToken', accessToken, {
                 httpOnly: true,
-                maxAge: 30 * 60 * 1000,
+                maxAge: 1 * 60 * 1000,
                 sameSite: 'Strict',
                 secure: false,
             });

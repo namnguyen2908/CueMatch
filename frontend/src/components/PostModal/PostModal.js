@@ -1,12 +1,18 @@
 import React, { useState } from 'react';
 import { X, Image, Globe, Users, Lock, ChevronDown, Video } from 'lucide-react';
 import postApi from '../../api/postApi';
+import { useUser } from '../../contexts/UserContext';
 
 const PostModal = ({ isOpen, onClose, onPostCreated }) => {
   const [Content, setContent] = useState('');
   const [Status, setStatus] = useState('public');
   const [showDropdown, setShowDropdown] = useState(false);
   const [loading, setLoading] = useState(false);
+  const { datauser } = useUser();
+
+  // File media
+  const [imageFiles, setImageFiles] = useState([]);
+  const [videoFiles, setVideoFiles] = useState([])
 
   const statusOptions = [
     { value: 'public', icon: Globe, label: 'Public', desc: 'Everyone can see' },
@@ -28,20 +34,44 @@ const PostModal = ({ isOpen, onClose, onPostCreated }) => {
     setShowDropdown(false);
   };
 
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files);
+    setImageFiles(prev => [...prev, ...files]);
+  };
+
+  const handleVideoChange = (e) => {
+    const files = Array.from(e.target.files);
+    setVideoFiles(prev => [...prev, ...files]);
+  };
+
+  const removeImage = (index) => {
+    setImageFiles(prev => prev.filter((_, i) => i !== index));
+  };
+  const removeVideo = (index) => {
+    setVideoFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
   const handleCreatePost = async () => {
     if (!Content.trim()) return;
     setLoading(true);
 
     try {
-      const postData = { Content, Status };
-      await postApi.createPost(postData);
+      const formData = new FormData();
+      formData.append('Content', Content);
+      formData.append('Status', Status);
+      if (imageFiles) imageFiles.forEach(file => formData.append('Image', file));
+      if (videoFiles) videoFiles.forEach(file => formData.append('Video', file));
+
+      await postApi.createPost(formData);
 
       setContent('');
       setStatus('public');
+      setImageFiles(null);
+      setVideoFiles(null);
       onClose();
       onPostCreated?.();
     } catch (error) {
-      console.log('Failed to create post');
+      console.log('Failed to create post:', error);
     } finally {
       setLoading(false);
     }
@@ -50,7 +80,7 @@ const PostModal = ({ isOpen, onClose, onPostCreated }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={handleBackdropClick}>
       <div className="w-full max-w-xl rounded-2xl bg-[#111] text-gray-200 shadow-[0_0_30px_rgba(255,215,0,0.05)] border border-yellow-500/10 backdrop-blur-xl">
-        
+
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800">
           <h2 className="text-lg font-semibold text-yellow-400 tracking-wide">Create Post</h2>
@@ -64,12 +94,12 @@ const PostModal = ({ isOpen, onClose, onPostCreated }) => {
           {/* Avatar + Dropdown */}
           <div className="flex items-start space-x-3 mb-4">
             <img
-              src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=48&h=48&fit=crop&crop=face"
+              src={datauser.avatar}
               alt="User"
               className="w-12 h-12 rounded-full border border-yellow-500/20 shadow-sm"
             />
             <div className="flex flex-col">
-              <h3 className="font-semibold">Nguyễn Văn A</h3>
+              <h3 className="font-semibold">{datauser.name}</h3>
 
               <div className="relative mt-1">
                 <button
@@ -124,16 +154,53 @@ const PostModal = ({ isOpen, onClose, onPostCreated }) => {
             className="w-full min-h-[100px] text-base placeholder-gray-500 resize-none focus:outline-none bg-transparent border border-gray-800 rounded-xl p-4 mb-4"
           />
 
-          {/* Media Buttons */}
+          {/* Media Upload Buttons */}
           <div className="border border-gray-700 rounded-xl p-4 mb-4 bg-[#1a1a1a]">
             <p className="text-sm font-medium text-gray-400 mb-3">Add to your post</p>
-            <div className="flex space-x-3">
-              <button className="w-10 h-10 flex items-center justify-center bg-green-900 hover:bg-green-800 rounded-full transition">
+            <div className="flex space-x-3 items-center">
+
+              {/* Image Upload */}
+              <label htmlFor="image-upload" className="w-10 h-10 flex items-center justify-center bg-green-900 hover:bg-green-800 rounded-full cursor-pointer transition">
                 <Image size={18} className="text-green-400" />
-              </button>
-              <button className="w-10 h-10 flex items-center justify-center bg-red-900 hover:bg-red-800 rounded-full transition">
+                <input
+                  id="image-upload"
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleImageChange}
+                  className="hidden"
+                />
+              </label>
+
+              {/* Show selected image file name + remove button */}
+              {imageFiles.map((file, index) => (
+                <div key={index} className="flex items-center space-x-2 bg-green-900/20 rounded px-2 py-1 text-green-400 text-sm">
+                  <span>{file.name}</span>
+                  <button onClick={() => removeImage(index)} className="text-yellow-400 font-bold">&times;</button>
+                </div>
+              ))}
+
+              {/* Video Upload */}
+              <label htmlFor="video-upload" className="w-10 h-10 flex items-center justify-center bg-red-900 hover:bg-red-800 rounded-full cursor-pointer transition">
                 <Video size={18} className="text-red-400" />
-              </button>
+                <input
+                  id="video-upload"
+                  type="file"
+                  accept="video/*"
+                  multiple
+                  onChange={handleVideoChange}
+                  className="hidden"
+                />
+              </label>
+
+              {/* Show selected video file name + remove button */}
+              {videoFiles.map((file, index) => (
+                <div key={index} className="flex items-center space-x-2 bg-red-900/20 rounded px-2 py-1 text-red-400 text-sm">
+                  <span>{file.name}</span>
+                  <button onClick={() => removeVideo(index)} className="text-yellow-400 font-bold">&times;</button>
+                </div>
+              ))}
+
             </div>
           </div>
 

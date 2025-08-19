@@ -1,181 +1,163 @@
 // src/components/PostCard.jsx
-import React, {
-  useEffect,
-  useState,
-  useCallback,
-  useRef,
-  forwardRef,
-  useImperativeHandle,
-  memo,
-} from "react";
-import { Heart, MessageSquare, Share } from "lucide-react";
-import postApi from "../api/postApi";
+import React, { memo, forwardRef } from "react";
+import { Heart, MessageSquare, Share, MoreVertical } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
 
-const LIMIT = 5;
-
+// Skeleton Loader
 const Skeleton = () => (
-  <div className="bg-black/40 border border-yellow-500/20 backdrop-blur-xl rounded-2xl p-6 mb-8 animate-pulse">
+  <div className="bg-black/40 border border-yellow-500/20 backdrop-blur-xl rounded-2xl p-6 mb-6 animate-pulse">
     <div className="flex items-center gap-4 mb-4">
       <div className="w-12 h-12 rounded-full bg-[#2a2a2a]" />
-      <div className="flex-1">
-        <div className="h-4 bg-[#2a2a2a] rounded w-40 mb-2" />
-        <div className="h-3 bg-[#2a2a2a] rounded w-28" />
+      <div className="flex-1 space-y-2">
+        <div className="h-4 w-40 bg-[#2a2a2a] rounded" />
+        <div className="h-3 w-28 bg-[#2a2a2a] rounded" />
       </div>
     </div>
-    <div className="h-4 bg-[#2a2a2a] rounded w-11/12 mb-3" />
-    <div className="h-4 bg-[#2a2a2a] rounded w-9/12 mb-4" />
+    <div className="space-y-2 mb-4">
+      <div className="h-4 bg-[#2a2a2a] rounded w-full" />
+      <div className="h-4 bg-[#2a2a2a] rounded w-5/6" />
+    </div>
     <div className="h-48 bg-[#2a2a2a] rounded-xl" />
   </div>
 );
 
-const Card = memo(function Card({ post, isLast, lastRef }) {
+// Action Button
+const Action = ({ icon: Icon, label, hoverColor }) => (
+  <button className={`flex items-center gap-2 hover:${hoverColor} transition-all`}>
+    <Icon className="w-5 h-5" />
+    <span>{label}</span>
+  </button>
+);
+
+// Post Card UI
+const Card = memo(({ post, isLast, lastRef }) => {
+  const { UserID, Content, Image, Video, createdAt, Likes, Comments } = post;
+  const [showMenu, setShowMenu] = useState(false);
+  const menuRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setShowMenu(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   return (
     <div
       ref={isLast ? lastRef : null}
-      className="group bg-black/45 backdrop-blur-xl border border-yellow-500/25 rounded-2xl p-6 mb-8
-                 shadow-lg hover:shadow-yellow-500/30 hover:-translate-y-1 transition-all duration-500"
+      className="bg-[#111]/70 border border-yellow-500/20 backdrop-blur-xl rounded-2xl p-6 mb-6 transition-all duration-300 hover:shadow-yellow-500/10 hover:-translate-y-0.5"
     >
+      <div className="absolute top-4 right-4 z-10" ref={menuRef}>
+        <button onClick={() => setShowMenu(!showMenu)} className="text-gray-400 hover:text-yellow-400">
+          <MoreVertical className="w-5 h-5" />
+        </button>
+        {showMenu && (
+          <div className="absolute right-0 mt-2 w-36 bg-[#1e1e1f] border border-yellow-500/20 rounded-md shadow-lg z-20">
+            <button
+              onClick={() => alert(`Edit post: ${post._id}`)} // Thay thế bằng hàm thật
+              className="block w-full px-4 py-2 text-left text-sm text-gray-200 hover:bg-yellow-500/10"
+            >
+              ✏️ Edit
+            </button>
+            <button
+              onClick={() => alert(`Delete post: ${post._id}`)} // Thay thế bằng hàm thật
+              className="block w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-red-400/10"
+            >
+              🗑️ Delete
+            </button>
+          </div>
+        )}
+      </div>
       {/* Header */}
       <div className="flex items-center gap-4 mb-4">
-        <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-yellow-400">
-          <img
-            src={post.UserID?.Avatar || "https://via.placeholder.com/80"}
-            alt="User"
-            className="w-full h-full object-cover"
-          />
-        </div>
+        <img
+          src={UserID?.Avatar || "https://via.placeholder.com/80"}
+          alt="User Avatar"
+          className="w-12 h-12 rounded-full border-2 border-yellow-400 object-cover"
+        />
         <div>
-          <h4 className="font-semibold text-yellow-300">
-            {post.UserID?.Name || "Ẩn danh"}
-          </h4>
-          <p className="text-sm text-gray-400">
-            {new Date(post.createdAt).toLocaleString()}
+          <p className="font-semibold text-yellow-300">{UserID?.Name || "Ẩn danh"}</p>
+          <p className="text-sm text-gray-500">
+            {new Date(createdAt).toLocaleString()}
           </p>
         </div>
       </div>
 
       {/* Content */}
-      {post.Content && (
-        <p className="text-gray-200 mb-4 leading-relaxed">{post.Content}</p>
+      {Content && (
+        <p className="text-gray-200 mb-4 leading-relaxed whitespace-pre-line">{Content}</p>
       )}
 
-      {post.Image && (
-        <div className="overflow-hidden rounded-xl mb-4">
-          <img
-            src={post.Image}
-            alt="Post"
-            className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-[1.02]"
-          />
+      {/* Media */}
+      {(Image?.length > 0 || Video?.length > 0) && (
+        <div
+          className={`flex ${Image?.length > 0 && Video?.length > 0 ? "flex-col md:flex-row gap-4" : ""
+            } mb-4`}
+        >
+          {/* Image */}
+          {Image?.length > 0 && (
+            <div
+              onClick={() => window.location.href = `/post/${post._id}`}
+              className={`relative group cursor-pointer overflow-hidden rounded-lg max-h-[400px] mb-2 md:mb-0 ${Video?.length > 0 ? "w-full md:w-1/2" : "w-full"
+                }`}
+            >
+              <img
+                src={Image[0]}
+                alt="Ảnh bài viết"
+                className="w-full h-full object-cover transition-all duration-300 group-hover:brightness-75"
+              />
+              {Image.length > 1 && (
+                <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-white text-xl font-semibold">
+                  +{Image.length - 1}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Video */}
+          {Video?.length > 0 && (
+            <div
+              onClick={() => window.location.href = `/post/${post._id}`}
+              className={`relative group cursor-pointer overflow-hidden rounded-lg max-h-[400px] ${Image?.length > 0 ? "w-full md:w-1/2" : "w-full"
+                }`}
+            >
+              <video
+                src={Video[0]}
+                controls
+                autoPlay
+                muted
+                playsInline
+                loop
+                className="w-full h-full object-cover transition-all duration-300 rounded-lg"
+              />
+              {Video.length > 1 && (
+                <div className="absolute bottom-0 right-0 bg-black/50 px-2 py-1 text-white text-sm rounded-tl-lg">
+                  +{Video.length - 1}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 
       {/* Actions */}
-      <div className="flex gap-6 text-gray-400">
-        <button
-          className="flex items-center gap-2 hover:text-red-400 transition-all 
-                     hover:drop-shadow-[0_0_12px_rgba(248,113,113,0.7)]"
-        >
-          <Heart className="w-5 h-5" />
-          <span>{post.Likes?.length || 0}</span>
-        </button>
-        <button
-          className="flex items-center gap-2 hover:text-cyan-300 transition-all 
-                     hover:drop-shadow-[0_0_12px_rgba(103,232,249,0.7)]"
-        >
-          <MessageSquare className="w-5 h-5" />
-          <span>{post.Comments?.length || 0}</span>
-        </button>
-        <button
-          className="flex items-center gap-2 hover:text-yellow-300 transition-all 
-                     hover:drop-shadow-[0_0_12px_rgba(250,204,21,0.7)]"
-        >
-          <Share className="w-5 h-5" />
-          <span>Share</span>
-        </button>
+      <div className="flex justify-between px-6 text-gray-400 pt-2 border-t border-yellow-500/10">
+        <Action icon={Heart} label={Likes?.length || 0} hoverColor="text-red-400" />
+        <Action icon={MessageSquare} label={Comments?.length || 0} hoverColor="text-cyan-300" />
+        <Action icon={Share} label="Share" hoverColor="text-yellow-300" />
       </div>
     </div>
   );
 });
 
-const PostCard = forwardRef((props, ref) => {
-  const [posts, setPosts] = useState([]);
-  const [offset, setOffset] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const [initialLoading, setInitialLoading] = useState(true);
-  const [hasMore, setHasMore] = useState(true);
-  const [error, setError] = useState(null);
-  const observer = useRef();
-
-  const fetchPosts = useCallback(
-    async (reset = false) => {
-      if (loading || (!hasMore && !reset)) return;
-
-      setLoading(true);
-      setError(null);
-
-      try {
-        const newOffset = reset ? 0 : offset;
-        const data = await postApi.getPosts(newOffset, LIMIT);
-
-        if (data.length < LIMIT) setHasMore(false);
-
-        if (reset) {
-          setPosts(data);
-          setOffset(LIMIT);
-          setHasMore(true);
-        } else {
-          setPosts((prev) => [...prev, ...data]);
-          setOffset((prev) => prev + LIMIT);
-        }
-      } catch (e) {
-        setError("Đã có lỗi khi tải bài viết. Vui lòng thử lại.");
-      } finally {
-        setLoading(false);
-        setInitialLoading(false);
-      }
-    },
-    [offset, loading, hasMore]
-  );
-
-  useImperativeHandle(ref, () => ({
-    reloadPosts: () => {
-      setInitialLoading(true);
-      fetchPosts(true);
-    },
-  }));
-
-  useEffect(() => {
-    fetchPosts();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const lastPostRef = useCallback(
-    (node) => {
-      if (loading) return;
-      if (observer.current) observer.current.disconnect();
-
-      observer.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && hasMore) {
-          fetchPosts();
-        }
-      });
-
-      if (node) observer.current.observe(node);
-    },
-    [loading, hasMore, fetchPosts]
-  );
-
+// Main PostCard Component (display-only)
+const PostCard = forwardRef(({ posts = [] }, ref) => {
   return (
     <div>
-      {/* lỗi */}
-      {error && (
-        <div className="mb-4 px-4 py-3 rounded-xl border border-red-500/40 bg-red-500/10 text-red-300">
-          {error}
-        </div>
-      )}
-
-      {/* skeleton cho lần đầu */}
-      {initialLoading && posts.length === 0 ? (
+      {posts.length === 0 ? (
         <>
           <Skeleton />
           <Skeleton />
@@ -186,20 +168,9 @@ const PostCard = forwardRef((props, ref) => {
             key={post._id}
             post={post}
             isLast={idx === posts.length - 1}
-            lastRef={lastPostRef}
+            lastRef={ref}
           />
         ))
-      )}
-
-      {/* loading thêm */}
-      {loading && posts.length > 0 && (
-        <div className="text-center py-4 text-gray-400">Đang tải…</div>
-      )}
-
-      {!hasMore && posts.length > 0 && (
-        <div className="text-center text-gray-500 py-6">
-          Không còn bài viết nào nữa.
-        </div>
       )}
     </div>
   );

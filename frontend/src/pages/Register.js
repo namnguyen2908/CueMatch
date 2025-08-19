@@ -58,8 +58,11 @@ const Register = () => {
                             height: `${ball.size}px`,
                             left: `${Math.random() * 100}%`,
                             top: `${Math.random() * 100}%`,
-                            animation: `float ${4 + Math.random() * 3}s ease-in-out infinite`,
-                            animationDelay: `${ball.delay}s`
+                            animationName: 'float',
+                            animationDuration: `${4 + Math.random() * 3}s`,
+                            animationTimingFunction: 'ease-in-out',
+                            animationIterationCount: 'infinite',
+                            animationDelay: `${ball.delay}s`,
                         }}
                     />
                 ))}
@@ -289,11 +292,11 @@ const Register = () => {
                 </div>
             </div>
 
-            <style jsx>{`
-                @keyframes float {
-                    0%, 100% { transform: translateY(0px) rotate(0deg); }
-                    33% { transform: translateY(-10px) rotate(120deg); }
-                    66% { transform: translateY(10px) rotate(240deg); }
+            <style>{`
+            @keyframes float {
+                0%, 100% { transform: translateY(0px) rotate(0deg); }
+                33% { transform: translateY(-10px) rotate(120deg); }
+                66% { transform: translateY(10px) rotate(240deg); }
                 }
             `}</style>
             <AuthWarningModal show={showModal} onClose={() => setShowModal(false)} />

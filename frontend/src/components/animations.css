@@ -18,3 +18,25 @@
 .animate-ball-fly {
   animation: ballFly 18s linear infinite;
 }
+
+
+/* Background particles (optional) */
+@keyframes shimmer {
+  0% { background-position: -100% 0; }
+  100% { background-position: 100% 0; }
+}
+
+.underline-shimmer {
+  background-image: linear-gradient(90deg, transparent, #ffd700aa, transparent);
+  background-size: 200% 100%;
+  background-repeat: no-repeat;
+  animation: shimmer 3s infinite linear;
+}
+
+.spin-slow {
+  animation: spin 6s linear infinite;
+}
+
+.animate-pulse-slow {
+  animation: pulse 3s ease-in-out infinite;
+}

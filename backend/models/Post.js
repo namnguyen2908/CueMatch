@@ -3,7 +3,8 @@ mongoose = require("mongoose");
 const postSchema = new mongoose.Schema({
     UserID: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     Content: { type: String, required: true },
-    Image: { type: String },
+    Image: [{ type: String }],
+    Video: [{ type: String }],
     Status: { type: String, enum: ['public', 'friends', 'group'], default: 'public' },
     GroupID: { type: mongoose.Schema.Types.ObjectId, ref: 'Group' },
 }, { timestamps: true }

@@ -5,6 +5,7 @@ import AuthWarningModal from '../components/AuthWarningModal/AuthWarningModal';
 import { login, googleLogin } from '../api/authApi';
 import Warning from '../components/Warning';
 import { GoogleLogin, useGoogleLogin } from '@react-oauth/google';
+import { useUser } from '../contexts/UserContext';
 
 const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
@@ -12,6 +13,7 @@ const Login = () => {
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
     const [warning, setWarning] = useState({ show: false, type: 'error', message: '' });
+    const { Datalogin } = useUser();
     // Modal warning logic
     const location = useLocation();
     const [showModal, setShowModal] = useState(false);
@@ -30,9 +32,15 @@ const Login = () => {
     const handleLogin = async (e) => {
         e.preventDefault();
         setIsLoading(true);
-
+        setWarning({ show: false });
         try {
-            await login(formData);
+            const res = await login(formData);
+            const userData = {
+                id: res.data.user.id,
+                name: res.data.user.Name,
+                avatar: res.data.user.Avatar,
+            };
+            Datalogin(userData);
             navigate('/homefeed');
         } catch (err) {
             setWarning({ show: true, type: 'error', message: err.response?.data?.message });
@@ -46,7 +54,13 @@ const Login = () => {
         onSuccess: async (response) => {
             try {
                 // Gửi 'authorization code' lên server
-                await googleLogin(response.code);
+                const res = await googleLogin(response.code);
+                const userData = {
+                    id: res.data.user.id,
+                    name: res.data.user.Name,
+                    avatar: res.data.user.Avatar,
+                };
+                Datalogin(userData);
                 navigate('/homefeed');
             } catch (err) {
                 setWarning({
@@ -251,7 +265,7 @@ const Login = () => {
                 show={warning.show}
                 type={warning.type}
                 title="Lỗi đăng nhập"
-                message="Tài khoản hoặc mật khẩu không chính xác."
+                message={warning.message}
                 onClose={() => setWarning({ ...warning, show: false })}
             />
             <AuthWarningModal show={showModal} onClose={() => setShowModal(false)} />

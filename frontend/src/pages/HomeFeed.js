@@ -7,11 +7,14 @@ import PostModal from "../components/PostModal/PostModal";
 import { motion } from "framer-motion";
 import AnimatedBackground from "../components/AnimatedBackground";
 import "../components/animations.css";
+import { useUser } from "../contexts/UserContext";
+import PostList from "../components/PostList";
 
 const HomeFeed = () => {
   const [activeTab, setActiveTab] = useState("home");
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
   const postCardRef = useRef();
+  const { datauser } = useUser();
 
   const handleOpenPostModal = () => setIsPostModalOpen(true);
   const handleClosePostModal = () => setIsPostModalOpen(false);
@@ -39,11 +42,7 @@ const HomeFeed = () => {
         >
           <div className="flex items-center space-x-4">
             <div className="w-12 h-12 rounded-full overflow-hidden ring-2 ring-yellow-400/60">
-              <img
-                src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=96&h=96&fit=crop&crop=face"
-                alt="User"
-                className="w-full h-full object-cover"
-              />
+              <img src={datauser.avatar}/>
             </div>
             <div
               className="flex-1 bg-[#1e1e1f] text-gray-400 hover:text-gray-100
@@ -54,7 +53,7 @@ const HomeFeed = () => {
           </div>
         </motion.div>
 
-        <PostCard ref={postCardRef} />
+        <PostList />
       </main>
 
       <PostModal

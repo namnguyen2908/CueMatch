@@ -1,10 +1,43 @@
 // src/components/Header/Header.jsx
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Search, MessageCircle, Bell, Target } from "lucide-react";
+import { useUser } from '../../contexts/UserContext';
+import { useNavigate } from 'react-router-dom';
+import { logout } from '../../api/authApi';
 
 const Header = () => {
   const [focused, setFocused] = useState(false);
   const notifications = 3;
+  const { datauser } = useUser();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      localStorage.removeItem('user');
+      navigate('/');
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  }
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    }
+    if (dropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [dropdownOpen]);
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 
@@ -27,7 +60,7 @@ const Header = () => {
                bg-gradient-to-r from-yellow-300 via-yellow-100 to-yellow-400 
                underline-shimmer drop-shadow-[0_1px_4px_rgba(255,215,0,0.5)] tracking-wide">
 
-                BiPool
+                CueMatch
               </h1>
             </div>
 
@@ -51,7 +84,7 @@ const Header = () => {
           </div>
 
           {/* Bên phải: Actions */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 relative" ref={dropdownRef}>
             <button className="relative p-2 text-gray-300 hover:text-yellow-400 
                    hover:scale-110 transition-all duration-300 
                    hover:drop-shadow-[0_0_6px_rgba(255,215,0,0.5)]">
@@ -69,19 +102,54 @@ const Header = () => {
               )}
             </button>
             <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-yellow-400 
-                shadow-[0_0_6px_rgba(255,215,0,0.4)] hover:shadow-[0_0_10px_rgba(255,215,0,0.6)] transition-shadow">
+                shadow-[0_0_6px_rgba(255,215,0,0.4)] hover:shadow-[0_0_10px_rgba(255,215,0,0.6)] transition-shadow"
+              onClick={() => setDropdownOpen(!dropdownOpen)}>
               <img
-                src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=72&h=72&fit=crop&crop=face"
+                src={datauser.avatar}
                 alt="Avatar"
                 className="w-full h-full object-cover"
               />
             </div>
+            {/* Dropdown menu */}
+            {dropdownOpen && (
+              <div className="absolute right-6 mt-52 w-48 bg-[#1a1a1a]/95 border border-yellow-500/40 rounded-md shadow-lg text-yellow-300 z-50">
+                <button
+                  className="block w-full text-left px-4 py-2 hover:bg-yellow-500/20"
+                  onClick={() => {
+                    // Ví dụ: chuyển đến trang profile
+                    navigate('/profile');
+                    setDropdownOpen(false);
+                  }}
+                >
+                  Profile
+                </button>
+                <button
+                  className="block w-full text-left px-4 py-2 hover:bg-yellow-500/20"
+                  onClick={() => {
+                    // Ví dụ: chuyển đến trang settings
+                    console.log("Settings clicked");
+                    setDropdownOpen(false);
+                  }}
+                >
+                  Settings
+                </button>
+                <hr className="border-yellow-500/20 my-1" />
+                <button
+                  className="block w-full text-left px-4 py-2 hover:bg-yellow-500/40 text-red-500 font-semibold"
+                  onClick={() => {
+                    // Ví dụ: logout action
+                    handleLogout();
+                    setDropdownOpen(false);
+                  }}
+                >
+                  Logout
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
     </header>
-
-
   );
 };
 
