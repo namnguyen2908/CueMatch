@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Header from "../components/Header/Header";
 import Sidebar from "../components/Sidebar/Sidebar";
 import PostCard from "../components/PostCard";
@@ -6,11 +6,18 @@ import ModalEditProfile from "../components/ModalEditProfile";
 import userApi from "../api/userApi";
 import postApi from "../api/postApi";
 import PostList from "../components/PostList";
+import PostModal from "../components/PostModal/PostModal";
+import PostDetailModal from "../components/postDetail/PostDetailModal";
 
 const Profile = () => {
   const [user, setUser] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingPost, setEditingPost] = useState(null); // để sửa bài viết
+  const postListRef = useRef(); // để reload lại bài viết sau khi sửa/xóa
+  const [selectedPost, setSelectedPost] = useState(null);
 
+  const handlePostClick = (post) => setSelectedPost(post);
+  const handleCloseDetailModal = () => setSelectedPost(null);
   // Gọi API khi component mount
   useEffect(() => {
     const fetchUserData = async () => {
@@ -82,7 +89,13 @@ const Profile = () => {
               <button className="hover:text-yellow-400 transition">Highlights</button>
             </div>
 
-            <PostList isProfile />
+            <PostList
+              isProfile
+              ref={postListRef}
+              onEdit={setEditingPost}
+              onDelete={() => postListRef.current?.reloadPosts()}
+              onPostClick={handlePostClick}
+            />
           </div>
 
           {/* Thông tin phụ */}
@@ -118,6 +131,20 @@ const Profile = () => {
         onClose={() => setIsModalOpen(false)}
         userData={user}
         onSave={handleSave}
+      />
+      <PostModal
+        isOpen={!!editingPost}
+        editingPost={editingPost}
+        onClose={() => setEditingPost(null)}
+        onPostCreated={() => {
+          postListRef.current?.reloadPosts();
+          setEditingPost(null);
+        }}
+      />
+      <PostDetailModal
+        post={selectedPost}
+        isOpen={!!selectedPost}
+        onClose={handleCloseDetailModal}
       />
     </div>
   );

@@ -1,26 +1,39 @@
 // src/pages/HomeFeed.jsx
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Header from "../components/Header/Header";
 import Sidebar from "../components/Sidebar/Sidebar";
-import PostCard from "../components/PostCard";
+// import PostCard from "../components/PostCard";
 import PostModal from "../components/PostModal/PostModal";
 import { motion } from "framer-motion";
 import AnimatedBackground from "../components/AnimatedBackground";
 import "../components/animations.css";
 import { useUser } from "../contexts/UserContext";
 import PostList from "../components/PostList";
+import PostDetailModal from "../components/postDetail/PostDetailModal";
+
 
 const HomeFeed = () => {
   const [activeTab, setActiveTab] = useState("home");
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
   const postCardRef = useRef();
   const { datauser } = useUser();
+  const [selectedPost, setSelectedPost] = useState(null);
+  const [editingPost, setEditingPost] = useState(null);
+
+  const handlePostClick = (post) => setSelectedPost(post);
+  const handleCloseDetailModal = () => setSelectedPost(null);
 
   const handleOpenPostModal = () => setIsPostModalOpen(true);
   const handleClosePostModal = () => setIsPostModalOpen(false);
   const handlePostCreated = () => {
     postCardRef.current?.reloadPosts();
   };
+
+  useEffect(() => {
+    if (editingPost) {
+      setIsPostModalOpen(true);
+    }
+  }, [editingPost]);
 
   return (
     <div className="relative min-h-screen text-gray-200 overflow-hidden">
@@ -42,7 +55,7 @@ const HomeFeed = () => {
         >
           <div className="flex items-center space-x-4">
             <div className="w-12 h-12 rounded-full overflow-hidden ring-2 ring-yellow-400/60">
-              <img src={datauser.avatar}/>
+              <img src={datauser.avatar} alt="User Avatar" />
             </div>
             <div
               className="flex-1 bg-[#1e1e1f] text-gray-400 hover:text-gray-100
@@ -53,13 +66,22 @@ const HomeFeed = () => {
           </div>
         </motion.div>
 
-        <PostList />
+        <PostList ref={postCardRef} onPostClick={handlePostClick} onEdit={setEditingPost} />
       </main>
 
       <PostModal
         isOpen={isPostModalOpen}
-        onClose={handleClosePostModal}
+        onClose={() => {
+          setIsPostModalOpen(false);
+          setEditingPost(null); // reset edit mode
+        }}
         onPostCreated={handlePostCreated}
+        editingPost={editingPost}
+      />
+      <PostDetailModal
+        post={selectedPost}
+        isOpen={!!selectedPost}
+        onClose={handleCloseDetailModal}
       />
     </div>
   );

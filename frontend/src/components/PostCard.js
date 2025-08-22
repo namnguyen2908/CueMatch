@@ -2,6 +2,9 @@
 import React, { memo, forwardRef } from "react";
 import { Heart, MessageSquare, Share, MoreVertical } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
+import SmartVideo from "./SmartVideo";
+import postApi from "../api/postApi";
+import { useUser } from "../contexts/UserContext";
 
 // Skeleton Loader
 const Skeleton = () => (
@@ -22,18 +25,22 @@ const Skeleton = () => (
 );
 
 // Action Button
-const Action = ({ icon: Icon, label, hoverColor }) => (
-  <button className={`flex items-center gap-2 hover:${hoverColor} transition-all`}>
+const Action = ({ icon: Icon, label, hoverColor, onClick }) => (
+  <button
+    onClick={onClick}
+    className={`flex items-center gap-2 hover:${hoverColor} transition-all`}
+  >
     <Icon className="w-5 h-5" />
     <span>{label}</span>
   </button>
 );
 
-// Post Card UI
-const Card = memo(({ post, isLast, lastRef }) => {
+// Card component
+const Card = memo(({ post, isLast, lastRef, onClick, onEdit, onDelete }) => {
   const { UserID, Content, Image, Video, createdAt, Likes, Comments } = post;
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef(null);
+  const { datauser } = useUser();
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -56,21 +63,45 @@ const Card = memo(({ post, isLast, lastRef }) => {
         </button>
         {showMenu && (
           <div className="absolute right-0 mt-2 w-36 bg-[#1e1e1f] border border-yellow-500/20 rounded-md shadow-lg z-20">
-            <button
-              onClick={() => alert(`Edit post: ${post._id}`)} // Thay thế bằng hàm thật
-              className="block w-full px-4 py-2 text-left text-sm text-gray-200 hover:bg-yellow-500/10"
-            >
-              ✏️ Edit
-            </button>
-            <button
-              onClick={() => alert(`Delete post: ${post._id}`)} // Thay thế bằng hàm thật
-              className="block w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-red-400/10"
-            >
-              🗑️ Delete
-            </button>
+            {datauser?.id === UserID?._id ? (
+              <>
+                <button
+                  onClick={() => onEdit?.(post)}
+                  className="block w-full px-4 py-2 text-left text-sm text-gray-200 hover:bg-yellow-500/10"
+                >
+                  ✏️ Edit
+                </button>
+                <button
+                  onClick={async () => {
+                    const confirm = window.confirm("Are you sure you want to delete this post?");
+                    if (!confirm) return;
+
+                    try {
+                      await postApi.deletePost(post._id);
+                      onDelete?.(post._id);
+                    } catch (err) {
+                      console.error("Delete failed:", err);
+                      alert("Failed to delete post");
+                    }
+                  }}
+                  className="block w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-red-400/10"
+                >
+                  🗑️ Delete
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => alert("Post saved (fake logic)")}
+                className="block w-full px-4 py-2 text-left text-sm text-green-400 hover:bg-green-400/10"
+              >
+                💾 Save
+              </button>
+            )}
           </div>
         )}
+
       </div>
+
       {/* Header */}
       <div className="flex items-center gap-4 mb-4">
         <img
@@ -80,33 +111,22 @@ const Card = memo(({ post, isLast, lastRef }) => {
         />
         <div>
           <p className="font-semibold text-yellow-300">{UserID?.Name || "Ẩn danh"}</p>
-          <p className="text-sm text-gray-500">
-            {new Date(createdAt).toLocaleString()}
-          </p>
+          <p className="text-sm text-gray-500">{new Date(createdAt).toLocaleString()}</p>
         </div>
       </div>
 
       {/* Content */}
-      {Content && (
-        <p className="text-gray-200 mb-4 leading-relaxed whitespace-pre-line">{Content}</p>
-      )}
+      {Content && <p className="text-gray-200 mb-4 leading-relaxed whitespace-pre-line">{Content}</p>}
 
       {/* Media */}
       {(Image?.length > 0 || Video?.length > 0) && (
-        <div
-          className={`flex ${Image?.length > 0 && Video?.length > 0 ? "flex-col md:flex-row gap-4" : ""
-            } mb-4`}
-        >
-          {/* Image */}
+        <div onClick={() => onClick?.(post)} className={`flex ${Image?.length > 0 && Video?.length > 0 ? "flex-col md:flex-row gap-4" : ""} mb-4`}>
           {Image?.length > 0 && (
-            <div
-              onClick={() => window.location.href = `/post/${post._id}`}
-              className={`relative group cursor-pointer overflow-hidden rounded-lg max-h-[400px] mb-2 md:mb-0 ${Video?.length > 0 ? "w-full md:w-1/2" : "w-full"
-                }`}
-            >
+            <div className={`relative group overflow-hidden rounded-lg max-h-[400px] mb-2 md:mb-0 ${Video?.length > 0 ? "w-full md:w-1/2" : "w-full"}`}>
               <img
                 src={Image[0]}
                 alt="Ảnh bài viết"
+                loading="lazy"
                 className="w-full h-full object-cover transition-all duration-300 group-hover:brightness-75"
               />
               {Image.length > 1 && (
@@ -117,22 +137,9 @@ const Card = memo(({ post, isLast, lastRef }) => {
             </div>
           )}
 
-          {/* Video */}
           {Video?.length > 0 && (
-            <div
-              onClick={() => window.location.href = `/post/${post._id}`}
-              className={`relative group cursor-pointer overflow-hidden rounded-lg max-h-[400px] ${Image?.length > 0 ? "w-full md:w-1/2" : "w-full"
-                }`}
-            >
-              <video
-                src={Video[0]}
-                controls
-                autoPlay
-                muted
-                playsInline
-                loop
-                className="w-full h-full object-cover transition-all duration-300 rounded-lg"
-              />
+            <div className={`relative group overflow-hidden rounded-lg max-h-[400px] ${Image?.length > 0 ? "w-full md:w-1/2" : "w-full"}`}>
+              <SmartVideo src={Video[0]} />
               {Video.length > 1 && (
                 <div className="absolute bottom-0 right-0 bg-black/50 px-2 py-1 text-white text-sm rounded-tl-lg">
                   +{Video.length - 1}
@@ -146,15 +153,15 @@ const Card = memo(({ post, isLast, lastRef }) => {
       {/* Actions */}
       <div className="flex justify-between px-6 text-gray-400 pt-2 border-t border-yellow-500/10">
         <Action icon={Heart} label={Likes?.length || 0} hoverColor="text-red-400" />
-        <Action icon={MessageSquare} label={Comments?.length || 0} hoverColor="text-cyan-300" />
+        <Action onClick={() => onClick?.(post)} icon={MessageSquare} label={Comments?.length || 0} hoverColor="text-cyan-300" />
         <Action icon={Share} label="Share" hoverColor="text-yellow-300" />
       </div>
     </div>
   );
 });
 
-// Main PostCard Component (display-only)
-const PostCard = forwardRef(({ posts = [] }, ref) => {
+// Main PostCard component
+const PostCard = ({ posts = [], onPostClick, lastRef, onEdit, onDelete }) => {
   return (
     <div>
       {posts.length === 0 ? (
@@ -168,12 +175,15 @@ const PostCard = forwardRef(({ posts = [] }, ref) => {
             key={post._id}
             post={post}
             isLast={idx === posts.length - 1}
-            lastRef={ref}
+            lastRef={idx === posts.length - 1 ? lastRef : null}
+            onClick={onPostClick}
+            onEdit={onEdit}
+            onDelete={onDelete}
           />
         ))
       )}
     </div>
   );
-});
+};
 
-export default PostCard;
+export default memo(PostCard);

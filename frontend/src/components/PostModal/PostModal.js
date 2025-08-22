@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Image, Globe, Users, Lock, ChevronDown, Video } from 'lucide-react';
 import postApi from '../../api/postApi';
 import { useUser } from '../../contexts/UserContext';
 
-const PostModal = ({ isOpen, onClose, onPostCreated }) => {
+const PostModal = ({ isOpen, onClose, onPostCreated, editingPost = null }) => {
   const [Content, setContent] = useState('');
   const [Status, setStatus] = useState('public');
   const [showDropdown, setShowDropdown] = useState(false);
@@ -21,7 +21,7 @@ const PostModal = ({ isOpen, onClose, onPostCreated }) => {
   ];
 
   const selectedOption = statusOptions.find(option => option.value === Status);
-  if (!isOpen) return null;
+  
 
   const handleBackdropClick = (e) => {
     if (e.target === e.currentTarget) {
@@ -51,6 +51,20 @@ const PostModal = ({ isOpen, onClose, onPostCreated }) => {
     setVideoFiles(prev => prev.filter((_, i) => i !== index));
   };
 
+  useEffect(() => {
+    if (editingPost) {
+      setContent(editingPost.Content || '');
+      setStatus(editingPost.Status || 'public');
+      setImageFiles(editingPost.Image || []);
+      setVideoFiles(editingPost.Video || []);
+    } else {
+      setContent('');
+      setStatus('public');
+      setImageFiles([]);
+      setVideoFiles([]);
+    }
+  }, [editingPost, isOpen]);
+
   const handleCreatePost = async () => {
     if (!Content.trim()) return;
     setLoading(true);
@@ -59,23 +73,25 @@ const PostModal = ({ isOpen, onClose, onPostCreated }) => {
       const formData = new FormData();
       formData.append('Content', Content);
       formData.append('Status', Status);
-      if (imageFiles) imageFiles.forEach(file => formData.append('Image', file));
-      if (videoFiles) videoFiles.forEach(file => formData.append('Video', file));
+      imageFiles.forEach((file) => formData.append('Image', file));
+      videoFiles.forEach((file) => formData.append('Video', file));
 
-      await postApi.createPost(formData);
+      if (editingPost) {
+        await postApi.updatePost(editingPost._id, formData);
+      } else {
+        await postApi.createPost(formData);
+      }
 
-      setContent('');
-      setStatus('public');
-      setImageFiles(null);
-      setVideoFiles(null);
       onClose();
       onPostCreated?.();
     } catch (error) {
-      console.log('Failed to create post:', error);
+      console.error('Failed to submit post:', error);
     } finally {
       setLoading(false);
     }
   };
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={handleBackdropClick}>
@@ -83,7 +99,9 @@ const PostModal = ({ isOpen, onClose, onPostCreated }) => {
 
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800">
-          <h2 className="text-lg font-semibold text-yellow-400 tracking-wide">Create Post</h2>
+          <h2 className="text-lg font-semibold text-yellow-400 tracking-wide">
+            {editingPost ? 'Edit Post' : 'Create Post'}
+          </h2>
           <button onClick={onClose} className="p-2 hover:bg-gray-800 rounded-full transition">
             <X size={20} className="text-gray-400" />
           </button>
@@ -214,7 +232,7 @@ const PostModal = ({ isOpen, onClose, onPostCreated }) => {
                 : 'bg-gray-800 text-gray-500 cursor-not-allowed'
               }`}
           >
-            {loading ? 'Posting...' : 'Post'}
+            {loading ? (editingPost ? 'Updating...' : 'Posting...') : (editingPost ? 'Update' : 'Post')}
           </button>
         </div>
       </div>
