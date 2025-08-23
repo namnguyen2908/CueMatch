@@ -8,7 +8,7 @@ import { motion } from "framer-motion";
 import AnimatedBackground from "../components/AnimatedBackground";
 import "../components/animations.css";
 import { useUser } from "../contexts/UserContext";
-import PostList from "../components/PostList";
+import PostList from "../components/Post/PostList";
 import PostDetailModal from "../components/postDetail/PostDetailModal";
 
 

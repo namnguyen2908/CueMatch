@@ -1,4 +1,3 @@
-// src/api/postApi.js
 import api from './api';
 
 const postApi = {

@@ -1,20 +1,17 @@
 const Comment = require("../models/Comment");
-
+const Post = require('../models/Post');
 
 exports.createComment = async (req, res) => {
     try {
         const { PostID, ParentID, Content } = req.body;
-        const UserID = req.user.id; 
+        const UserID = req.user.id;
         if (!PostID) {
-            res.status(404).json({message: "thiếu post id"});
+            res.status(404).json({ message: "thiếu post id" });
         }
-        if (!Content) {
-            res.status(404).json({message: "thiếu Content"});
-        }
-
         const comment = new Comment({ PostID, ParentID, Content, UserID });
         await comment.save();
         await comment.populate('UserID', 'Name Avatar');
+        await Post.findByIdAndUpdate(PostID, { $inc: { CommentCount: 1 } });
         res.status(201).json({ success: true, data: comment });
     } catch (err) {
         console.error("Lỗi khi tạo comment:", err);
@@ -45,6 +42,7 @@ exports.getCommentsByPost = async (req, res) => {
 
         res.status(200).json({ success: true, data: rootComments });
     } catch (err) {
+        console.error("Lỗi khi lấy comment:", err);
         res.status(500).json({ success: false, message: err.message });
     }
 };
@@ -79,11 +77,20 @@ exports.toggleLikeComment = async (req, res) => {
 exports.deleteComment = async (req, res) => {
     try {
         const commentId = req.params.id;
-        await Comment.deleteOne({ _id: commentId });
+        const comment = await Comment.findById(commentId);
+        if (!comment) return res.status(404).json({ success: false, message: "Comment không tồn tại" });
 
+        // ✅ Giảm CommentCount trong Post
+        // 1 comment cha + n comment con
+        const childCount = await Comment.countDocuments({ ParentID: commentId });
+        const totalDeleted = 1 + childCount;
+
+        await Comment.deleteOne({ _id: commentId });
         await Comment.deleteMany({ ParentID: commentId });
 
-        res.status(200).json({ success: true, message: "Comment deleted" });
+        await Post.findByIdAndUpdate(comment.PostID, { $inc: { CommentCount: -totalDeleted } });
+
+        res.status(200).json({ success: true, message: "Đã xoá comment", deleted: totalDeleted });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }

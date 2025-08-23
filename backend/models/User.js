@@ -13,11 +13,4 @@ const userSchema = new mongoose.Schema({
 }, { timestamps: true }
 );
 
-userSchema.pre('save', function(next) {
-    const vnOffset = 7 * 60 * 60 * 1000; // 7 giờ = 25200000 ms
-    if (this.createdAt) this.createdAt = new Date(this.createdAt.getTime() + vnOffset);
-    if (this.updatedAt) this.updatedAt = new Date(this.updatedAt.getTime() + vnOffset);
-    next(); 
-});
-
 module.exports = mongoose.model('User', userSchema);

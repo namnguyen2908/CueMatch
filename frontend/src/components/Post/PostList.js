@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useImperativeHandle, forwardRef } from "react";
 import { useInView } from "react-intersection-observer";
-import postApi from "../api/postApi";
+import postApi from "../../api/postApi";
 import PostCard from "./PostCard";
 
 const PostList = forwardRef(({ isProfile = false, onPostClick, onEdit }, ref) => {

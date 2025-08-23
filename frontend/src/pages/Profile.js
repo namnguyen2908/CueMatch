@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import Header from "../components/Header/Header";
 import Sidebar from "../components/Sidebar/Sidebar";
-import PostCard from "../components/PostCard";
+import PostCard from "../components/Post/PostCard";
 import ModalEditProfile from "../components/ModalEditProfile";
 import userApi from "../api/userApi";
 import postApi from "../api/postApi";
-import PostList from "../components/PostList";
+import PostList from "../components/Post/PostList";
 import PostModal from "../components/PostModal/PostModal";
 import PostDetailModal from "../components/postDetail/PostDetailModal";
 
