@@ -1,16 +1,18 @@
-import { Home, UserPen, UserRoundPlus, Bookmark, Users, Settings } from "lucide-react";
+import { Home, UserPen, UserRoundPlus, Bookmark, Users, MessageCircle } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const menuItems = [
   { id: "home", icon: Home, label: "Home" },
   { id: "profile", icon: UserPen, label: "Profile" },
+  { id: "messages", icon: MessageCircle, label: "Messages" },
   { id: "friends", icon: UserRoundPlus, label: "Friends" },
   { id: "favourites", icon: Bookmark, label: "Favourites" },
   { id: "groups", icon: Users, label: "Groups" },
+  { id: "matching", icon: () => (<i className="fa-solid fa-users w-5 h-5" />), label: "Matching" },
 ];
 
-export default function Sidebar() {
+export default function Sidebar() { 
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -18,10 +20,11 @@ export default function Sidebar() {
   const pathToIdMap = {
     "/": "home",
     "/profile": "profile",
+    "/messages": "messages",
     "/friends": "friends",
     "/favourites": "favourites",
     "/groups": "groups",
-    "/settings": "settings",
+    "/matching": "matching",
   };
 
   // ✅ Lấy id từ đường dẫn hiện tại
@@ -38,17 +41,18 @@ export default function Sidebar() {
     // Điều hướng dựa trên id
     if (id === "home") navigate("/homefeed");
     else if (id === "profile") navigate("/profile");
+    else if (id === "messages") navigate("/messages");
     else if (id === "friends") navigate("/friends");
     else if (id === "favourites") navigate("/favourites");
     else if (id === "groups") navigate("/groups");
-    else if (id === "settings") navigate("/settings");
+    else if (id === "matching") navigate("/matching");
   };
 
   return (
     <aside className="fixed top-16 bottom-0 left-0 w-60
              bg-black/40 backdrop-blur-xl border-r border-yellow-500/20
              flex flex-col justify-between py-2 px-4 rounded-tr-2xl rounded-br-2xl shadow-lg">
-      <div className="flex flex-col justify-evenly h-full">
+      <div className="flex flex-col justify-evenly h-full mt-6">
         {menuItems.map((item) => (
           <button
             key={item.id}
@@ -77,8 +81,6 @@ export default function Sidebar() {
           {active === "settings" && (
             <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-yellow-400 rounded-r-lg shadow-yellow-400/50 shadow-md" />
           )}
-          <Settings className="w-5 h-5" />
-          <span>Settings</span>
         </button>
       </div>
     </aside>

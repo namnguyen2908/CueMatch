@@ -8,6 +8,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Dashboard from './pages/Dashboard/Dashboard';
 import Profile from './pages/Profile';
 import { UserProvider } from './contexts/UserContext';
+import MessagesPage from './pages/Message/MessagesPage';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
             <Route path='/homefeed' element={<ProtectedRoute> <HomeFeed /> </ProtectedRoute>} />
             <Route path='/dashboard' element={<ProtectedRoute> <Dashboard /> </ProtectedRoute>} />
             <Route path='/profile' element={<ProtectedRoute> <Profile /> </ProtectedRoute>} />
+            <Route path='/messages' element={<ProtectedRoute> <MessagesPage/> </ProtectedRoute>} />
           </Routes>
         </Router>
       </UserProvider>

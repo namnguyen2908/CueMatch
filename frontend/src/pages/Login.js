@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import logoImage from '../assets/logo_bia.png';
 import AuthWarningModal from '../components/AuthWarningModal/AuthWarningModal';
 import { login, googleLogin } from '../api/authApi';
 import Warning from '../components/Warning';
-import { GoogleLogin, useGoogleLogin } from '@react-oauth/google';
+import { useGoogleLogin } from '@react-oauth/google';
 import { useUser } from '../contexts/UserContext';
 
 const Login = () => {

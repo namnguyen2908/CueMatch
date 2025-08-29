@@ -3,12 +3,12 @@ import { Heart } from "lucide-react";
 import reactionApi from "../api/reactionApi";
 
 const reactions = [
-  { type: "like", icon: "👍" },
-  { type: "love", icon: "❤️" },
-  { type: "haha", icon: "😂" },
-  { type: "wow", icon: "😮" },
-  { type: "sad", icon: "😢" },
-  { type: "angry", icon: "😡" },
+  { type: "like", icon: () => (<i className="fa-solid fa-thumbs-up" style={{ color: '#0055ffff' }}/>) },
+  { type: "love", icon: () => (<i className="fa-solid fa-heart" style={{ color: '#ff0b0bff' }}/>) },
+  { type: "haha", icon: () => (<i className="fa-solid fa-face-grin-squint-tears" style={{ color: '#ffd062ff' }}/>) },
+  { type: "wow", icon: () => (<i className="fa-solid fa-face-surprise" style={{ color: '#ffff2dff' }}/>) },
+  { type: "sad", icon: () => (<i className="fa-solid fa-face-sad-cry" style={{ color: '#ffc95cff' }}/>) },
+  { type: "angry", icon: () => (<i class="fa-solid fa-face-tired" style={{ color: '#ff9d2dff' }}/>) },
 ];
 
 const Reaction = ({ post, currentUserReaction, onReacted }) => {
@@ -61,9 +61,8 @@ const Reaction = ({ post, currentUserReaction, onReacted }) => {
     >
       <button
         disabled={loading}
-        className={`flex items-center gap-2 transition-all ${
-          currentUserReaction ? "text-red-400" : "hover:text-red-400"
-        }`}
+        className={`flex items-center gap-2 transition-all ${currentUserReaction ? "text-red-400" : "hover:text-red-400"
+          }`}
       >
         <Heart className="w-5 h-5" />
         <span>{total}</span>
@@ -77,12 +76,11 @@ const Reaction = ({ post, currentUserReaction, onReacted }) => {
             <button
               key={r.type}
               onClick={() => handleReaction(r.type)}
-              className={`text-xl transition-transform hover:scale-125 ${
-                currentUserReaction === r.type ? "opacity-100" : "opacity-70"
-              }`}
+              className={`text-xl transition-transform hover:scale-125 ${currentUserReaction === r.type ? "opacity-100" : "opacity-70"
+                }`}
               title={r.type}
             >
-              {r.icon}
+              {typeof r.icon === "function" ? <r.icon /> : r.icon}
             </button>
           ))}
         </div>

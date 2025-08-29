@@ -30,6 +30,16 @@ const UserController = {
         } catch (error) {
             res.status(500).json({ message: error.message });
         }
+    },
+
+    getUser: async (req, res) => {
+        try {
+            const {UserID} = req.user.id;
+            
+        } catch (err) {
+            console.error("Get user error: ", err);
+            return res.status(500).json({message: "Server error"});
+        }
     }
 };
 
