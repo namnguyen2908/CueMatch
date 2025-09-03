@@ -49,7 +49,7 @@ const Header = () => {
           {/* Bên trái: Logo + Search */}
           <div className="flex items-center gap-6">
             {/* Logo */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 " onClick={() => navigate('/homefeed')}>
               <div className="w-10 h-10 rounded-full border border-yellow-400/60 
                 bg-gradient-to-br from-[#111] via-[#1a1a1a] to-[#111] 
                 flex items-center justify-center shadow-[0_0_12px_rgba(255,215,0,0.2)] animate-pulse-slow">
@@ -112,7 +112,7 @@ const Header = () => {
             </div>
             {/* Dropdown menu */}
             {dropdownOpen && (
-              <div className="absolute right-6 mt-52 w-48 bg-[#1a1a1a]/95 border border-yellow-500/40 rounded-md shadow-lg text-yellow-300 z-50">
+              <div className="absolute right-0 mt-48 w-44 bg-[#1a1a1a]/95 border border-yellow-500/40 rounded-md shadow-lg text-yellow-300 z-50">
                 <button
                   className="block w-full text-left px-4 py-2 hover:bg-yellow-500/20"
                   onClick={() => {

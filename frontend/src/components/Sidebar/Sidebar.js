@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const menuItems = [
-  { id: "home", icon: Home, label: "Home" },
+  { id: "homefeed", icon: Home, label: "Home" },
   { id: "profile", icon: UserPen, label: "Profile" },
   { id: "messages", icon: MessageCircle, label: "Messages" },
   { id: "friends", icon: UserRoundPlus, label: "Friends" },
@@ -18,7 +18,7 @@ export default function Sidebar() {
 
   // Ánh xạ đường dẫn sang id
   const pathToIdMap = {
-    "/": "home",
+    "/": "homefeed",
     "/profile": "profile",
     "/messages": "messages",
     "/friends": "friends",
@@ -28,18 +28,18 @@ export default function Sidebar() {
   };
 
   // ✅ Lấy id từ đường dẫn hiện tại
-  const [active, setActive] = useState(pathToIdMap[location.pathname] || "home");
+  const [active, setActive] = useState(pathToIdMap[location.pathname] || "homefeed");
 
   // ✅ Đồng bộ active khi URL thay đổi
   useEffect(() => {
-    setActive(pathToIdMap[location.pathname] || "home");
+    setActive(pathToIdMap[location.pathname] || "homefeed");
   }, [location.pathname]);
 
   const handleClick = (id) => {
     setActive(id);
 
     // Điều hướng dựa trên id
-    if (id === "home") navigate("/homefeed");
+    if (id === "homefeed") navigate("/homefeed");
     else if (id === "profile") navigate("/profile");
     else if (id === "messages") navigate("/messages");
     else if (id === "friends") navigate("/friends");
@@ -68,20 +68,6 @@ export default function Sidebar() {
             <span>{item.label}</span>
           </button>
         ))}
-      </div>
-
-      {/* Settings riêng phía dưới */}
-      <div>
-        <button
-          onClick={() => handleClick("settings")}
-          className={`flex items-center space-x-3 p-3 rounded-lg transition-all relative
-                     hover:bg-yellow-500/10 hover:text-yellow-400
-                     ${active === "settings" ? "text-yellow-400 font-semibold" : "text-gray-300"}`}
-        >
-          {active === "settings" && (
-            <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-yellow-400 rounded-r-lg shadow-yellow-400/50 shadow-md" />
-          )}
-        </button>
       </div>
     </aside>
   );

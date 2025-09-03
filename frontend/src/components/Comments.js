@@ -166,16 +166,18 @@ const CommentItem = ({ comment, level, postId, onReplyAdded }) => {
                         <button onClick={handleToggleLike} className="hover:text-yellow-300">
                             {isLiked ? "💛" : "🤍"} {likesCount}
                         </button>
-                        <button
-                            onClick={() => setShowReply(!showReply)}
-                            className="hover:text-yellow-300"
-                        >
-                            Trả lời
-                        </button>
+                        {level < 2 && (
+                            <button
+                                onClick={() => setShowReply(!showReply)}
+                                className="hover:text-yellow-300"
+                            >
+                                Trả lời
+                            </button>
+                        )}
                         <span>{new Date(comment.createdAt).toLocaleString()}</span>
                     </div>
 
-                    {showReply && (
+                    {showReply && level < 2 && (
                         <div className="mt-2 flex items-start gap-2">
                             <img
                                 src={datauser.avatar}
@@ -201,7 +203,7 @@ const CommentItem = ({ comment, level, postId, onReplyAdded }) => {
                     )}
 
                     {/* Render replies */}
-                    {children.length > 0 && (
+                    {children.length > 0 && level < 2 && (
                         <div className="mt-2 space-y-2">
                             {children.map((child) => (
                                 <CommentItem

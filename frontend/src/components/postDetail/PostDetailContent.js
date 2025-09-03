@@ -10,8 +10,7 @@ const Action = ({ icon: Icon, label, hoverColor }) => (
 );
 
 const PostDetailContent = ({ post }) => {
-  const { UserID, Content, createdAt, Likes, Comments } = post;
-
+  const { UserID, Content, createdAt, ReactionCounts, CommentCount } = post;
   return (
     <div className="mb-4">
       <div className="flex items-center gap-4 mb-4">
@@ -32,8 +31,12 @@ const PostDetailContent = ({ post }) => {
 
       {/* Actions */}
       <div className="flex justify-between px-6 text-gray-400 pt-3 border-t border-yellow-500/10">
-        <Action icon={Heart} label={Likes?.length || 0} hoverColor="text-red-400" />
-        <Action icon={MessageSquare} label={Comments?.length || 0} hoverColor="text-cyan-300" />
+        <Action
+          icon={Heart}
+          label={Object.values(ReactionCounts || {}).reduce((a, b) => a + b, 0)}
+          hoverColor="text-red-400"
+        />
+        <Action icon={MessageSquare} label={CommentCount || 0} hoverColor="text-cyan-300" />
         <Action icon={Share} label="Share" hoverColor="text-yellow-300" />
       </div>
     </div>

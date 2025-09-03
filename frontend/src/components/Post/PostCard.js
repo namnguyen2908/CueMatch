@@ -3,9 +3,19 @@ import React, { memo, useState, useRef, useEffect } from "react";
 import { Heart, MessageSquare, Share, MoreVertical } from "lucide-react";
 import SmartVideo from "../SmartVideo";
 import postApi from "../../api/postApi";
+import reactionApi from "../../api/reactionApi";
+import ReactionModal from "../ReactionModal";
 import { useUser } from "../../contexts/UserContext";
 import Reaction from "../Reaction";
-
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faThumbsUp,
+  faHeart,
+  faFaceGrinSquintTears,
+  faFaceSurprise,
+  faFaceSadCry,
+  faFaceTired,
+} from "@fortawesome/free-solid-svg-icons";
 // Skeleton Loader
 const Skeleton = () => (
   <div className="bg-black/40 border border-yellow-500/20 backdrop-blur-xl rounded-2xl p-6 mb-6 animate-pulse">
@@ -24,6 +34,24 @@ const Skeleton = () => (
   </div>
 );
 
+const reactionIconsMap = {
+  like: { icon: faThumbsUp, color: "#0055ff", bg: "rgba(161, 166, 167, 0.91)" },
+  love: { icon: faHeart, color: "#ff0b0b", bg: "rgba(161, 166, 167, 0.91)" },
+  haha: { icon: faFaceGrinSquintTears, color: "#ffd062", bg: "rgba(161, 166, 167, 0.91)" },
+  wow: { icon: faFaceSurprise, color: "#ffff2d", bg: "rgba(161, 166, 167, 0.91)" },
+  sad: { icon: faFaceSadCry, color: "#ffc95c", bg: "rgba(161, 166, 167, 0.91)" },
+  angry: { icon: faFaceTired, color: "#ff9d2d", bg: "rgba(161, 166, 167, 0.91)" },
+};
+
+const getTopReactions = (reactionCounts, top = 2) => {
+  if (!reactionCounts) return [];
+  return Object.entries(reactionCounts)
+    .filter(([, count]) => count > 0)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, top)
+    .map(([type]) => type);
+};
+
 // Action Button
 const Action = ({ icon: Icon, label, hoverColor, onClick }) => (
   <button
@@ -41,14 +69,14 @@ const Card = memo(({ post, isLast, lastRef, onClick, onEdit, onDelete }) => {
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef(null);
   const { datauser } = useUser();
-
+  const [showReactionModal, setShowReactionModal] = useState(false);
+  const [groupedReactions, setGroupedReactions] = useState({});
   // Quản lý state local cho post để cập nhật UI khi có thay đổi reaction
   const [localPost, setLocalPost] = useState(post);
   // Update localPost nếu prop post thay đổi
   useEffect(() => {
     setLocalPost(post);
   }, [post]);
-
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -58,6 +86,18 @@ const Card = memo(({ post, isLast, lastRef, onClick, onEdit, onDelete }) => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+
+  const handleOpenReactions = async () => {
+    try {
+      const reactions = await reactionApi.getReactionsGroupedByType(localPost._id);
+      setGroupedReactions(reactions);
+      setShowReactionModal(true);
+    } catch (error) {
+      console.error("Lỗi khi lấy reactions:", error);
+    }
+  };
+
 
   // Hàm gọi API lấy post mới nhất để cập nhật UI khi reaction thay đổi
   const handleReacted = async () => {
@@ -147,17 +187,15 @@ const Card = memo(({ post, isLast, lastRef, onClick, onEdit, onDelete }) => {
       {(localPost.Image?.length > 0 || localPost.Video?.length > 0) && (
         <div
           onClick={() => onClick?.(localPost)}
-          className={`flex ${
-            localPost.Image?.length > 0 && localPost.Video?.length > 0
-              ? "flex-col md:flex-row gap-4"
-              : ""
-          } mb-4`}
+          className={`flex ${localPost.Image?.length > 0 && localPost.Video?.length > 0
+            ? "flex-col md:flex-row gap-4"
+            : ""
+            } mb-4`}
         >
           {localPost.Image?.length > 0 && (
             <div
-              className={`relative group overflow-hidden rounded-lg max-h-[400px] mb-2 md:mb-0 ${
-                localPost.Video?.length > 0 ? "w-full md:w-1/2" : "w-full"
-              }`}
+              className={`relative group overflow-hidden rounded-lg max-h-[400px] mb-2 md:mb-0 ${localPost.Video?.length > 0 ? "w-full md:w-1/2" : "w-full"
+                }`}
             >
               <img
                 src={localPost.Image[0]}
@@ -175,9 +213,8 @@ const Card = memo(({ post, isLast, lastRef, onClick, onEdit, onDelete }) => {
 
           {localPost.Video?.length > 0 && (
             <div
-              className={`relative group overflow-hidden rounded-lg max-h-[400px] ${
-                localPost.Image?.length > 0 ? "w-full md:w-1/2" : "w-full"
-              }`}
+              className={`relative group overflow-hidden rounded-lg max-h-[400px] ${localPost.Image?.length > 0 ? "w-full md:w-1/2" : "w-full"
+                }`}
             >
               <SmartVideo src={localPost.Video[0]} />
               {localPost.Video.length > 1 && (
@@ -191,20 +228,72 @@ const Card = memo(({ post, isLast, lastRef, onClick, onEdit, onDelete }) => {
       )}
 
       {/* Actions */}
-      <div className="flex justify-between px-6 text-gray-400 pt-2 border-t border-yellow-500/10">
+      {/* Reaction Summary */}
+      <div className="flex justify-between items-center px-6 text-sm text-gray-400 pb-2">
+        <div
+          className="flex items-center cursor-pointer hover:underline"
+          onClick={handleOpenReactions}
+        >
+          <div className="flex -space-x-2">
+            {getTopReactions(localPost.ReactionCounts).map((type, idx) => {
+              const r = reactionIconsMap[type];
+              return (
+                <div
+                  key={type}
+                  className="w-6 h-6 rounded-full flex items-center justify-center border border-white"
+                  style={{
+                    backgroundColor: r.bg,
+                    zIndex: getTopReactions(localPost.ReactionCounts).length - idx,
+                    marginLeft: idx !== 0 ? "-8px" : "0", // chồng icon giống Facebook
+                  }}
+                >
+                  <FontAwesomeIcon
+                    icon={r.icon}
+                    color={r.color}
+                    className="text-xs"
+                  />
+                </div>
+              );
+            })}
+          </div>
+          <span className="ml-2 text-sm text-white">
+            {Object.values(localPost.ReactionCounts || {}).reduce((a, b) => a + b, 0)}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <span>{localPost.CommentCount || 0} Comments</span>
+          <span>{localPost.ShareCount || 0} Shares</span>
+        </div>
+      </div>
+
+      {/* Action Buttons */}
+      {/* Action Buttons */}
+      <div className="flex justify-around border-t border-yellow-500/10 pt-2 mt-2 text-gray-400 text-sm">
+        {/* ✅ Tích hợp Reaction component */}
         <Reaction
           post={localPost}
-          currentUserReaction={localPost.CurrentUserReaction}
           onReacted={handleReacted}
         />
-        <Action
+
+        <button
           onClick={() => onClick?.(localPost)}
-          icon={MessageSquare}
-          label={localPost.CommentCount || 0}
-          hoverColor="text-cyan-300"
-        />
-        <Action icon={Share} label="Share" hoverColor="text-yellow-300" />
+          className="flex items-center gap-2 hover:text-cyan-300 transition-all"
+        >
+          <MessageSquare className="w-5 h-5" /> Comment
+        </button>
+
+        <button className="flex items-center gap-2 hover:text-green-300 transition-all">
+          <Share className="w-5 h-5" /> Share
+        </button>
       </div>
+      {showReactionModal && (
+        <ReactionModal
+          groupedReactions={groupedReactions}
+          onClose={() => setShowReactionModal(false)}
+        />
+      )}
+
     </div>
   );
 });

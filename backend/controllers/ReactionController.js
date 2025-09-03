@@ -49,16 +49,58 @@ const ReactionController = {
             const { PostID } = req.body;
             const UserID = req.user.id;
             const reaction = await Reaction.findOneAndDelete({ UserID, PostID });
-            if (!reaction) return res.status(404).json({message: "Reaction not found"});
+            if (!reaction) return res.status(404).json({ message: "Reaction not found" });
             await Post.findByIdAndUpdate(PostID, {
-                $inc: { [`ReactionCounts.${reaction.Type}`] : -1 }
+                $inc: { [`ReactionCounts.${reaction.Type}`]: -1 }
             });
-            return res.status(200).json({message: 'delete reaction'});
+            return res.status(200).json({ message: 'delete reaction' });
         } catch (err) {
             console.error("delete Reaction: ", err);
-            return res.status(500).json({message: "Server error"});
+            return res.status(500).json({ message: "Server error" });
+        }
+    },
+
+    getReactionsGroupedByType: async (req, res) => {
+        try {
+            const { postId } = req.params;
+            if (!mongoose.Types.ObjectId.isValid(postId)) {
+                return res.status(400).json({ message: "Invalid PostID" });
+            }
+
+            const reactions = await Reaction.find({ PostID: postId })
+                .populate("UserID", "Name Avatar")
+                .sort({ createdAt: -1 })
+                .lean();
+
+            if (!reactions.length) {
+                return res.status(404).json({ message: "No reactions found" });
+            }
+
+            const grouped = {};
+
+            // Group reactions by type
+            reactions.forEach((reaction) => {
+                const type = reaction.Type;
+                if (!grouped[type]) {
+                    grouped[type] = [];
+                }
+                grouped[type].push({
+                    user: {
+                        name: reaction.UserID?.Name || "Unknown",
+                        avatar: reaction.UserID?.Avatar,
+                    },
+                    type: reaction.Type,
+                    createdAt: reaction.createdAt,
+                });
+            });
+
+            return res.status(200).json(grouped);
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ message: "Internal server error" });
         }
     }
+
 }
 
 module.exports = ReactionController;

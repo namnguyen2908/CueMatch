@@ -1,5 +1,6 @@
 const Post = require('../models/Post');
 const User = require('../models/User');
+const Reaction = require('../models/Reaction');
 
 const PostController = {
     createPost: async (req, res) => {
@@ -102,6 +103,7 @@ const PostController = {
         try {
             const offset = parseInt(req.query.offset) || 0;
             const limit = parseInt(req.query.limit) || 10;
+            const userId = req.user.id;
 
             const posts = await Post.find({ Status: 'public' })
                 .sort({ createdAt: -1 })
@@ -109,7 +111,25 @@ const PostController = {
                 .limit(limit)
                 .populate('UserID', 'Name Avatar');
 
-            res.status(200).json(posts);
+            const postIds = posts.map(post => post._id);
+
+            const reactions = await Reaction.find({
+                UserID: userId,
+                PostID: { $in: postIds }
+            });
+
+            const reactionMap = {};
+            reactions.forEach(r => {
+                reactionMap[r.PostID.toString()] = r.Type;
+            });
+
+            const postsWithReaction = posts.map(post => {
+                const postObj = post.toObject();
+                postObj.CurrentUserReaction = reactionMap[post._id.toString()] || null;
+                return postObj;
+            });
+
+            res.status(200).json(postsWithReaction);
         } catch (err) {
             console.error('Error in getPosts:', err);
             res.status(500).json({ message: 'Server error' });
@@ -148,7 +168,25 @@ const PostController = {
                 .limit(limit)
                 .populate('UserID', 'Name Avatar');
 
-            res.status(200).json(posts);
+            const postIds = posts.map(post => post._id);
+
+            const reactions = await Reaction.find({
+                UserID: userId,
+                PostID: { $in: postIds }
+            });
+
+            const reactionMap = {};
+            reactions.forEach(r => {
+                reactionMap[r.PostID.toString()] = r.Type;
+            });
+
+            const postsWithReaction = posts.map(post => {
+                const postObj = post.toObject();
+                postObj.CurrentUserReaction = reactionMap[post._id.toString()] || null;
+                return postObj;
+            });
+
+            res.status(200).json(postsWithReaction);
         } catch (err) {
             console.error('Error in getUserPosts:', err);
             res.status(500).json({ message: 'Server error' });

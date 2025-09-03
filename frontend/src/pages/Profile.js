@@ -54,7 +54,7 @@ const Profile = () => {
             />
           </div>
 
-          <div className="absolute left-1/2 -bottom-20 transform -translate-x-1/2 flex flex-col items-center text-center">
+          <div className="absolute left-1/2 -bottom-0 transform -translate-x-1/2 flex flex-col items-center text-center">
             <div className="w-40 h-40 rounded-full border-4 border-yellow-400 overflow-hidden shadow-[0_0_30px_rgba(255,215,0,0.5)] bg-[#111]">
               <img
                 src={user.Avatar}
