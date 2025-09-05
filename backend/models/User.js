@@ -10,6 +10,7 @@ const userSchema = new mongoose.Schema({
     Password: { type: String },
     IsOnline: { type: Boolean, default: false },
     Role: { type: String, enum: ['user', 'admin'], default: 'user' },
+    Friends: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
 }, { timestamps: true }
 );
 

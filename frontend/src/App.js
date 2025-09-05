@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import NotFound from './pages/NotFound';
 import Register from './pages/Register';
@@ -9,7 +9,12 @@ import Dashboard from './pages/Dashboard/Dashboard';
 import Profile from './pages/Profile';
 import { UserProvider } from './contexts/UserContext';
 import MessagesPage from './pages/Message/MessagesPage';
-import Friends from './pages/Friends';
+import FriendLayout from './pages/Friends/FriendLayout';
+import AllFriend from './pages/Friends/AllFriend';
+import Suggestions from './pages/Friends/Suggestions';
+import FriendRequests from './pages/Friends/FriendRequests';
+import RequestSent from './pages/Friends/RequestSent';
+
 function App() {
   return (
     <div className="App">
@@ -23,7 +28,13 @@ function App() {
             <Route path='/dashboard' element={<ProtectedRoute> <Dashboard /> </ProtectedRoute>} />
             <Route path='/profile' element={<ProtectedRoute> <Profile /> </ProtectedRoute>} />
             <Route path='/messages' element={<ProtectedRoute> <MessagesPage/> </ProtectedRoute>} />
-            <Route path='/friends' element={<ProtectedRoute> <Friends/> </ProtectedRoute>} />
+            <Route path='/friends' element={<ProtectedRoute> <FriendLayout/> </ProtectedRoute>}>
+              <Route index element={<Navigate to="all-friends" />} />
+              <Route path="all-friends" element={<AllFriend />} />
+              <Route path="suggestions" element={<Suggestions />} />
+              <Route path="friend-requests" element={<FriendRequests />} />
+              <Route path="request-sent" element={<RequestSent />} />
+            </Route>
           </Routes>
         </Router>
       </UserProvider>

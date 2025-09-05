@@ -28,12 +28,21 @@ export default function Sidebar() {
   };
 
   // ✅ Lấy id từ đường dẫn hiện tại
-  const [active, setActive] = useState(pathToIdMap[location.pathname] || "homefeed");
+  // const [active, setActive] = useState(pathToIdMap[location.pathname] || "homefeed");
 
-  // ✅ Đồng bộ active khi URL thay đổi
-  useEffect(() => {
+const initialActive = location.pathname.startsWith("/friends")
+  ? "friends"
+  : pathToIdMap[location.pathname] || "homefeed";
+
+const [active, setActive] = useState(initialActive);
+
+useEffect(() => {
+  if (location.pathname.startsWith("/friends")) {
+    setActive("friends");
+  } else {
     setActive(pathToIdMap[location.pathname] || "homefeed");
-  }, [location.pathname]);
+  }
+}, [location.pathname]);
 
   const handleClick = (id) => {
     setActive(id);
