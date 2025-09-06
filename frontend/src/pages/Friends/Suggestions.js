@@ -120,10 +120,6 @@ const Suggestions = () => {
           </h2>
           <p className="text-gray-400">People you might know and want to connect with</p>
         </div>
-        <div className="flex items-center gap-2 text-purple-400">
-          <FaStar className="animate-pulse" />
-          <span className="text-3xl">🌟</span>
-        </div>
       </div>
 
       {/* Suggestions Grid */}
@@ -171,18 +167,6 @@ const Suggestions = () => {
                       alt={user.Name}
                       className="w-full h-full rounded-full object-cover border-3 border-purple-400/50 shadow-lg group-hover:border-purple-400 transition-all duration-300"
                     />
-                    
-                    {/* Suggested indicator */}
-                    <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full border-2 border-white/20 flex items-center justify-center shadow-lg">
-                      <FaStar className="text-white text-xs animate-pulse" />
-                    </div>
-                  </div>
-
-                  {/* Floating recommendation icons */}
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <div className="absolute -top-1 left-2 text-purple-400 animate-bounce delay-100">✨</div>
-                    <div className="absolute -top-1 right-2 text-pink-400 animate-bounce delay-300">💫</div>
-                    <div className="absolute bottom-2 left-0 text-yellow-400 animate-bounce delay-500">🌟</div>
                   </div>
                 </div>
 

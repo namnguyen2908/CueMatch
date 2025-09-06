@@ -112,7 +112,7 @@ const Card = memo(({ post, isLast, lastRef, onClick, onEdit, onDelete }) => {
   return (
     <div
       ref={isLast ? lastRef : null}
-      className="bg-[#111]/70 border border-yellow-500/20 backdrop-blur-xl rounded-2xl p-6 mb-6 transition-all duration-300 hover:shadow-yellow-500/10 hover:-translate-y-0.5"
+      className="max-w-2xl mx-auto w-full mb-6 bg-[#111]/70 border border-yellow-500/20 backdrop-blur-xl rounded-2xl p-6 mb-6 transition-all duration-300 hover:shadow-yellow-500/10 hover:-translate-y-0.5"
     >
       <div className="absolute top-4 right-4 z-10" ref={menuRef}>
         <button

@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import friendApi from "../../api/friendApi";
 import { FaUserTimes, FaSearch, FaFilter, FaUserCheck } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
+import { useChat } from "../../contexts/ChatContext";
+import { createConversation } from "../../api/messageApi";
 
 const AllFriend = () => {
   const [friends, setFriends] = useState([]);
@@ -10,6 +12,9 @@ const AllFriend = () => {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [showFilters, setShowFilters] = useState(false);
+  const { openChatWith } = useChat();
+
+
 
   const fetchFriends = async () => {
     try {
@@ -45,6 +50,16 @@ const AllFriend = () => {
     } catch (err) {
       alert(err.response?.data?.message || "Không thể hủy kết bạn");
     }
+  };
+
+  const handleMessageClick = async (friend) => {
+          try {
+              const res = await createConversation({MemberIds: [friend._id],Type: 'single',});
+              const conversation = res.data;
+              openChatWith(friend, conversation._id); // mở chatbox
+          } catch (err) {
+              console.error("Lỗi khi tạo/lấy conversation:", err);
+          }
   };
 
   const containerVariants = {
@@ -128,14 +143,6 @@ const AllFriend = () => {
               className="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
             />
           </div>
-
-          {/* Filter Button */}
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className="px-4 py-3 bg-white/10 border border-white/20 rounded-xl hover:bg-white/20 transition-all flex items-center gap-2"
-          >
-            <FaFilter className="text-gray-400" />
-          </button>
         </div>
       </div>
 
@@ -180,17 +187,14 @@ const AllFriend = () => {
               key={friend._id}
               variants={cardVariants}
               layout
-              exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.2 } }}
+              exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.1 } }}
               whileHover={{ 
                 y: -8,
                 transition: { type: "spring", stiffness: 300 }
               }}
-              className="group relative"
+              className="group relative h-full flex flex-col"
             >
-              <div className="relative bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/20 rounded-2xl p-6 text-center shadow-xl overflow-hidden hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-300">
-                
-                {/* Background Glow Effect */}
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="relative flex flex-col flex-1 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/20 rounded-2xl p-6 text-center shadow-xl overflow-hidden hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-300">
                 
                 {/* Unfriend Button */}
                 <button
@@ -207,7 +211,7 @@ const AllFriend = () => {
                     <img
                       src={friend.Avatar || "/default-avatar.png"}
                       alt={friend.Name}
-                      className="w-full h-full rounded-full object-cover border-3 border-purple-400/50 shadow-lg group-hover:border-purple-400 transition-all duration-300"
+                      className="w-full h-full rounded-full object-cover border-3 border-orange-400/50 shadow-lg group-hover:border-orange-400 transition-all duration-300"
                     />
                     
                     {/* Online Status */}
@@ -215,17 +219,11 @@ const AllFriend = () => {
                       <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
                     </div>
                   </div>
-
-                  {/* Floating Icons */}
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <div className="absolute -top-2 -left-2 text-yellow-400 animate-bounce delay-100">✨</div>
-                    <div className="absolute -top-2 -right-2 text-blue-400 animate-bounce delay-200">💫</div>
-                  </div>
                 </div>
 
                 {/* Friend Info */}
                 <div className="relative z-10">
-                  <h3 className="text-lg font-bold text-white mb-1 group-hover:text-purple-300 transition-colors">
+                  <h3 className="text-lg font-bold text-white mb-1 group-hover:text-orange-300 transition-colors">
                     {friend.Name}
                   </h3>
                   
@@ -236,17 +234,15 @@ const AllFriend = () => {
 
                   {/* Action Buttons */}
                   <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
-                    <button className="flex-1 px-3 py-2 bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 text-sm rounded-lg transition-colors">
+                    <button onClick={() => handleMessageClick(friend)} className="flex-1 px-3 py-2 bg-blue-600/20 hover:bg-blue-800/30 text-blue-100 text-sm rounded-lg transition-colors">
                       Message
                     </button>
-                    <button className="flex-1 px-3 py-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 text-sm rounded-lg transition-colors">
+                    <button className="flex-1 px-3 py-2 bg-cyan-600/20 hover:bg-cyan-800/30 text-cyan-100 text-sm rounded-lg transition-colors">
                       Profile
                     </button>
                   </div>
                 </div>
 
-                {/* Decorative Elements */}
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-blue-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </div>
             </motion.div>
           ))}

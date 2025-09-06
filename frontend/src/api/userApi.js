@@ -1,8 +1,10 @@
 import api from "./authApi";
 
 const userApi = {
-    getUserDetail: async () => {
-        const res = await api.get("/user/detail-user");
+
+    getUserDetail: async (userId) => {
+        const path = userId ? `/user/detail-user/${userId}` : '/user/detail-user';
+        const res = await api.get(path);
         return res.data;
     },
 

@@ -8,7 +8,7 @@ const RequestSent = () => {
     const [loading, setLoading] = useState(true);
     const [cancellingId, setCancellingId] = useState(null);
     const [error, setError] = useState(null);
-    console.log(sentRequests)
+
     const fetchSentRequests = async () => {
         try {
             const res = await friendApi.getSentRequests();

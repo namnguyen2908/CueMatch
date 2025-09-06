@@ -3,7 +3,7 @@ import { useInView } from "react-intersection-observer";
 import postApi from "../../api/postApi";
 import PostCard from "./PostCard";
 
-const PostList = forwardRef(({ isProfile = false, onPostClick, onEdit }, ref) => {
+const PostList = forwardRef(({ isProfile = false, onPostClick, onEdit, userId = null }, ref) => {
   const [posts, setPosts] = useState([]);
   const [offset, setOffset] = useState(0);
   const [hasMore, setHasMore] = useState(true);
@@ -15,15 +15,23 @@ const PostList = forwardRef(({ isProfile = false, onPostClick, onEdit }, ref) =>
   const handleDeletePost = (deletedId) => {
     setPosts((prev) => prev.filter((post) => post._id !== deletedId));
   };
+
+
   const fetchPosts = useCallback(async (reset = false) => {
     if (loading) return;
     setLoading(true);
 
     try {
       const newOffset = reset ? 0 : offset;
-      const res = isProfile
-        ? await postApi.getMyPosts(newOffset, 10)
-        : await postApi.getPosts(newOffset, 10);
+      let res = [];
+
+      if (isProfile && userId) {
+        res = await postApi.getUserPosts(userId, newOffset, 10);
+      } else if (isProfile && !userId) {
+        res = await postApi.getMyPosts(newOffset, 10);
+      } else {
+        res = await postApi.getPosts(newOffset, 10);
+      }
 
       if (res.length < 10) setHasMore(false);
 
@@ -34,7 +42,7 @@ const PostList = forwardRef(({ isProfile = false, onPostClick, onEdit }, ref) =>
     } finally {
       setLoading(false);
     }
-  }, [offset, isProfile, loading]);
+  }, [offset, isProfile, loading, userId]);
 
   // ✅ expose method to parent
   useImperativeHandle(ref, () => ({

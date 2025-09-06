@@ -191,7 +191,46 @@ const PostController = {
             console.error('Error in getUserPosts:', err);
             res.status(500).json({ message: 'Server error' });
         }
+    },
+
+    getPostsByUserId: async (req, res) => {
+        try {
+            const userId = req.params.userId;
+            const offset = parseInt(req.query.offset) || 0;
+            const limit = parseInt(req.query.limit) || 10;
+
+            const posts = await Post.find({ UserID: userId })
+                .sort({ createdAt: -1 })
+                .skip(offset)
+                .limit(limit)
+                .populate('UserID', 'Name Avatar');
+
+            const currentUserId = req.user.id;
+
+            const postIds = posts.map(post => post._id);
+            const reactions = await Reaction.find({
+                UserID: currentUserId,
+                PostID: { $in: postIds }
+            });
+
+            const reactionMap = {};
+            reactions.forEach(r => {
+                reactionMap[r.PostID.toString()] = r.Type;
+            });
+
+            const postsWithReaction = posts.map(post => {
+                const postObj = post.toObject();
+                postObj.CurrentUserReaction = reactionMap[post._id.toString()] || null;
+                return postObj;
+            });
+
+            res.status(200).json(postsWithReaction);
+        } catch (err) {
+            console.error("Error in getPostsByUserId:", err);
+            res.status(500).json({ message: 'Server error' });
+        }
     }
+
 
 };
 

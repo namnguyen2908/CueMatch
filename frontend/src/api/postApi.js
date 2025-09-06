@@ -35,6 +35,13 @@ const postApi = {
     });
     return res.data;
   },
+
+  getUserPosts: async (userId, offset = 0, limit = 10) => {
+    const res = await api.get(`/post/user/${userId}`, {
+      params: { offset, limit },
+    });
+    return res.data;
+  },
 };
 
 

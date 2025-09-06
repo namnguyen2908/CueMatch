@@ -4,9 +4,11 @@ const UserController = {
     // Lấy thông tin user hiện tại (theo token)
     getUserDetail: async (req, res) => {
         try {
-            const userId = req.user.id;
+            const userId = req.params.userId || req.user.id; // Ưu tiên params, fallback token
+
             const user = await User.findById(userId).select("-Password");
             if (!user) return res.status(404).json({ message: "User not found" });
+
             res.status(200).json(user);
         } catch (error) {
             res.status(500).json({ message: error.message });
@@ -26,7 +28,7 @@ const UserController = {
     // Cập nhật thông tin user (name, date of birth, avatar)
     updateUser: async (req, res) => {
         try {
-            
+
         } catch (error) {
             res.status(500).json({ message: error.message });
         }
@@ -34,11 +36,11 @@ const UserController = {
 
     getUser: async (req, res) => {
         try {
-            const {UserID} = req.user.id;
-            
+            const { UserID } = req.user.id;
+
         } catch (err) {
             console.error("Get user error: ", err);
-            return res.status(500).json({message: "Server error"});
+            return res.status(500).json({ message: "Server error" });
         }
     }
 };

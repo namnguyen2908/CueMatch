@@ -104,13 +104,21 @@ const FriendController = {
             const deleted = await Friendship.findOneAndDelete(SortUser(userA, userB));
             if (!deleted) return res.status(404).json({ message: 'Hai người không phải bạn bè' });
 
-            // Cập nhật lại User.Friends
+            // Cập nhật lại mảng Friends trong User
             await Promise.all([
                 User.findByIdAndUpdate(userA, { $pull: { Friends: userB } }),
                 User.findByIdAndUpdate(userB, { $pull: { Friends: userA } }),
             ]);
 
-            return res.status(200).json({ message: 'Đã hủy kết bạn' });
+            // Xóa các lời mời kết bạn (pending, accepted, rejected) nếu có giữa 2 người (cả 2 chiều)
+            await FriendRequest.deleteMany({
+                $or: [
+                    { From: userA, To: userB },
+                    { From: userB, To: userA },
+                ],
+            });
+
+            return res.status(200).json({ message: 'Đã hủy kết bạn và xóa lời mời liên quan' });
         } catch (error) {
             return res.status(500).json({ message: error.message });
         }

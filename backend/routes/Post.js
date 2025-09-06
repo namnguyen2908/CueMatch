@@ -16,5 +16,6 @@ router.put('/update/:id', verifyToken, parser.fields([
 router.get('/', verifyToken, PostController.getPosts);
 router.delete('/delete/:id', verifyToken, PostController.deletePost);
 router.get('/my-posts', verifyToken, PostController.getUserPosts);
+router.get('/user/:userId', verifyToken, PostController.getPostsByUserId);
 
 module.exports = router;

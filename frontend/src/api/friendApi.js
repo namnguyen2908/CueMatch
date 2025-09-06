@@ -1,3 +1,4 @@
+// src/api/friendApi
 import api from './api'; // import axios instance của bạn
 
 const friendApi = {

@@ -14,7 +14,7 @@ const MessagesPage = () => {
   const [inputText, setInputText] = useState('');
   const { datauser } = useUser();
   const userId = datauser.id; // thay bằng id user thực tế
-
+  const selectedConversation = conversations.find(c => c._id === selectedConversationId);
   // Lấy danh sách conversation khi component mount
   useEffect(() => {
     getConversations().then(res => {
@@ -82,7 +82,7 @@ const MessagesPage = () => {
             userId={userId} // truyền userId từ MessagesPage
           />
           <div className="flex-1 flex flex-col">
-            <ChatHeader conversations={conversations} userId={userId}/>
+            <ChatHeader conversation={selectedConversation} userId={userId} />
             <MessagesList messages={messages} userId={userId} />
             <div className="p-4 border-t border-yellow-500/20 bg-gray-800/80">
               <div className="flex items-center space-x-2">

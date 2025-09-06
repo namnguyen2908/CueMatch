@@ -6,7 +6,7 @@ import Sidebar from "../../components/Sidebar/Sidebar";
 
 const FriendLayout = () => {
     return (
-        <div className="flex min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
+        <div className="flex min-h-screen bg-gradient-to-br from-slate-900 via-slate-700 to-slate-900 text-white">
             <Sidebar />
             <div className="flex-1 ml-60">
                 <Header />
@@ -14,7 +14,7 @@ const FriendLayout = () => {
                 <div className="pt-28 px-10">
                     {/* Hero Section */}
                     <div className="mb-8">
-                        <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-2">
+                        <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-500 to-lime-600 bg-clip-text text-transparent mb-2">
                             Friends Hub
                         </h1>
                         <p className="text-gray-400 text-lg">Connect, discover, and manage your friendships</p>
@@ -35,7 +35,7 @@ const FriendLayout = () => {
                                     className={({ isActive }) =>
                                         `relative flex items-center gap-3 px-6 py-3 rounded-xl font-medium transition-all duration-300 hover:scale-105 ${
                                             isActive
-                                                ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg shadow-purple-500/25"
+                                                ? "bg-gradient-to-r from-red-500 to-amber-500 text-white shadow-lg shadow-amber-500/25"
                                                 : "text-gray-300 hover:bg-white/10 hover:text-white"
                                         }`
                                     }
