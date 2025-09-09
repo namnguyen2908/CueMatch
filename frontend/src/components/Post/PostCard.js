@@ -112,7 +112,14 @@ const Card = memo(({ post, isLast, lastRef, onClick, onEdit, onDelete }) => {
   return (
     <div
       ref={isLast ? lastRef : null}
-      className="max-w-2xl mx-auto w-full mb-6 bg-[#111]/70 border border-yellow-500/20 backdrop-blur-xl rounded-2xl p-6 mb-6 transition-all duration-300 hover:shadow-yellow-500/10 hover:-translate-y-0.5"
+      className="
+    max-w-2xl mx-auto w-full mb-6 
+    bg-[#EEEEEE]
+    shadow-[0_0_30px_-10px_rgba(0,0,0.2,0.4)] 
+     dark:bg-[#111]/70 
+    dark:border-yellow-500/20
+    backdrop-blur-xl rounded-2xl p-6 
+  "
     >
       <div className="absolute top-4 right-4 z-10" ref={menuRef}>
         <button
@@ -122,7 +129,7 @@ const Card = memo(({ post, isLast, lastRef, onClick, onEdit, onDelete }) => {
           <MoreVertical className="w-5 h-5" />
         </button>
         {showMenu && (
-          <div className="absolute right-0 mt-2 w-36 bg-[#1e1e1f] border border-yellow-500/20 rounded-md shadow-lg z-20">
+          <div className="absolute right-0 mt-2 w-36 bg-white dark:bg-[#1e1e1f] border border-yellow-300/40 dark:border-yellow-500/20 rounded-md shadow-lg z-20">
             {datauser?.id === UserID?._id ? (
               <>
                 <button
@@ -171,14 +178,18 @@ const Card = memo(({ post, isLast, lastRef, onClick, onEdit, onDelete }) => {
           className="w-12 h-12 rounded-full border-2 border-yellow-400 object-cover"
         />
         <div>
-          <p className="font-semibold text-yellow-300">{UserID?.Name || "Ẩn danh"}</p>
-          <p className="text-sm text-gray-500">{new Date(localPost.createdAt).toLocaleString()}</p>
+          <p className="font-semibold text-yellow-600 dark:text-yellow-300">
+            {UserID?.Name || "Ẩn danh"}
+          </p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            {new Date(localPost.createdAt).toLocaleString()}
+          </p>
         </div>
       </div>
 
       {/* Content */}
       {localPost.Content && (
-        <p className="text-gray-200 mb-4 leading-relaxed whitespace-pre-line">
+        <p className="text-gray-800 dark:text-gray-200 mb-4 leading-relaxed whitespace-pre-line">
           {localPost.Content}
         </p>
       )}
@@ -256,7 +267,7 @@ const Card = memo(({ post, isLast, lastRef, onClick, onEdit, onDelete }) => {
               );
             })}
           </div>
-          <span className="ml-2 text-sm text-white">
+          <span className="ml-2 text-sm text-gray-800 dark:text-gray-200"> 
             {Object.values(localPost.ReactionCounts || {}).reduce((a, b) => a + b, 0)}
           </span>
         </div>
@@ -269,7 +280,7 @@ const Card = memo(({ post, isLast, lastRef, onClick, onEdit, onDelete }) => {
 
       {/* Action Buttons */}
       {/* Action Buttons */}
-      <div className="flex justify-around border-t border-yellow-500/10 pt-2 mt-2 text-gray-400 text-sm">
+      <div className="flex justify-around border-t border-yellow-300/20 dark:border-yellow-500/10 pt-2 mt-2 text-gray-600 dark:text-gray-400 text-sm">
         {/* ✅ Tích hợp Reaction component */}
         <Reaction
           post={localPost}

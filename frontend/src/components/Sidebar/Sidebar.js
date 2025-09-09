@@ -1,4 +1,11 @@
-import { Home, UserPen, UserRoundPlus, Bookmark, Users, MessageCircle } from "lucide-react";
+import {
+  Home,
+  UserPen,
+  UserRoundPlus,
+  Bookmark,
+  Users,
+  MessageCircle
+} from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -9,14 +16,17 @@ const menuItems = [
   { id: "friends", icon: UserRoundPlus, label: "Friends" },
   { id: "favourites", icon: Bookmark, label: "Favourites" },
   { id: "groups", icon: Users, label: "Groups" },
-  { id: "matching", icon: () => (<i className="fa-solid fa-users w-5 h-5" />), label: "Matching" },
+  {
+    id: "matching",
+    icon: () => <i className="fa-solid fa-users w-5 h-5" />,
+    label: "Matching"
+  }
 ];
 
-export default function Sidebar() { 
+export default function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Ánh xạ đường dẫn sang id
   const pathToIdMap = {
     "/": "homefeed",
     "/profile": "profile",
@@ -24,54 +34,51 @@ export default function Sidebar() {
     "/friends": "friends",
     "/favourites": "favourites",
     "/groups": "groups",
-    "/matching": "matching",
+    "/matching": "matching"
   };
 
-  // ✅ Lấy id từ đường dẫn hiện tại
-  // const [active, setActive] = useState(pathToIdMap[location.pathname] || "homefeed");
+  const initialActive = location.pathname.startsWith("/friends")
+    ? "friends"
+    : pathToIdMap[location.pathname] || "homefeed";
 
-const initialActive = location.pathname.startsWith("/friends")
-  ? "friends"
-  : pathToIdMap[location.pathname] || "homefeed";
+  const [active, setActive] = useState(initialActive);
 
-const [active, setActive] = useState(initialActive);
-
-useEffect(() => {
-  if (location.pathname.startsWith("/friends")) {
-    setActive("friends");
-  } else {
-    setActive(pathToIdMap[location.pathname] || "homefeed");
-  }
-}, [location.pathname]);
+  useEffect(() => {
+    if (location.pathname.startsWith("/friends")) {
+      setActive("friends");
+    } else {
+      setActive(pathToIdMap[location.pathname] || "homefeed");
+    }
+  }, [location.pathname]);
 
   const handleClick = (id) => {
     setActive(id);
-
-    // Điều hướng dựa trên id
-    if (id === "homefeed") navigate("/homefeed");
-    else if (id === "profile") navigate("/profile");
-    else if (id === "messages") navigate("/messages");
-    else if (id === "friends") navigate("/friends");
-    else if (id === "favourites") navigate("/favourites");
-    else if (id === "groups") navigate("/groups");
-    else if (id === "matching") navigate("/matching");
+    navigate(`/${id === "homefeed" ? "homefeed" : id}`);
   };
 
   return (
-    <aside className="fixed top-16 bottom-0 left-0 w-60
-             bg-black/40 backdrop-blur-xl border-r border-yellow-500/20
-             flex flex-col justify-between py-2 px-4 rounded-tr-2xl rounded-br-2xl shadow-lg">
-      <div className="flex flex-col justify-evenly h-full mt-6">
+    <aside
+      className="fixed top-[5.7rem] bottom-0 left-0 w-60
+        bg-[#F2F4F7] dark:bg-[#242424] 
+        
+        flex flex-col justify-between py-2 px-4
+        text-orange-800 dark:text-orange-200 transition-colors duration-300"
+    >
+      <div className="flex flex-col justify-evenly h-full">
         {menuItems.map((item) => (
           <button
             key={item.id}
             onClick={() => handleClick(item.id)}
             className={`flex items-center space-x-3 p-3 rounded-lg transition-all relative
-                       hover:bg-yellow-500/10 hover:text-yellow-400
-                       ${active === item.id ? "text-yellow-400 font-semibold" : "text-gray-300"}`}
+              hover:bg-orange-100 dark:hover:bg-orange-500/10 
+              hover:text-[#FFB828] dark:hover:text-[#FFB828]
+              ${active === item.id
+  ? "bg-orange-100 dark:bg-orange-600/10 text-[#FFB828] dark:text-[#FFB828] font-semibold shadow-inner"
+  : "text-black dark:text-[#FFDF9E]"
+}`}
           >
             {active === item.id && (
-              <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-yellow-400 rounded-r-lg shadow-yellow-400/50 shadow-md" />
+              <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-orange-500 rounded-r-md shadow-md" />
             )}
             <item.icon className="w-5 h-5" />
             <span>{item.label}</span>

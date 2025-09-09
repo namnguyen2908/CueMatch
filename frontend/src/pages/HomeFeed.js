@@ -1,19 +1,14 @@
-// src/pages/HomeFeed.jsx
 import React, { useState, useRef, useEffect } from "react";
 import Header from "../components/Header/Header";
 import Sidebar from "../components/Sidebar/Sidebar";
-// import PostCard from "../components/PostCard";
 import PostModal from "../components/PostModal/PostModal";
 import { motion } from "framer-motion";
-import AnimatedBackground from "../components/AnimatedBackground";
-import "../components/animations.css";
 import { useUser } from "../contexts/UserContext";
 import { useChat } from '../contexts/ChatContext';
 import PostList from "../components/Post/PostList";
 import PostDetailModal from "../components/postDetail/PostDetailModal";
 import RightBar from "../components/Sidebar/RightBar";
-import ChatBox from "../components/Chat/ChatBox";
-import { createConversation } from '../api/messageApi'; // Import API
+import { createConversation } from '../api/messageApi';
 
 const HomeFeed = () => {
   const [activeTab, setActiveTab] = useState("home");
@@ -33,22 +28,20 @@ const HomeFeed = () => {
     postCardRef.current?.reloadPosts();
   };
 
-const handleFriendClick = async (friend) => {
-  try {
-    const res = await createConversation({
-      MemberIds: [friend._id],
-      Type: 'single',
-    });
+  const handleFriendClick = async (friend) => {
+    try {
+      const res = await createConversation({
+        MemberIds: [friend._id],
+        Type: 'single',
+      });
 
-    const conversation = res.data;
-    
-    // ✅ Gọi hàm từ context để mở chat
-    openChatWith(friend, conversation._id);
+      const conversation = res.data;
+      openChatWith(friend, conversation._id);
 
-  } catch (err) {
-    console.error("Lỗi khi tạo/lấy conversation:", err);
-  }
-};
+    } catch (err) {
+      console.error("Lỗi khi tạo/lấy conversation:", err);
+    }
+  };
 
   useEffect(() => {
     if (editingPost) {
@@ -57,12 +50,13 @@ const handleFriendClick = async (friend) => {
   }, [editingPost]);
 
   return (
-    <div className="relative min-h-screen text-gray-200 overflow-hidden">
-      {/* Background hiệu ứng sao lấp lánh */}
-      <AnimatedBackground />
+    <div className="relative min-h-screen overflow-hidden
+      bg-[#F2F4F7] dark:bg-[#242424] 
+      text-gray-900 dark:text-gray-200
+      transition-colors duration-300"
+    >
       <Header />
 
-      {/* Layout 3 cột bằng flex */}
       <div className="flex pt-28">
         {/* Sidebar bên trái */}
         <div className="w-[250px] fixed left-0 top-0 pt-28 z-10">
@@ -75,23 +69,35 @@ const handleFriendClick = async (friend) => {
           <motion.div
             whileHover={{ y: -2 }}
             whileTap={{ scale: 0.995 }}
-            className="bg-black/40 border border-yellow-500/20 backdrop-blur-xl rounded-2xl p-4 mb-6
-                    shadow-[0_0_40px_-10px_rgba(255,215,0,.25)] hover:shadow-yellow-500/30
-                    transition-all duration-500 cursor-pointer"
+            className="
+    bg-[#EEEEEE] dark:bg-black/40 
+    border-[2px] dark:border-yellow-500/20 
+    backdrop-blur-xl rounded-2xl p-4 mb-6
+    shadow-[0_0_30px_-10px_rgba(0,0,0,0.3)] 
+    hover:shadow-yellow-400/40 dark:hover:shadow-yellow-500/30
+    transition-all duration-500 cursor-pointer
+  "
             onClick={handleOpenPostModal}
           >
             <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 rounded-full overflow-hidden ring-2 ring-yellow-400/60">
-                <img src={datauser.avatar} alt="User Avatar" />
+              <div className="w-11 h-11 rounded-full overflow-hidden ring-2 ring-yellow-400/60">
+                <img src={datauser.avatar} alt="User Avatar" className="w-full h-full object-cover"/>
               </div>
               <div
-                className="flex-1 bg-[#1e1e1f] text-gray-400 hover:text-gray-100
-                        hover:bg-[#27272a] rounded-full px-4 py-2 transition-colors duration-300"
+                className="
+        flex-1 
+        bg-[#E4E6E8] dark:bg-[#1e1e1f]
+        text-gray-700 dark:text-gray-400 
+        hover:text-gray-900 dark:hover:text-gray-100
+        hover:bg-[#DEDEDE] dark:hover:bg-[#27272a]
+        rounded-full px-4 py-2 transition-colors duration-300 cursor-text
+      "
               >
                 Share your achievements...
               </div>
             </div>
           </motion.div>
+
 
           {/* Danh sách bài viết */}
           <PostList
@@ -125,7 +131,6 @@ const handleFriendClick = async (friend) => {
       />
     </div>
   );
-
 };
 
 export default HomeFeed;

@@ -53,13 +53,13 @@ const AllFriend = () => {
   };
 
   const handleMessageClick = async (friend) => {
-          try {
-              const res = await createConversation({MemberIds: [friend._id],Type: 'single',});
-              const conversation = res.data;
-              openChatWith(friend, conversation._id); // mở chatbox
-          } catch (err) {
-              console.error("Lỗi khi tạo/lấy conversation:", err);
-          }
+    try {
+      const res = await createConversation({ MemberIds: [friend._id], Type: 'single', });
+      const conversation = res.data;
+      openChatWith(friend, conversation._id); // mở chatbox
+    } catch (err) {
+      console.error("Lỗi khi tạo/lấy conversation:", err);
+    }
   };
 
   const containerVariants = {
@@ -73,13 +73,13 @@ const AllFriend = () => {
   };
 
   const cardVariants = {
-    hidden: { 
-      opacity: 0, 
+    hidden: {
+      opacity: 0,
       y: 30,
       scale: 0.9
     },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       y: 0,
       scale: 1,
       transition: {
@@ -110,7 +110,7 @@ const AllFriend = () => {
         <div className="text-6xl mb-4">😕</div>
         <p className="text-red-400 text-lg font-semibold mb-2">Oops! Something went wrong</p>
         <p className="text-gray-400">{error}</p>
-        <button 
+        <button
           onClick={fetchFriends}
           className="mt-4 px-6 py-2 bg-purple-500 hover:bg-purple-600 rounded-lg transition-colors"
         >
@@ -125,7 +125,7 @@ const AllFriend = () => {
       {/* Header with Search and Filters */}
       <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-white mb-1">
+          <h2 className="text-2xl font-bold text-black dark:text-white mb-1">
             Your Friends ({filteredFriends.length})
           </h2>
           <p className="text-gray-400">Stay connected with your circle</p>
@@ -140,7 +140,7 @@ const AllFriend = () => {
               placeholder="Search friends..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+              className="w-full pl-12 pr-4 py-3 bg-white/10 border-[#9B9B9B] dark:bg-white/5 border dark:border-white/20 dark:border-white/10 rounded-xl text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#FFBF26] focus:border-transparent transition-all"
             />
           </div>
         </div>
@@ -158,8 +158,8 @@ const AllFriend = () => {
             {searchTerm ? "No friends found" : "No friends yet"}
           </h3>
           <p className="text-gray-400 mb-6">
-            {searchTerm 
-              ? `No friends match "${searchTerm}"` 
+            {searchTerm
+              ? `No friends match "${searchTerm}"`
               : "Start building your network by adding some friends!"
             }
           </p>
@@ -188,18 +188,15 @@ const AllFriend = () => {
               variants={cardVariants}
               layout
               exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.1 } }}
-              whileHover={{ 
-                y: -8,
-                transition: { type: "spring", stiffness: 300 }
-              }}
               className="group relative h-full flex flex-col"
             >
-              <div className="relative flex flex-col flex-1 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/20 rounded-2xl p-6 text-center shadow-xl overflow-hidden hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-300">
-                
+              <div className="relative flex flex-col flex-1 bg-[#ECECEC] dark:bg-white/10 backdrop-blur-xl border border-gray-200 dark:border-white/20 rounded-2xl p-6 text-center shadow-xl overflow-hidden hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-300">
+
+
                 {/* Unfriend Button */}
                 <button
                   onClick={() => handleUnfriend(friend._id)}
-                  className="absolute top-4 right-4 p-2 text-red-400 opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-red-500/20 hover:text-red-300 rounded-lg z-10"
+                  className="absolute top-4 right-4 p-2 text-red-400 opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-red-800/80 hover:text-red-300 rounded-lg z-10"
                   title="Hủy kết bạn"
                 >
                   <FaUserTimes size={16} />
@@ -213,7 +210,7 @@ const AllFriend = () => {
                       alt={friend.Name}
                       className="w-full h-full rounded-full object-cover border-3 border-orange-400/50 shadow-lg group-hover:border-orange-400 transition-all duration-300"
                     />
-                    
+
                     {/* Online Status */}
                     <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-400 border-3 border-white/20 rounded-full shadow-lg flex items-center justify-center">
                       <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
@@ -223,21 +220,21 @@ const AllFriend = () => {
 
                 {/* Friend Info */}
                 <div className="relative z-10">
-                  <h3 className="text-lg font-bold text-white mb-1 group-hover:text-orange-300 transition-colors">
+                  <h3 className="text-lg font-bold text-black dark:text-white mb-1 transition-colors">
                     {friend.Name}
                   </h3>
-                  
-                  <div className="flex items-center justify-center gap-2 text-sm text-gray-400 mb-4">
+
+                  <div className="flex items-center justify-center gap-2 text-sm text-black dark:text-gray-400 mb-4">
                     <FaUserCheck className="text-green-400" />
                     <span>Bạn bè từ 2023</span>
                   </div>
 
                   {/* Action Buttons */}
                   <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
-                    <button onClick={() => handleMessageClick(friend)} className="flex-1 px-3 py-2 bg-blue-600/20 hover:bg-blue-800/30 text-blue-100 text-sm rounded-lg transition-colors">
+                    <button onClick={() => handleMessageClick(friend)} className="flex-1 px-3 py-2 bg-[#3D6BFF] hover:bg-[#698CFF] text-blue-100 text-sm rounded-lg transition-colors">
                       Message
                     </button>
-                    <button className="flex-1 px-3 py-2 bg-cyan-600/20 hover:bg-cyan-800/30 text-cyan-100 text-sm rounded-lg transition-colors">
+                    <button className="flex-1 px-3 py-2 bg-[#FF3399]/70 hover:bg-[#FF99CC]/75 text-cyan-100 text-sm rounded-lg transition-colors">
                       Profile
                     </button>
                   </div>

@@ -73,9 +73,15 @@ const PostList = forwardRef(({ isProfile = false, onPostClick, onEdit, userId = 
         onEdit={onEdit}
         onDelete={handleDeletePost}
       />
-      {loading && <p className="text-center text-gray-400 py-4">Đang tải...</p>}
+      {loading && (
+        <p className="text-center text-gray-500 dark:text-gray-400 py-4">
+          Đang tải...
+        </p>
+      )}
       {!hasMore && (
-        <p className="text-center text-yellow-400 py-4">Không còn bài viết nào nữa.</p>
+        <p className="text-center text-yellow-600 dark:text-yellow-400 py-4">
+          Không còn bài viết nào nữa.
+        </p>
       )}
     </>
   );

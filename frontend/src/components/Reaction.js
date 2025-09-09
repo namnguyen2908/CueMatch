@@ -106,8 +106,9 @@ const Reaction = ({ post, onReacted }) => {
     >
       <button
         disabled={loading}
-        className={`flex items-center gap-2 transition-all ${currentReaction ? "text-red-400" : "hover:text-red-400"
-          }`}
+        className={`flex items-center gap-2 transition-all 
+    ${currentReaction ? "text-red-400" : "hover:text-red-400"} 
+    dark:text-white dark:hover:text-yellow-400`}
       >
         {currentReaction ? (
           <FontAwesomeIcon
@@ -122,18 +123,28 @@ const Reaction = ({ post, onReacted }) => {
       </button>
 
       {showPicker && (
-        <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-50 flex gap-2 bg-[#222] border border-yellow-500/20 rounded-full px-3 py-2 shadow-lg">
-          {reactions.map((r) => (
-            <button
-              key={r.type}
-              onClick={() => handleReaction(r.type)}
-              title={r.type}
-              className={`text-xl transition-transform hover:scale-125 ${currentUserReaction === r.type ? "opacity-100" : "opacity-70"
-                }`}
-            >
-              <FontAwesomeIcon icon={r.icon} color={r.color} />
-            </button>
-          ))}
+  <div
+    className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-50 
+      flex gap-2 
+      bg-gray-100 dark:bg-[#222] 
+      border border-yellow-500/20 
+      rounded-full px-3 py-2 shadow-lg 
+      transition-all"
+    onMouseEnter={handleMouseEnter}
+    onMouseLeave={handleMouseLeave}
+  >
+    {reactions.map((r) => (
+      <button
+        key={r.type}
+        onClick={() => handleReaction(r.type)}
+        title={r.type}
+        className={`text-xl transition-transform hover:scale-125 p-1 rounded-full 
+          ${currentUserReaction === r.type ? "opacity-100" : "opacity-70"} 
+          hover:bg-gray-200 dark:hover:bg-gray-700`}
+      >
+        <FontAwesomeIcon icon={r.icon} color={r.color} />
+      </button>
+    ))}
         </div>
       )}
     </div>

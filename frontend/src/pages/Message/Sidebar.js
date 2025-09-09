@@ -21,7 +21,7 @@ const Sidebar = ({ conversations, selectedConversationId, onSelectConversation, 
     return (
       <div
         key={conv._id}
-        className={`p-4 border-b border-gray-700/30 cursor-pointer hover:bg-gray-700/50 ${isSelected ? 'bg-yellow-600/40' : ''
+        className={`p-4 border-b dark:border-gray-700/30 cursor-pointer hover:bg-[#FF9100]/45 rounded-2xl ${isSelected ? 'bg-[#FF9100]/45' : ''
           }`}
         onClick={() => onSelectConversation(conv._id)}
       >
@@ -45,16 +45,16 @@ const Sidebar = ({ conversations, selectedConversationId, onSelectConversation, 
           <div className="flex-1 min-w-0">
             <div className="flex justify-between items-center space-x-2">
               <h3
-                className="text-white font-semibold truncate"
+                className=" text-black dark:text-white font-semibold truncate"
                 title={conversationName}
               >
                 {conversationName}
               </h3>
-              <span className="text-xs text-gray-400 whitespace-nowrap flex-shrink-0">
+              {/* <span className="text-xs text-black dark:text-gray-400 whitespace-nowrap flex-shrink-0">
                 {conv.LastMessage ? new Date(conv.LastMessage.createdAt).toLocaleTimeString() : ''}
-              </span>
+              </span> */}
             </div>
-            <p className="text-sm text-gray-400 truncate">{lastMessageText}</p>
+            {/* <p className="text-sm text-black dark:text-gray-400 truncate">{lastMessageText}</p> */}
           </div>
         </div>
       </div>
@@ -64,11 +64,11 @@ const Sidebar = ({ conversations, selectedConversationId, onSelectConversation, 
 
   // 👉 Trả về toàn bộ giao diện với 1 return duy nhất
   return (
-    <div className="w-80 bg-gray-800/80 backdrop-blur-md border-r border-yellow-500/20 flex flex-col">
-      <div className="p-4 border-b border-gray-700/50">
-        <h1 className="text-xl font-bold text-yellow-400">Messages</h1>
-      </div>
-      <div className="flex-1 overflow-y-auto  scrollbar-thin scrollbar-thumb-yellow-600 scrollbar-track-gray-800">
+    <div className="w-80 bg-[#F2F2F2] dark:bg-[#242424] backdrop-blur-md flex flex-col">
+      {/* <div className="p-[1.38rem] border-b border-gray-700/50">
+        <h1 className="text-xl font-bold text-[#EA5A0D]">Messages</h1>
+      </div> */}
+      <div className="flex-1 overflow-y-auto  scrollbar-thin scrollbar-thumb-yellow-600 scrollbar-track-gray-800 p-4 rounded-lg">
         {renderedConversations}
       </div>
     </div>

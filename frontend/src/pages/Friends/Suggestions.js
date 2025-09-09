@@ -57,7 +57,7 @@ const Suggestions = () => {
         <div className="text-6xl mb-4">🔍</div>
         <p className="text-red-400 text-lg font-semibold mb-2">Oops! Something went wrong</p>
         <p className="text-gray-400">{error}</p>
-        <button 
+        <button
           onClick={fetchSuggestions}
           className="mt-4 px-6 py-2 bg-purple-500 hover:bg-purple-600 rounded-lg transition-colors"
         >
@@ -93,13 +93,13 @@ const Suggestions = () => {
   };
 
   const cardVariants = {
-    hidden: { 
-      opacity: 0, 
+    hidden: {
+      opacity: 0,
       y: 40,
       scale: 0.9
     },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       y: 0,
       scale: 1,
       transition: {
@@ -115,7 +115,7 @@ const Suggestions = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-white mb-1">
+          <h2 className="text-2xl font-bold text-black dark:text-white mb-1">
             Friend Suggestions ({suggestions.length})
           </h2>
           <p className="text-gray-400">People you might know and want to connect with</p>
@@ -135,47 +135,34 @@ const Suggestions = () => {
               key={user._id}
               variants={cardVariants}
               layout
-              exit={{ 
-                opacity: 0, 
+              exit={{
+                opacity: 0,
                 scale: 0.8,
-                y: -20,
                 transition: { duration: 0.3 }
               }}
-              whileHover={{ 
-                y: -8,
+              whileHover={{
                 transition: { type: "spring", stiffness: 300 }
               }}
               className="group relative"
             >
-              <div className="relative bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/20 rounded-2xl p-6 text-center shadow-xl overflow-hidden hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-300">
-                
-                {/* Background Effects */}
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                
-                {/* Suggestion Badge */}
-                <div className="absolute top-4 left-4 px-2 py-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold rounded-full">
-                  NEW
-                </div>
-
-                
-
+              <div className="relative bg-[#ECECEC] dark:bg-white/10 backdrop-blur-xl border border-gray-200 dark:border-white/20 rounded-2xl p-6 text-center shadow-xl overflow-hidden hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-300">
                 {/* Avatar Section */}
                 <div className="relative mb-4 mt-2">
                   <div className="relative w-20 h-20 mx-auto">
                     <img
                       src={user.Avatar || "/default-avatar.png"}
                       alt={user.Name}
-                      className="w-full h-full rounded-full object-cover border-3 border-purple-400/50 shadow-lg group-hover:border-purple-400 transition-all duration-300"
+                      className="w-full h-full rounded-full object-cover border-3 border-orange-400/50 shadow-lg group-hover:border-orange-400 transition-all duration-300"
                     />
                   </div>
                 </div>
 
                 {/* User Info */}
                 <div className="relative z-10">
-                  <h3 className="text-lg font-bold text-white mb-2 group-hover:text-purple-300 transition-colors">
+                  <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-2 transition-colors">
                     {user.Name}
                   </h3>
-                  
+
                   {/* Mutual Friends Badge */}
                   <div className="flex items-center justify-center gap-2 mb-4">
                     <div className="px-3 py-1 bg-blue-500/20 border border-blue-500/30 rounded-full flex items-center gap-2">
@@ -190,10 +177,10 @@ const Suggestions = () => {
                   <div className="mb-4">
                     <div className="text-xs text-gray-400 mb-2">Suggested because:</div>
                     <div className="flex flex-wrap gap-1 justify-center">
-                      <span className="px-2 py-1 bg-purple-500/20 text-purple-300 text-xs rounded-full">
+                      <span className="px-2 py-1 bg-orange-500/20 text-black text-xs rounded-full">
                         Mutual friends
                       </span>
-                      <span className="px-2 py-1 bg-green-500/20 text-green-300 text-xs rounded-full">
+                      <span className="px-2 py-1 bg-green-500/20 text-black text-xs rounded-full">
                         Similar interests
                       </span>
                     </div>
@@ -205,7 +192,7 @@ const Suggestions = () => {
                     disabled={sendingRequest === user._id}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="w-full px-4 py-2.5 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-400 hover:to-pink-400 text-white font-semibold rounded-xl shadow-lg shadow-purple-500/25 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100"
+                    className="w-full px-4 py-2.5 bg-gradient-to-r from-orange-400 to-yellow-300 hover:from-orange-300 hover:to-yellow-200 text-black font-semibold rounded-xl shadow-lg shadow-orange-500/25 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100"
                   >
                     {sendingRequest === user._id ? (
                       <>
@@ -215,24 +202,20 @@ const Suggestions = () => {
                     ) : (
                       <>
                         <FaRocket />
-                        <span>Send Request</span>
+                        <span>Add friend</span>
                       </>
                     )}
                   </motion.button>
                 </div>
-
-                {/* Decorative Elements */}
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                
                 {/* Suggestion rank indicator */}
-                {index < 3 && (
-                  <div className="absolute top-2 left-2 w-6 h-6 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-lg">
+                {index < 5 && (
+                  <div className="absolute top-4 left-4 w-8 h-8 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-lg">
                     {index + 1}
                   </div>
                 )}
-
                 {/* Glowing border effect */}
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-purple-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl" />
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-orange-600/20 via-yellow-400/20 to-orange-200/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl" />
+
               </div>
             </motion.div>
           ))}

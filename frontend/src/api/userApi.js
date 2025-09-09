@@ -8,12 +8,9 @@ const userApi = {
         return res.data;
     },
 
-    deleteUser: async () => {
-
-    },
-
     updateUser: async (formData) => {
-
+        const res = await api.put('/user/edit-user', formData);
+        return res.data;
     },
 }
 

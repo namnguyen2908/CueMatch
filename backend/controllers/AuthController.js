@@ -92,7 +92,7 @@ const AuthController = {
             return res.status(401).json({ message: 'No refresh token provided' });
         }
         jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, async (err, decoded) => {
-            if(err) {
+            if (err) {
                 return res.status(403).json({ message: 'Invalid refresh token' });
             }
             const user = await User.findById(decoded.id);
@@ -131,14 +131,18 @@ const AuthController = {
                 headers: { Authorization: `Bearer ${access_token}` },
             });
 
-            const { email, name, picture } = userInfo.data;
+            const { email } = userInfo.data;
+            let name = userInfo.data.name;
+            let picture = userInfo.data.picture;
 
             let user = await User.findOne({ Email: email });
+
             if (user && user.Provider !== 'google') {
                 return res.status(400).json({ message: 'Email đã được đăng ký bằng phương thức khác' });
             }
 
             if (!user) {
+                // Nếu chưa có user, tạo mới với thông tin từ Google
                 user = new User({
                     Email: email,
                     Name: name,
@@ -146,6 +150,10 @@ const AuthController = {
                     Provider: 'google',
                 });
                 await user.save();
+            } else {
+                // Nếu đã có user, dùng thông tin từ database
+                name = user.Name;
+                picture = user.Avatar;
             }
 
             const accessToken = generateAccessToken(user);
@@ -167,7 +175,7 @@ const AuthController = {
 
             return res.status(200).json({
                 message: 'Login with Google successful',
-                user: { id: user._id, Name: user.Name, Avatar: user.Avatar },
+                user: { id: user._id, Name: name, Avatar: picture },
             });
         } catch (err) {
             console.error(err);

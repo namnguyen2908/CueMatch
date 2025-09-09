@@ -19,9 +19,10 @@ const RightBar = ({ onFriendClick }) => {
   }, []);
 
   return (
-    <aside className="fixed top-16 bottom-0 right-0 w-60
-                      bg-black/40 backdrop-blur-xl border-l border-yellow-500/20
-                      flex flex-col justify-between py-2 px-4 rounded-tl-2xl rounded-bl-2xl shadow-lg z-20">
+    <aside className="fixed top-[5.7rem] bottom-0 right-0 w-60
+  bg-[#F2F4F7] dark:bg-[#242424] 
+  flex flex-col justify-between py-2 px-4
+  text-black dark:text-orange-200 transition-colors duration-300">
       <div className="flex flex-col justify-start h-full">
         <h3 className="text-yellow-400 text-sm font-semibold mb-3 ml-1">Online Friends</h3>
         <div className="space-y-2 overflow-y-auto pr-1">
@@ -36,7 +37,7 @@ const RightBar = ({ onFriendClick }) => {
                 alt={friend.Name}
                 className="w-8 h-8 rounded-full"
               />
-              <span className="text-sm text-white">{friend.Name}</span>
+              <span className="text-sm text-black dark:text-orange-200">{friend.Name}</span>
             </button>
           ))}
         </div>

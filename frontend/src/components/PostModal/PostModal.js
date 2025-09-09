@@ -21,7 +21,7 @@ const PostModal = ({ isOpen, onClose, onPostCreated, editingPost = null }) => {
   ];
 
   const selectedOption = statusOptions.find(option => option.value === Status);
-  
+
 
   const handleBackdropClick = (e) => {
     if (e.target === e.currentTarget) {
@@ -94,16 +94,20 @@ const PostModal = ({ isOpen, onClose, onPostCreated, editingPost = null }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={handleBackdropClick}>
-      <div className="w-full max-w-xl rounded-2xl bg-[#111] text-gray-200 shadow-[0_0_30px_rgba(255,215,0,0.05)] border border-yellow-500/10 backdrop-blur-xl">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-black/30 to-orange-400/4 backdrop-blur-sm p-4"
+      onClick={handleBackdropClick}
+    >
+      <div className="w-full max-w-xl rounded-2xl bg-orange-200/20 text-gray-200 shadow-[0_0_30px_rgba(255,215,0,0.05)] border-[2px] border-[#FFB95B] backdrop-blur-xl">
+
 
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800">
-          <h2 className="text-lg font-semibold text-yellow-400 tracking-wide">
+          <h2 className="text-lg font-semibold text-[#FFA200] tracking-wide">
             {editingPost ? 'Edit Post' : 'Create Post'}
           </h2>
           <button onClick={onClose} className="p-2 hover:bg-gray-800 rounded-full transition">
-            <X size={20} className="text-gray-400" />
+            <X size={20} className="text-yellow-400" />
           </button>
         </div>
 
@@ -117,12 +121,12 @@ const PostModal = ({ isOpen, onClose, onPostCreated, editingPost = null }) => {
               className="w-12 h-12 rounded-full border border-yellow-500/20 shadow-sm"
             />
             <div className="flex flex-col">
-              <h3 className="font-semibold">{datauser.name}</h3>
+              <h3 className="font-semibold text-[#FFFFFF]">{datauser.name}</h3>
 
               <div className="relative mt-1">
                 <button
                   onClick={() => setShowDropdown(!showDropdown)}
-                  className="flex items-center gap-2 px-3 py-1.5 bg-[#1c1c1c] hover:bg-[#2a2a2a] rounded-lg text-sm font-medium transition text-gray-300"
+                  className="flex items-center gap-2 px-3 py-1.5 bg-orange-900/30 hover:bg-orange-900/50 rounded-lg text-sm font-medium transition text-yellow-300"
                 >
                   <selectedOption.icon size={14} className="text-yellow-400" />
                   <span>{selectedOption.label}</span>
@@ -131,7 +135,7 @@ const PostModal = ({ isOpen, onClose, onPostCreated, editingPost = null }) => {
 
                 {/* Dropdown */}
                 {showDropdown && (
-                  <div className="absolute top-full left-0 mt-2 bg-[#1a1a1a] border border-gray-700 rounded-xl shadow-xl z-10 w-72">
+                  <div className="absolute top-full left-0 mt-2 bg-[#AFAFAF]/50 border border-yellow-500/20 rounded-xl shadow-xl z-10 w-72 backdrop-blur-md">
                     {statusOptions.map((option) => (
                       <button
                         key={option.value}
@@ -139,7 +143,7 @@ const PostModal = ({ isOpen, onClose, onPostCreated, editingPost = null }) => {
                         className={`w-full flex items-center gap-3 p-3 rounded-lg transition
                           ${Status === option.value
                             ? 'bg-yellow-500/10 border border-yellow-500/20'
-                            : 'hover:bg-[#2a2a2a]'}`}
+                            : 'hover:bg-[#FFE5AE]/30'}`}
                       >
                         <div className={`w-10 h-10 rounded-full flex items-center justify-center
                           ${option.value === 'public' ? 'bg-green-900 text-green-400'
@@ -148,12 +152,11 @@ const PostModal = ({ isOpen, onClose, onPostCreated, editingPost = null }) => {
                           <option.icon size={18} />
                         </div>
                         <div className="flex-1 text-left">
-                          <div className="font-medium">{option.label}</div>
-                          <div className="text-xs text-gray-400">{option.desc}</div>
+                          <div className="font-medium text-[#442B00]">{option.label}</div>
+                          <div className="text-xs font-medium text-black">{option.desc}</div>
                         </div>
                         {Status === option.value && (
-                          <div className="w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center">
-                            <div className="w-2 h-2 bg-[#111] rounded-full"></div>
+                          <div className="w-4 h-4 bg-[#00FF2B]/90 border-[3px] border-[#00FFD5]/40 rounded-full flex items-center justify-center">
                           </div>
                         )}
                       </button>
@@ -169,17 +172,17 @@ const PostModal = ({ isOpen, onClose, onPostCreated, editingPost = null }) => {
             value={Content}
             onChange={(e) => setContent(e.target.value)}
             placeholder="What’s on your mind?"
-            className="w-full min-h-[100px] text-base placeholder-gray-500 resize-none focus:outline-none bg-transparent border border-gray-800 rounded-xl p-4 mb-4"
+            className="w-full min-h-[100px] text-base placeholder-black resize-none focus:outline-none bg-[#FFF0C6]/30 border border-gray-800 rounded-xl p-4 mb-4"
           />
 
           {/* Media Upload Buttons */}
-          <div className="border border-gray-700 rounded-xl p-4 mb-4 bg-[#1a1a1a]">
-            <p className="text-sm font-medium text-gray-400 mb-3">Add to your post</p>
+          <div className="border border-yellow-500/30 rounded-xl p-4 mb-4 bg-[#FFF0C6]/30 backdrop-blur-sm">
+            <p className="text-sm font-medium text-black mb-3">Add to your post</p>
             <div className="flex space-x-3 items-center">
 
               {/* Image Upload */}
-              <label htmlFor="image-upload" className="w-10 h-10 flex items-center justify-center bg-green-900 hover:bg-green-800 rounded-full cursor-pointer transition">
-                <Image size={18} className="text-green-400" />
+              <label htmlFor="image-upload" className="w-10 h-10 flex items-center justify-center bg-[#00C957] hover:bg-green-800 rounded-full cursor-pointer transition">
+                <Image size={18} className="text-[#CDFFE3]" />
                 <input
                   id="image-upload"
                   type="file"
@@ -192,15 +195,15 @@ const PostModal = ({ isOpen, onClose, onPostCreated, editingPost = null }) => {
 
               {/* Show selected image file name + remove button */}
               {imageFiles.map((file, index) => (
-                <div key={index} className="flex items-center space-x-2 bg-green-900/20 rounded px-2 py-1 text-green-400 text-sm">
+                <div className="flex items-center space-x-2 bg-yellow-900/20 rounded px-2 py-1 text-yellow-400 text-sm">
                   <span>{file.name}</span>
                   <button onClick={() => removeImage(index)} className="text-yellow-400 font-bold">&times;</button>
                 </div>
               ))}
 
               {/* Video Upload */}
-              <label htmlFor="video-upload" className="w-10 h-10 flex items-center justify-center bg-red-900 hover:bg-red-800 rounded-full cursor-pointer transition">
-                <Video size={18} className="text-red-400" />
+              <label htmlFor="video-upload" className="w-10 h-10 flex items-center justify-center bg-[#DE5849] hover:bg-red-800 rounded-full cursor-pointer transition">
+                <Video size={18} className="text-[#FFBAB2]" />
                 <input
                   id="video-upload"
                   type="file"
@@ -213,7 +216,7 @@ const PostModal = ({ isOpen, onClose, onPostCreated, editingPost = null }) => {
 
               {/* Show selected video file name + remove button */}
               {videoFiles.map((file, index) => (
-                <div key={index} className="flex items-center space-x-2 bg-red-900/20 rounded px-2 py-1 text-red-400 text-sm">
+                <div className="flex items-center space-x-2 bg-yellow-900/20 rounded px-2 py-1 text-yellow-400 text-sm">
                   <span>{file.name}</span>
                   <button onClick={() => removeVideo(index)} className="text-yellow-400 font-bold">&times;</button>
                 </div>
@@ -227,9 +230,9 @@ const PostModal = ({ isOpen, onClose, onPostCreated, editingPost = null }) => {
             onClick={handleCreatePost}
             disabled={!Content.trim() || loading}
             className={`w-full py-3 rounded-lg font-semibold transition text-sm
-              ${Content.trim() && !loading
-                ? 'bg-yellow-500 hover:bg-yellow-400 text-black shadow-lg'
-                : 'bg-gray-800 text-gray-500 cursor-not-allowed'
+    ${Content.trim() && !loading
+                ? 'bg-[#89FFD0] hover:bg-[#00FF9A] text-black shadow-lg opacity-80'
+                : 'bg-[#7D7D7D] text-black cursor-not-allowed opacity-50'
               }`}
           >
             {loading ? (editingPost ? 'Updating...' : 'Posting...') : (editingPost ? 'Update' : 'Post')}

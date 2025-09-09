@@ -1,4 +1,3 @@
-// src/components/postDetail/PostDetailContent.js
 import React from "react";
 import { Heart, MessageSquare, Share } from "lucide-react";
 
@@ -21,16 +20,18 @@ const PostDetailContent = ({ post }) => {
         />
         <div>
           <p className="font-semibold text-yellow-300">{UserID?.Name || "Ẩn danh"}</p>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
             {new Date(createdAt).toLocaleString()}
           </p>
         </div>
       </div>
 
-      <p className="text-gray-200 mb-4 leading-relaxed whitespace-pre-line">{Content}</p>
+      <p className="text-gray-900 dark:text-gray-200 mb-4 leading-relaxed whitespace-pre-line">
+        {Content}
+      </p>
 
       {/* Actions */}
-      <div className="flex justify-between px-6 text-gray-400 pt-3 border-t border-yellow-500/10">
+      <div className="flex justify-between px-6 text-gray-500 dark:text-gray-400 pt-3 border-t border-yellow-500/20 dark:border-yellow-400/30">
         <Action
           icon={Heart}
           label={Object.values(ReactionCounts || {}).reduce((a, b) => a + b, 0)}

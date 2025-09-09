@@ -8,7 +8,7 @@ const MessagesList = ({ messages, userId }) => {
   }, [messages]);
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 space-y-2 scrollbar-thin scrollbar-thumb-yellow-600 scrollbar-track-gray-800 scrollbar-hide">
+    <div className="flex-1 overflow-y-auto p-4 space-y-2 scrollbar-hide">
       {messages.map((msg) => {
         const senderId = typeof msg.Sender === 'string' ? msg.Sender : msg.Sender._id;
         const isSender = senderId === userId;
@@ -21,8 +21,8 @@ const MessagesList = ({ messages, userId }) => {
             <div
               className={`max-w-xs px-4 py-2 text-sm rounded-2xl ${
                 isSender
-                  ? 'bg-yellow-400 text-gray-900 rounded-br-none'
-                  : 'bg-gray-700 text-white rounded-bl-none'
+                  ? 'bg-[#FF9C1A] text-black'
+                  : 'bg-[#DEDEDE] text-black'
               }`}
             >
               <p>{msg.Text}</p>

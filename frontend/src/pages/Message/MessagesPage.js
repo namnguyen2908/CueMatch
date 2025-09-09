@@ -73,33 +73,46 @@ const MessagesPage = () => {
   return (
     <div className="min-h-screen bg-black">
       <Header />
-      <div className="pt-20">
-        <div className="flex h-[calc(100vh-81px)] bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+      <div className="pt-[5.7rem] h-[calc(100vh)]">
+      <div className="flex h-full bg-[#F2F2F2] dark:bg-[#242424]">
           <Sidebar
             conversations={conversations}
             selectedConversationId={selectedConversationId}
             onSelectConversation={setSelectedConversationId}
             userId={userId} // truyền userId từ MessagesPage
           />
-          <div className="flex-1 flex flex-col">
+          <div className="flex-1 flex flex-col p-2 border-2 border-[#3c3c3c] rounded-lg m-2 ">
             <ChatHeader conversation={selectedConversation} userId={userId} />
             <MessagesList messages={messages} userId={userId} />
-            <div className="p-4 border-t border-yellow-500/20 bg-gray-800/80">
+            <div className="p-4  bg-[#F2F2F2] dark:bg-[#242424]">
               <div className="flex items-center space-x-2">
                 <input
                   type="text"
                   value={inputText}
                   onChange={e => setInputText(e.target.value)}
                   placeholder="Nhập tin nhắn..."
-                  className="flex-1 bg-gray-700 text-white px-4 py-2 rounded-2xl focus:outline-none focus:ring-2 focus:ring-yellow-400/50"
+                  className="flex-1 bg-[#DADADA] text-black dark:bg-[#464646] dark:text-white px-4 py-2 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#FF9100]"
                   onKeyDown={e => { if (e.key === 'Enter') handleSendMessage(); }}
                 />
                 <button
-                  onClick={handleSendMessage}
-                  className="bg-yellow-400 hover:bg-yellow-500 text-gray-900 px-4 py-2 rounded-2xl font-semibold transition"
-                >
-                  Gửi
-                </button>
+              onClick={handleSendMessage}
+              className="ml-2 p-2 bg-[#FFA200] hover:bg-[#FFB430] rounded-full"
+            >
+              {/* Send icon */}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="white"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+              </svg>
+            </button>
               </div>
             </div>
           </div>

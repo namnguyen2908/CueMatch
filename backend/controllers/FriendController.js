@@ -165,12 +165,8 @@ const FriendController = {
         const userId = req.user.id;
 
         try {
-            // Lấy user và danh sách bạn bè
             const user = await User.findById(userId).populate('Friends', '_id');
-
             const friendIds = new Set(user.Friends.map(f => String(f._id)));
-
-            // Lấy các lời mời gửi/nhận
             const requests = await FriendRequest.find({
                 $or: [{ From: userId }, { To: userId }]
             });

@@ -14,6 +14,8 @@ const commentRoutes = require('./routes/Comment');
 const reactionRoutes = require('./routes/Reaction');
 const messageRoutes = require('./routes/Message');
 const friendRoutes = require('./routes/Friend');
+const playerBioRoutes = require('./routes/PlayerBio');
+
 
 dotenv.config();
 const app = express();
@@ -45,6 +47,7 @@ app.use('/comment', commentRoutes);
 app.use('/reaction', reactionRoutes);
 app.use('/message', messageRoutes);
 app.use('/friends', friendRoutes);
+app.use('/playerBio', playerBioRoutes);
 
 // Tạo HTTP server dựa trên app express
 const server = http.createServer(app);

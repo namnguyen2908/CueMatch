@@ -43,7 +43,6 @@ const Comments = ({ postId }) => {
                 level={level}
                 postId={postId}
                 onReplyAdded={(reply) => {
-                    // Gắn reply vào cây bình luận hiện tại
                     setComments(prev => {
                         const attachReply = (nodes) =>
                             nodes.map(node => {
@@ -69,42 +68,39 @@ const Comments = ({ postId }) => {
 
     return (
         <div className="flex flex-col h-full">
-            <h3 className="text-yellow-300 font-semibold mb-2">Bình luận</h3>
+            <h3 className="text-black dark:text-[#FFFFFF] font-semibold mb-2">Bình luận</h3>
 
-            {/* Scrollable comment area */}
             <div className="flex-1 overflow-y-auto pr-2 space-y-4 scrollbar-hide max-h-[50vh]">
                 {comments.length === 0 ? (
-                    <p className="text-gray-500 italic">Chưa có bình luận nào.</p>
+                    <p className="text-gray-500 dark:text-white italic">Chưa có bình luận nào.</p>
                 ) : (
                     renderComments(comments)
                 )}
             </div>
 
-            {/* Fixed input box */}
             <form
                 onSubmit={handleSubmit}
-                className="flex items-start gap-3 border-t border-yellow-500/20 pt-4 mt-4"
+                className="flex items-start gap-3 border-t border-yellow-500/20 dark:border-yellow-400/30 pt-4 mt-4"
             >
                 <img
                     src={datauser.avatar}
                     className="w-10 h-10 rounded-full object-cover"
                     alt=""
                 />
-                <div className="flex-1 flex items-center bg-[#2a2a2a] rounded-full px-4 py-2">
+                <div className="flex-1 flex items-center bg-gray-200 dark:bg-gray-800 rounded-full px-4 py-2">
                     <input
                         type="text"
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
                         placeholder="Viết bình luận..."
-                        className="bg-transparent flex-1 outline-none text-gray-200 placeholder-gray-400"
+                        className="bg-transparent flex-1 outline-none text-black dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
                     />
-                    <button className="text-yellow-400 hover:text-yellow-300 ml-3 font-semibold transition-transform hover:scale-105">
+                    <button className="text-[#FF9100] hover:text-[#FFBA51] ml-3 font-semibold transition-transform hover:scale-105">
                         Gửi
                     </button>
                 </div>
             </form>
         </div>
-
     );
 };
 
@@ -123,8 +119,7 @@ const CommentItem = ({ comment, level, postId, onReplyAdded }) => {
         try {
             const res = await commentApi.toggleLikeComment(comment._id);
             setIsLiked(res.liked);
-            console.log(res.Likes?.length);
-            setLikesCount(res.Likes?.length); // ✅ fix chỗ này: đúng là "likeCount" (không phải "likesCount")
+            setLikesCount(res.Likes?.length);
         } catch (err) {
             console.error("Lỗi like comment: ", err.message);
         }
@@ -148,7 +143,7 @@ const CommentItem = ({ comment, level, postId, onReplyAdded }) => {
     };
 
     return (
-        <div className={` mb-3 mt-3 ${level > 0 ? "" : ""}`}>
+        <div className={`mb-3 mt-3 ${level > 0 ? "ml-6" : ""}`}>
             <div className="flex items-start gap-3">
                 <img
                     src={comment.UserID?.Avatar || "https://via.placeholder.com/40"}
@@ -157,12 +152,12 @@ const CommentItem = ({ comment, level, postId, onReplyAdded }) => {
                 />
 
                 <div className="flex-1">
-                    <div className="bg-[#3a3b3c] rounded-2xl px-4 py-2 text-sm text-gray-200 max-w-full">
-                        <span className="font-semibold text-yellow-300">{comment.UserID?.Name}</span>
-                        <div className="mt-1 whitespace-pre-line">{comment.Content}</div>
+                    <div className="bg-gray-100 dark:bg-gray-800 rounded-2xl px-4 py-2 text-sm text-gray-200">
+                        <span className="font-semibold text-[#FF9A00]">{comment.UserID?.Name}</span>
+                        <div className="mt-1 whitespace-pre-line text-black dark:text-white ">{comment.Content}</div>
                     </div>
 
-                    <div className="text-xs text-gray-400 flex items-center gap-4 mt-1 ml-1">
+                    <div className="text-xs text-gray-400 dark:text-gray-500 flex items-center gap-4 mt-1 ml-1">
                         <button onClick={handleToggleLike} className="hover:text-yellow-300">
                             {isLiked ? "💛" : "🤍"} {likesCount}
                         </button>
@@ -190,19 +185,18 @@ const CommentItem = ({ comment, level, postId, onReplyAdded }) => {
                                     value={replyContent}
                                     onChange={(e) => setReplyContent(e.target.value)}
                                     placeholder={`Trả lời ${comment.UserID?.Name}...`}
-                                    className="w-full px-4 py-2 text-sm rounded-full bg-[#2f2f2f] text-gray-200 outline-none focus:ring-2 focus:ring-yellow-400 transition"
+                                    className="w-full px-4 py-2 text-sm rounded-full bg-gray-300 dark:bg-gray-900 text-gray-200 outline-none focus:ring-2 focus:ring-[#FFF2DA] transition"
                                 />
                             </div>
                             <button
                                 onClick={handleReply}
-                                className="text-yellow-400 font-medium hover:text-yellow-300 mt-1"
+                                className="text-[#FF9100] font-medium hover:text-[#FFBA51] mt-1"
                             >
                                 Gửi
                             </button>
                         </div>
                     )}
 
-                    {/* Render replies */}
                     {children.length > 0 && level < 2 && (
                         <div className="mt-2 space-y-2">
                             {children.map((child) => (
@@ -219,8 +213,6 @@ const CommentItem = ({ comment, level, postId, onReplyAdded }) => {
                 </div>
             </div>
         </div>
-
-
     );
 };
 
