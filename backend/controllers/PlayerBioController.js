@@ -4,7 +4,7 @@ const User = require('../models/User');
 const PlayerBioController = {
     createPlayerBio: async (req, res) => {
         try {
-            const { Rank, PlayTypes, Address, AvailableTimes, PlayGoals } = req.body;
+            const { PlayStyles, Address, AvailableTimes, PlayGoals } = req.body;
             const userId = req.user.id; // from auth middleware
 
             // Check if bio already exists for this user
@@ -15,8 +15,7 @@ const PlayerBioController = {
 
             const newBio = new PlayerBio({
                 User: userId,
-                Rank,
-                PlayTypes,
+                PlayStyles,
                 Address,
                 AvailableTimes,
                 PlayGoals

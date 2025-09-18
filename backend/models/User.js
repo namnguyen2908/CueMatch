@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema({
     Provider: { type: String, enum: ['local', 'google'], default: 'local' },
     ProviderID: { type: String, unique: true, sparse: true },
     Password: { type: String },
-    IsOnline: { type: Boolean, default: false },
+    LastSeen: { type: Date, default: null },
     Role: { type: String, enum: ['user', 'admin'], default: 'user' },
     Friends: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
 }, { timestamps: true }

@@ -14,13 +14,13 @@ const menuItems = [
   { id: "profile", icon: UserPen, label: "Profile" },
   { id: "messages", icon: MessageCircle, label: "Messages" },
   { id: "friends", icon: UserRoundPlus, label: "Friends" },
-  { id: "favourites", icon: Bookmark, label: "Favourites" },
-  { id: "groups", icon: Users, label: "Groups" },
   {
     id: "matching",
     icon: () => <i className="fa-solid fa-users w-5 h-5" />,
     label: "Matching"
-  }
+  },
+  { id: "favourites", icon: Bookmark, label: "Favourites" },
+  { id: "groups", icon: Users, label: "Groups" },
 ];
 
 export default function Sidebar() {
@@ -32,9 +32,9 @@ export default function Sidebar() {
     "/profile": "profile",
     "/messages": "messages",
     "/friends": "friends",
+    "/matching": "matching",
     "/favourites": "favourites",
     "/groups": "groups",
-    "/matching": "matching"
   };
 
   const initialActive = location.pathname.startsWith("/friends")
@@ -44,12 +44,14 @@ export default function Sidebar() {
   const [active, setActive] = useState(initialActive);
 
   useEffect(() => {
-    if (location.pathname.startsWith("/friends")) {
-      setActive("friends");
-    } else {
-      setActive(pathToIdMap[location.pathname] || "homefeed");
-    }
-  }, [location.pathname]);
+  if (location.pathname.startsWith("/friends")) {
+    setActive("friends");
+  } else if (location.pathname.startsWith("/matching")) {
+    setActive("matching");
+  } else {
+    setActive(pathToIdMap[location.pathname] || "homefeed");
+  }
+}, [location.pathname]);
 
   const handleClick = (id) => {
     setActive(id);

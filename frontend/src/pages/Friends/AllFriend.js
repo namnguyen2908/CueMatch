@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import friendApi from "../../api/friendApi";
-import { FaUserTimes, FaSearch, FaFilter, FaUserCheck } from "react-icons/fa";
+import { FaUserTimes, FaSearch, FaUserCheck } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import { useChat } from "../../contexts/ChatContext";
 import { createConversation } from "../../api/messageApi";
+import { useOnlineStatus } from "../../contexts/StatusContext";
 
 const AllFriend = () => {
   const [friends, setFriends] = useState([]);
@@ -11,8 +12,8 @@ const AllFriend = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [showFilters, setShowFilters] = useState(false);
   const { openChatWith } = useChat();
+  const { onlineUsers } = useOnlineStatus();
 
 
 
@@ -212,9 +213,15 @@ const AllFriend = () => {
                     />
 
                     {/* Online Status */}
-                    <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-400 border-3 border-white/20 rounded-full shadow-lg flex items-center justify-center">
-                      <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
-                    </div>
+                    <div
+                      className={`
+                        absolute -bottom-0.5 right-1 w-5 h-5 
+                        border-2 border-white dark:border-gray-800 
+                        rounded-full shadow 
+                        ${onlineUsers.has(friend._id) ? "bg-green-500 animate-pulse-slow" : "bg-gray-400"}
+                      `}
+                      title={onlineUsers.has(friend._id) ? "Online" : "Offline"}
+                    />
                   </div>
                 </div>
 

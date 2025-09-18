@@ -12,8 +12,18 @@ router.post('/login', AuthController.login);
 router.post('/refresh', AuthController.refreshToken);
 
 router.post('/logout', (req, res) => {
-    res.clearCookie('accessToken');
-    res.clearCookie('refreshToken');
+    const cookieOptions = {
+        path: '/',            // thường mặc định là /
+        httpOnly: true,       // tuỳ vào lúc set cookie
+        secure: false,         // nếu dùng https
+        sameSite: 'Strict'      // nếu cookie cross-site
+    };
+
+    for (let cookieName in req.cookies) {
+        // Clear với options nếu có
+        res.clearCookie(cookieName, cookieOptions);
+    }
+
     res.status(200).json({ message: 'Logged out successfully' });
 });
 

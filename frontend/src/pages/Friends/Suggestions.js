@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import friendApi from "../../api/friendApi";
-import { FaUserPlus, FaUsers, FaStar, FaRocket } from "react-icons/fa";
+import { FaSearch, FaUsers, FaStar, FaRocket } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 
 const Suggestions = () => {
@@ -8,17 +8,27 @@ const Suggestions = () => {
   const [loading, setLoading] = useState(true);
   const [sendingRequest, setSendingRequest] = useState(null);
   const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+const [filteredSuggestions, setFilteredSuggestions] = useState([]);
 
   const fetchSuggestions = async () => {
     try {
       const res = await friendApi.suggestFriends();
       setSuggestions(res.data);
+      setFilteredSuggestions(res.data);
     } catch (err) {
       setError(err.response?.data?.message || "Không thể tải gợi ý");
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+  const filtered = suggestions.filter((user) =>
+    user.Name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  setFilteredSuggestions(filtered);
+}, [searchTerm, suggestions]);
 
   useEffect(() => {
     fetchSuggestions();
@@ -120,6 +130,16 @@ const Suggestions = () => {
           </h2>
           <p className="text-gray-400">People you might know and want to connect with</p>
         </div>
+        <div className="relative w-full sm:w-80">
+    <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
+    <input
+      type="text"
+      placeholder="Search suggestions..."
+      value={searchTerm}
+      onChange={(e) => setSearchTerm(e.target.value)}
+      className="w-full pl-12 pr-4 py-3 bg-white/10 border-[#9B9B9B] dark:bg-white/5 border dark:border-white/20 dark:border-white/10 rounded-xl text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#FFBF26] focus:border-transparent transition-all"
+    />
+  </div>
       </div>
 
       {/* Suggestions Grid */}
@@ -130,7 +150,7 @@ const Suggestions = () => {
         className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
       >
         <AnimatePresence>
-          {suggestions.map((user, index) => (
+          {filteredSuggestions.map((user, index) => (
             <motion.div
               key={user._id}
               variants={cardVariants}

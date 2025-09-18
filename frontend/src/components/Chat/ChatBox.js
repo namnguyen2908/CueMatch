@@ -1,9 +1,8 @@
 // src/components/Chat/ChatBox.jsx
 import React, { useState, useRef, useEffect } from "react";
 import { X, Minus } from "lucide-react";
-import clsx from "clsx";
-import socket from '../../socket';
 import { useChat } from '../../contexts/ChatContext';
+import { useOnlineStatus } from '../../contexts/StatusContext';
 import { sendMessage as apiSendMessage } from '../../api/messageApi';
 import { useNavigate } from 'react-router-dom';
 
@@ -17,6 +16,7 @@ const ChatBox = ({ user, onClose, index, conversationId }) => {
   const boxWidth = 320;
   const spacing = 10;
   const rightOffset = index * (boxWidth + spacing);
+  const { onlineUsers } = useOnlineStatus();
 
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -54,7 +54,12 @@ const ChatBox = ({ user, onClose, index, conversationId }) => {
               className="w-8 h-8 rounded-full cursor-pointer"
               onClick={() => navigate(`/profile/${user._id}`)}
             />
-            <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-[#e5e5e5] dark:border-[#2a2a2d] rounded-full" />
+            <span
+              className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 
+    border-[#e5e5e5] dark:border-[#2a2a2d] 
+    ${onlineUsers.has(user._id) ? "bg-green-400" : "bg-gray-400"}
+  `}
+            />
           </div>
           <div className="text-sm font-semibold">{user.Name}</div>
         </div>
@@ -85,11 +90,10 @@ const ChatBox = ({ user, onClose, index, conversationId }) => {
                     className={`flex ${isSelf ? 'justify-end' : 'justify-start'}`}
                   >
                     <div
-                      className={`mt-[-2.5px] mb-[-2.5px] px-4 py-2 rounded-[20px] text-sm max-w-[75%] break-words ${
-                        isSelf
-                          ? 'bg-orange-500 text-black'
-                          : 'bg-gray-300 text-black dark:bg-gray-500 dark:text-white'
-                      }`}
+                      className={`mt-[-2.5px] mb-[-2.5px] px-4 py-2 rounded-[20px] text-sm max-w-[75%] break-words ${isSelf
+                        ? 'bg-orange-500 text-black'
+                        : 'bg-gray-300 text-black dark:bg-gray-500 dark:text-white'
+                        }`}
                     >
                       {msg.Text}
                     </div>

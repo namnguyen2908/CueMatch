@@ -9,6 +9,7 @@ import { useUser } from "../../contexts/UserContext";
 import friendApi from "../../api/friendApi";
 import { useChat } from "../../contexts/ChatContext";
 import { createConversation } from "../../api/messageApi";
+import { useOnlineStatus } from "../../contexts/StatusContext";
 
 const ProfileOther = () => {
     const { userId } = useParams(); // URL có dạng: /profile/:userId
@@ -18,6 +19,7 @@ const ProfileOther = () => {
     const { datauser } = useUser();
     const { openChatWith } = useChat();
     const [relationshipStatus, setRelationshipStatus] = useState("none");
+    const { onlineUsers } = useOnlineStatus();
 
     const postListRef = useRef();
 
@@ -151,7 +153,7 @@ const ProfileOther = () => {
                                 alt="Cover"
                                 className="w-full h-full object-cover brightness-[0.75]"
                             />
-                            <div className="absolute inset-0 bg-gradient-to-t from-[#00000099] to-transparent" />
+                            {/* <div className="absolute inset-0 bg-gradient-to-t from-[#00000099] to-transparent" /> */}
                         </div>
                     </div>
 
@@ -162,6 +164,15 @@ const ProfileOther = () => {
                                 <div className="relative">
                                     <div className="w-40 h-40 sm:w-44 sm:h-44 rounded-full border-4 border-gray-100 dark:border-[#18191a] overflow-hidden bg-gray-400 dark:bg-[#3a3b3c] shadow-[0_0_0_4px_#242526]">
                                         <img src={user.Avatar} alt="Avatar" className="w-full h-full object-cover" />
+                                        <div
+                                            className={`
+                                                absolute bottom-1 right-5 w-6 h-6 
+                                                border-2 border-white dark:border-gray-800 
+                                                rounded-full shadow 
+                                                ${onlineUsers.has(user._id) ? "bg-green-500 animate-pulse-slow" : "bg-gray-400"}
+                                            `}
+                                            title={onlineUsers.has(user._id) ? "Online" : "Offline"}
+                                        />
                                     </div>
                                 </div>
                                 <div className="sm:pb-4 min-w-0">

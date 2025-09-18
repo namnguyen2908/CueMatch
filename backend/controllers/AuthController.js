@@ -2,7 +2,7 @@ const User = require('../models/User');
 // import { refreshToken } from './../../frontend/src/api/authApi';
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { OAuth2Client, auth } = require('google-auth-library');
+const { OAuth2Client } = require('google-auth-library');
 const client = new OAuth2Client(process.env.GG_CLIENT_ID);
 const axios = require('axios');
 // const { refreshToken } = require('../../frontend/src/api/authApi');
@@ -77,7 +77,7 @@ const AuthController = {
                 secure: false,
             });
 
-            res.status(200).json({ message: 'Login successful', user: { id: user._id, Name: user.Name, Avatar: user.Avatar, } });
+            res.status(200).json({ message: 'Login successful', user: { id: user._id, Name: user.Name, Avatar: user.Avatar, }, accessToken });
 
         } catch (err) {
             console.error(err);
@@ -175,7 +175,7 @@ const AuthController = {
 
             return res.status(200).json({
                 message: 'Login with Google successful',
-                user: { id: user._id, Name: name, Avatar: picture },
+                user: { id: user._id, Name: name, Avatar: picture }, accessToken,
             });
         } catch (err) {
             console.error(err);

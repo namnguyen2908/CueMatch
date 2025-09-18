@@ -5,6 +5,7 @@ import { login, googleLogin } from '../api/authApi';
 import Warning from '../components/Warning';
 import { useGoogleLogin } from '@react-oauth/google';
 import { useUser } from '../contexts/UserContext';
+import { reconnectSocket } from '../socket';
 
 const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
@@ -34,12 +35,15 @@ const Login = () => {
         setWarning({ show: false });
         try {
             const res = await login(formData);
-            const userData = {
-                id: res.data.user.id,
-                name: res.data.user.Name,
-                avatar: res.data.user.Avatar,
-            };
-            Datalogin(userData);
+            const { user, accessToken } = res.data;
+
+            Datalogin({
+                id: user.id,
+                name: user.Name,
+                avatar: user.Avatar,
+            }, accessToken);
+
+            reconnectSocket(); // ✅ socket sẽ dùng được token
             navigate('/homefeed');
         } catch (err) {
             setWarning({ show: true, type: 'error', message: err.response?.data?.message });
@@ -54,12 +58,15 @@ const Login = () => {
             try {
                 // Gửi 'authorization code' lên server
                 const res = await googleLogin(response.code);
-                const userData = {
-                    id: res.data.user.id,
-                    name: res.data.user.Name,
-                    avatar: res.data.user.Avatar,
-                };
-                Datalogin(userData);
+                const { user, accessToken } = res.data;
+
+                Datalogin({
+                    id: user.id,
+                    name: user.Name,
+                    avatar: user.Avatar,
+                }, accessToken);
+
+                reconnectSocket();
                 navigate('/homefeed');
             } catch (err) {
                 setWarning({

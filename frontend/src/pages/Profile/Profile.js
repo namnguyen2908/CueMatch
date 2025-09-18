@@ -278,14 +278,22 @@ const Profile = () => {
                       <div>
                         <h3 className="text-gray-900 dark:text-[#e4e6ea] font-semibold mb-3">Player Bio</h3>
                         <div className="text-gray-700 dark:text-[#b0b3b8] space-y-2">
-                          <p><strong>🎖️ Rank:</strong> {playerBio.Rank}</p>
-                          <p><strong>🎱 Play Types:</strong> {playerBio.PlayTypes.join(', ')}</p>
+                          <p><strong>🎖️ Play Styles:</strong></p>
+                          <ul className="list-disc list-inside ml-4">
+                            {playerBio.PlayStyles.map((ps) => (
+                              <li key={ps.PlayType}>
+                                {ps.PlayType} — Level {ps.Rank}
+                              </li>
+                            ))}
+                          </ul>
                           <p><strong>🕒 Available:</strong> {playerBio.AvailableTimes.join(', ')}</p>
                           <p><strong>🎯 Goals:</strong> {playerBio.PlayGoals.join(', ')}</p>
-                          <p><strong>📍 Address:</strong></p>
-                          <ul className="list-disc list-inside">
-                            {playerBio.Address.map((addr, idx) => <li key={idx}>{addr}</li>)}
-                          </ul>
+                          <p>
+                            <strong>📍 Address:</strong>{' '}
+                            {playerBio.Address.Ward && `Ward ${playerBio.Address.Ward} `}
+                            {playerBio.Address.District && `District ${playerBio.Address.District} `}
+                            {playerBio.Address.District && `District ${playerBio.Address.City}`}
+                          </p>
                         </div>
                       </div>
                     )}

@@ -4,6 +4,7 @@ import { useUser } from '../../contexts/UserContext';
 import { useNavigate } from 'react-router-dom';
 import { logout } from '../../api/authApi';
 import { useTheme } from '../../contexts/ThemeContext';
+import socket from '../../socket';
 
 const Header = () => {
   const [focused, setFocused] = useState(false);
@@ -17,6 +18,8 @@ const Header = () => {
   const handleLogout = async () => {
     try {
       await logout();
+      socket.disconnect();
+      localStorage.removeItem('theme');
       localStorage.removeItem('user');
       navigate('/');
     } catch (error) {
