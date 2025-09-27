@@ -10,6 +10,7 @@ const matchInvitationSchema = new mongoose.Schema({
     Status: { type: String, enum: ['Pending', 'Accepted', 'Declined', 'Cancelled', 'Occurred'], default: 'Pending' },
     PlayType: { type: String, enum: ['Pool', 'Carom', 'Snooker'] },
     Message: { type: String },
+    ReminderSent: { type: Boolean, default: false }
 }, { timestamps: true });
 
 module.exports = mongoose.model('MatchInvitation', matchInvitationSchema);

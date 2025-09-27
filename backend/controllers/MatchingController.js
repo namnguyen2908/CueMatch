@@ -2,7 +2,7 @@ const User = require('../models/User'); // Adjust path as needed
 const PlayerBio = require('../models/PlayerBio');
 const MatchInvitation = require('../models/MatchInvitation');
 const { DateTime } = require('luxon');
-const cron = require('node-cron');
+const sendInvitationEmail = require('../sendEmail');
 
 // Helper function to calculate compatibility percentage between two PlayerBios
 const calculateCompatibility = (myBio, otherBio, selectedPlayType) => {
@@ -106,6 +106,22 @@ const MatchingController = {
             Message: message
         });
 
+        // --- GỬI EMAIL ---
+        const fromUserData = await User.findById(fromUser);
+        const toUserData = await User.findById(toUser);
+
+        await sendInvitationEmail({
+            toEmail: toUserData.Email,
+            toName: toUserData.Name,
+            fromName: fromUserData.Name,
+            matchDate,
+            timeStart,
+            timeEnd,
+            location,
+            playType,
+            message
+        });
+
         const formattedInvitation = {
             ...invitation.toObject(),
             MatchDate: DateTime.fromJSDate(invitation.MatchDate, { zone: 'Asia/Ho_Chi_Minh' }).toFormat('yyyy-MM-dd')
@@ -139,9 +155,8 @@ const MatchingController = {
                 To: userId,
                 MatchDate: invitation.MatchDate,
                 Status: 'Pending',
-                $or: [
-                    { TimeStart: { $lt: invitation.TimeEnd }, TimeEnd: { $gt: invitation.TimeStart } }
-                ]
+                TimeStart: { $lt: invitation.TimeEnd },
+                TimeEnd: { $gt: invitation.TimeStart }
             }, {
                 $set: { Status: 'Cancelled' }
             });

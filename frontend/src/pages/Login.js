@@ -35,13 +35,13 @@ const Login = () => {
         setWarning({ show: false });
         try {
             const res = await login(formData);
-            const { user, accessToken } = res.data;
+            const { user } = res.data;
 
             Datalogin({
                 id: user.id,
                 name: user.Name,
                 avatar: user.Avatar,
-            }, accessToken);
+            });
 
             reconnectSocket(); // ✅ socket sẽ dùng được token
             navigate('/homefeed');
@@ -58,13 +58,13 @@ const Login = () => {
             try {
                 // Gửi 'authorization code' lên server
                 const res = await googleLogin(response.code);
-                const { user, accessToken } = res.data;
+                const { user } = res.data;
 
                 Datalogin({
                     id: user.id,
                     name: user.Name,
                     avatar: user.Avatar,
-                }, accessToken);
+                });
 
                 reconnectSocket();
                 navigate('/homefeed');

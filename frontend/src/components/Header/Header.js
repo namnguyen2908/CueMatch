@@ -19,8 +19,7 @@ const Header = () => {
     try {
       await logout();
       socket.disconnect();
-      localStorage.removeItem('theme');
-      localStorage.removeItem('user');
+      localStorage.clear();
       navigate('/');
     } catch (error) {
       console.error("Logout failed:", error);

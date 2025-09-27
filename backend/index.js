@@ -4,6 +4,7 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 require('./cronJobs/UpdatedDaily');
+require('./cronJobs/RunRemind');
 
 const http = require('http');
 const { Server } = require('socket.io');

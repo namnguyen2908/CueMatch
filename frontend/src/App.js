@@ -23,6 +23,7 @@ import MatchingLayout from './pages/Matching/MatchingLayout';
 import MatchingChallenge from './pages/Matching/MatchingChallenge';
 import MatchingRequest from './pages/Matching/MatchingRequest';
 import MatchingHistory from './pages/Matching/MatchingHistory';
+import Calendar from './pages/Calendar';
 
 function App() {
   return (
@@ -41,6 +42,7 @@ function App() {
                   <Route path='/profile' element={<ProtectedRoute> <Profile /> </ProtectedRoute>} />
                   <Route path='/profile/:userId' element={<ProtectedRoute> <ProfileOther /> </ProtectedRoute>} />
                   <Route path='/messages' element={<ProtectedRoute> <MessagesPage /> </ProtectedRoute>} />
+                  <Route path='/Calendar' element={<ProtectedRoute> <Calendar /> </ProtectedRoute>} />
                   <Route path='/friends' element={<ProtectedRoute> <FriendLayout /> </ProtectedRoute>}>
                     <Route index element={<Navigate to="all-friends" />} />
                     <Route path="all-friends" element={<AllFriend />} />
