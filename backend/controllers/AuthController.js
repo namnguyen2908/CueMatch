@@ -5,11 +5,11 @@ const jwt = require('jsonwebtoken');
 const { OAuth2Client } = require('google-auth-library');
 const client = new OAuth2Client(process.env.GG_CLIENT_ID);
 const axios = require('axios');
-// const { refreshToken } = require('../../frontend/src/api/authApi');
+const BilliardsClub = require('../models/BilliardsClub');
 
 const generateAccessToken = (user) => {
     return jwt.sign(
-        { id: user._id, email: user.Email },
+        { id: user._id, email: user.Email, role: user.Role },
         process.env.ACCESS_TOKEN_SECRET,
         { expiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN }
     );
@@ -59,6 +59,12 @@ const AuthController = {
                 return res.status(401).json({ message: 'Invalid credentials' });
             }
 
+            let clubId = null;
+            if (user.Role === 'partner') {
+                const club = await BilliardsClub.findOne({ Owner: user._id });
+                clubId = club ? club._id : null;
+            }
+
             const accessToken = generateAccessToken(user);
             const refreshToken = generateRefreshToken(user);
 
@@ -77,7 +83,7 @@ const AuthController = {
                 secure: false,
             });
 
-            res.status(200).json({ message: 'Login successful', user: { id: user._id, Name: user.Name, Avatar: user.Avatar, }, accessToken });
+            res.status(200).json({ message: 'Login successful', user: { id: user._id, Name: user.Name, Avatar: user.Avatar, Role: user.Role, clubId, }, accessToken });
 
         } catch (err) {
             console.error(err);
@@ -156,6 +162,12 @@ const AuthController = {
                 picture = user.Avatar;
             }
 
+            let clubId = null;
+            if (user.Role === 'partner') {
+                const club = await BilliardsClub.findOne({ Owner: user._id });
+                clubId = club ? club._id : null;
+            }
+
             const accessToken = generateAccessToken(user);
             const refreshToken = generateRefreshToken(user);
 
@@ -175,7 +187,7 @@ const AuthController = {
 
             return res.status(200).json({
                 message: 'Login with Google successful',
-                user: { id: user._id, Name: name, Avatar: picture }, accessToken,
+                user: { id: user._id, Name: name, Avatar: picture, Role: user.Role, clubId, }, accessToken,
             });
         } catch (err) {
             console.error(err);

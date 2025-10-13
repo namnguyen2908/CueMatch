@@ -18,6 +18,12 @@ const messageRoutes = require('./routes/Message');
 const friendRoutes = require('./routes/Friend');
 const playerBioRoutes = require('./routes/PlayerBio');
 const matchingRoutes = require('./routes/Matching');
+const subscriptionPlan = require('./routes/SubscriptionPlan');
+const savedPost = require('./routes/SavedPost');
+const paymentRoutes = require('./routes/Payment');
+const BilliardsClubRoutes = require('./routes/BilliardsClub');
+const BilliardsTableRoutes = require('./routes/BilliardsTable');
+
 
 const redisClient = require('./redisClient');
 const User = require('./models/User');
@@ -55,6 +61,12 @@ app.use('/message', messageRoutes);
 app.use('/friends', friendRoutes);
 app.use('/playerBio', playerBioRoutes);
 app.use('/matching', matchingRoutes);
+app.use('/subscriptionPlan', subscriptionPlan);
+app.use('/savedPost', savedPost);
+app.use('/payment', paymentRoutes);
+app.use('/billiard-club', BilliardsClubRoutes);
+app.use('/billiard-table', BilliardsTableRoutes);
+
 
 // Tạo HTTP server
 const server = http.createServer(app);

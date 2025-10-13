@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const FriendController = require('../controllers/FriendController');
-const verifyToken = require('../middlewares/authMiddleware');
+const { verifyToken, checkRole } = require('../middlewares/authMiddleware');
 
 // Gửi lời mời kết bạn
 router.post('/send-request', verifyToken, FriendController.sendFriendRequest);

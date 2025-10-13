@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const PostController = require('../controllers/PostController');
-const verifyToken = require('../middlewares/authMiddleware');
+const { verifyToken, checkRole } = require('../middlewares/authMiddleware');
 const parser = require('../middlewares/uploadImage');
 
 router.post('/create', verifyToken, parser.fields([

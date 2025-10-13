@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const PlayerBioController = require('../controllers/PlayerBioController');
-const verifyToken  = require('../middlewares/authMiddleware');
+const { verifyToken, checkRole }  = require('../middlewares/authMiddleware');
 
 router.post('/create-bio', verifyToken, PlayerBioController.createPlayerBio);
 router.put('/edit-bio', verifyToken, PlayerBioController.updatePlayerBio);

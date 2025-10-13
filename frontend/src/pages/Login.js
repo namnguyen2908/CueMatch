@@ -41,10 +41,26 @@ const Login = () => {
                 id: user.id,
                 name: user.Name,
                 avatar: user.Avatar,
+                clubId: user.clubId,
             });
 
             reconnectSocket(); // ✅ socket sẽ dùng được token
-            navigate('/homefeed');
+            switch(res?.data?.user?.Role) {
+                case 'admin':
+                    {
+                        navigate('/dashboard');
+                        break;
+                    }
+                case 'partner':
+                    {
+                        navigate('/club-dashboard');
+                        break;
+                    }
+                case 'user':
+                    default:
+                        navigate('/homefeed');
+                        break;
+            }
         } catch (err) {
             setWarning({ show: true, type: 'error', message: err.response?.data?.message });
         } finally {
@@ -64,10 +80,26 @@ const Login = () => {
                     id: user.id,
                     name: user.Name,
                     avatar: user.Avatar,
+                    clubId: user.clubId,
                 });
 
                 reconnectSocket();
-                navigate('/homefeed');
+                switch(res?.data?.user?.Role) {
+                case 'admin':
+                    {
+                        navigate('/dashboard');
+                        break;
+                    }
+                case 'partner':
+                    {
+                        navigate('/club-dashboard');
+                        break;
+                    }
+                case 'user':
+                    default:
+                        navigate('/homefeed');
+                        break;
+            }
             } catch (err) {
                 setWarning({
                     show: true,
@@ -84,8 +116,6 @@ const Login = () => {
             });
         },
     });
-
-
 
     const balls = Array.from({ length: 8 }, (_, i) => ({
         id: i,

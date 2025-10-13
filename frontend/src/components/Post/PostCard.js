@@ -5,6 +5,7 @@ import SmartVideo from "../SmartVideo";
 import postApi from "../../api/postApi";
 import reactionApi from "../../api/reactionApi";
 import ReactionModal from "../ReactionModal";
+import savedApi from "../../api/savedApi";
 import { useUser } from "../../contexts/UserContext";
 import Reaction from "../Reaction";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -73,10 +74,12 @@ const Card = memo(({ post, isLast, lastRef, onClick, onEdit, onDelete }) => {
   const [groupedReactions, setGroupedReactions] = useState({});
   // Quản lý state local cho post để cập nhật UI khi có thay đổi reaction
   const [localPost, setLocalPost] = useState(post);
+  const [isSaved, setIsSaved] = useState(false);
   // Update localPost nếu prop post thay đổi
   useEffect(() => {
     setLocalPost(post);
   }, [post]);
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -87,6 +90,18 @@ const Card = memo(({ post, isLast, lastRef, onClick, onEdit, onDelete }) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    const checkSaved = async () => {
+      try {
+        const res = await savedApi.isPostSaved(localPost._id);
+        setIsSaved(res.isSaved);
+      } catch (err) {
+        console.error("Check saved failed", err);
+      }
+    };
+
+    checkSaved();
+  }, [localPost._id]);
 
   const handleOpenReactions = async () => {
     try {
@@ -160,10 +175,24 @@ const Card = memo(({ post, isLast, lastRef, onClick, onEdit, onDelete }) => {
               </>
             ) : (
               <button
-                onClick={() => alert("Post saved (fake logic)")}
+                onClick={async () => {
+                  try {
+                    if (isSaved) {
+                      await savedApi.unsavePost(localPost._id);
+                      setIsSaved(false);
+                    } else {
+                      await savedApi.savePost(localPost._id);
+                      setIsSaved(true);
+                    }
+                  } catch (error) {
+                    console.error("Save/Unsave failed", error);
+                  } finally {
+                    setShowMenu(false);
+                  }
+                }}
                 className="block w-full px-4 py-2 text-left text-sm text-green-400 hover:bg-green-400/10"
               >
-                💾 Save
+                {isSaved ? "❌ Unsave" : "💾 Save"}
               </button>
             )}
           </div>
@@ -267,7 +296,7 @@ const Card = memo(({ post, isLast, lastRef, onClick, onEdit, onDelete }) => {
               );
             })}
           </div>
-          <span className="ml-2 text-sm text-gray-800 dark:text-gray-200"> 
+          <span className="ml-2 text-sm text-gray-800 dark:text-gray-200">
             {Object.values(localPost.ReactionCounts || {}).reduce((a, b) => a + b, 0)}
           </span>
         </div>

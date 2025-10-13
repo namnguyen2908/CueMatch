@@ -2,7 +2,7 @@ const User = require('../models/User'); // Adjust path as needed
 const PlayerBio = require('../models/PlayerBio');
 const MatchInvitation = require('../models/MatchInvitation');
 const { DateTime } = require('luxon');
-const sendInvitationEmail = require('../sendEmail');
+const {sendInvitationEmail} = require('../sendEmail');
 
 // Helper function to calculate compatibility percentage between two PlayerBios
 const calculateCompatibility = (myBio, otherBio, selectedPlayType) => {

@@ -4,7 +4,7 @@ import {
   UserRoundPlus,
   Bookmark,
   Users,
-  MessageCircle, CalendarDays 
+  MessageCircle, CalendarDays, Zap
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -22,6 +22,7 @@ const menuItems = [
   { id: "favourites", icon: Bookmark, label: "Favourites" },
   { id: "groups", icon: Users, label: "Groups" },
   { id: "calendar", icon: CalendarDays, label: "Calendar" },
+  { id: "pricing", icon: Zap, label: "Upgrade" },
 ];
 
 export default function Sidebar() {
@@ -36,7 +37,8 @@ export default function Sidebar() {
     "/matching": "matching",
     "/favourites": "favourites",
     "/groups": "groups",
-    "/calendar": "calendar"
+    "/calendar": "calendar",
+    "/pricing": "pricing",
   };
 
   const initialActive = location.pathname.startsWith("/friends")

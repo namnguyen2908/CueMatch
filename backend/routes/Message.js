@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const ConversationController = require('../controllers/ConversationController');
 const MessageController = require('../controllers/MessageController');
-const verifyToken = require('../middlewares/authMiddleware');
+const { verifyToken, checkRole } = require('../middlewares/authMiddleware');
 const parser = require('../middlewares/uploadImage');
 
 

@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const MatchingController = require('../controllers/MatchingController');
-const verifyToken  = require('../middlewares/authMiddleware');
+const { verifyToken, checkRole }  = require('../middlewares/authMiddleware');
+const checkFeature = require('../middlewares/checkFeature');
 
-router.get('/get-player-list', verifyToken, MatchingController.getPlayerList);
+router.get('/get-player-list', verifyToken, checkFeature('Matching'), MatchingController.getPlayerList);
 router.post('/send-invitation', verifyToken, MatchingController.sendInvitation);
 router.post('/accept-invitation/:invitationId', verifyToken, MatchingController.acceptInvitation);
 router.get('/get-invitations', verifyToken, MatchingController.getInvitations);

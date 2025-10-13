@@ -15,14 +15,11 @@ export const UserProvider = ({ children }) => {
   const Datalogin = (userData, token) => {
     setDataUser(userData);
     localStorage.setItem('user', JSON.stringify(userData));
-    // 👇 Optional: lưu refreshToken nếu backend trả về
-    // localStorage.setItem('refreshToken', refreshToken);
   };
 
   const logout = () => {
     setDataUser(null);
     localStorage.removeItem('user');
-    // localStorage.removeItem('refreshToken');
   };
 
   return (

@@ -3,7 +3,7 @@ const router = express.Router();
 const AuthController = require('../controllers/AuthController');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-const  verifyToken  = require('../middlewares/authMiddleware');
+const  { verifyToken, checkRole }  = require('../middlewares/authMiddleware');
 
 // Đăng ký
 router.post('/register', AuthController.register);

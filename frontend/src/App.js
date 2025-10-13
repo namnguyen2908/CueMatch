@@ -24,6 +24,14 @@ import MatchingChallenge from './pages/Matching/MatchingChallenge';
 import MatchingRequest from './pages/Matching/MatchingRequest';
 import MatchingHistory from './pages/Matching/MatchingHistory';
 import Calendar from './pages/Calendar';
+import Pricing from './pages/Pricing';
+import SubscriptionPlans from './pages/Dashboard/SubscriptionPlans/SubscriptionPlans';
+import SavedPosts from './pages/SavedPosts';
+import Payment from './pages/Payment';
+import CreateClub from './pages/Partner/CreateClub';
+import ClubDashboard from './pages/Partner/ClubDashboard';
+import ClubProfile from './pages/Partner/ClubProfile';
+import BilliardsTableManagement from './pages/Partner/BilliardsTableManagement';
 
 function App() {
   return (
@@ -43,6 +51,14 @@ function App() {
                   <Route path='/profile/:userId' element={<ProtectedRoute> <ProfileOther /> </ProtectedRoute>} />
                   <Route path='/messages' element={<ProtectedRoute> <MessagesPage /> </ProtectedRoute>} />
                   <Route path='/Calendar' element={<ProtectedRoute> <Calendar /> </ProtectedRoute>} />
+                  <Route path='/pricing' element={<ProtectedRoute> <Pricing /> </ProtectedRoute>} />
+                  <Route path='/dashboard/subscription-plans' element={<ProtectedRoute> <SubscriptionPlans /> </ProtectedRoute>} />
+                  <Route path='/favourites' element={<ProtectedRoute> <SavedPosts /> </ProtectedRoute>} />
+                  <Route path='/payment/:planId' element={<ProtectedRoute> <Payment /> </ProtectedRoute>} />
+                  <Route path='/create-club' element={<ProtectedRoute> <CreateClub /> </ProtectedRoute>} />
+                  <Route path='/club-dashboard' element={<ProtectedRoute> <ClubDashboard /> </ProtectedRoute>} />
+                  <Route path='/club-dashboard/profile' element={<ProtectedRoute> <ClubProfile /> </ProtectedRoute>} />
+                  <Route path='/club-dashboard/table-management' element={<ProtectedRoute> <BilliardsTableManagement /> </ProtectedRoute>} />
                   <Route path='/friends' element={<ProtectedRoute> <FriendLayout /> </ProtectedRoute>}>
                     <Route index element={<Navigate to="all-friends" />} />
                     <Route path="all-friends" element={<AllFriend />} />

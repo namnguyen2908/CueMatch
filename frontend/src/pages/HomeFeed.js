@@ -81,7 +81,7 @@ const HomeFeed = () => {
           >
             <div className="flex items-center space-x-4">
               <div className="w-11 h-11 rounded-full overflow-hidden ring-2 ring-yellow-400/60">
-                <img src={datauser.avatar} alt="User Avatar" className="w-full h-full object-cover"/>
+                <img src={datauser.avatar} alt="User Avatar" className="w-full h-full object-cover" />
               </div>
               <div
                 className="
