@@ -5,8 +5,7 @@ const postSchema = new mongoose.Schema({
     Content: { type: String, required: true },
     Image: [{ type: String }],
     Video: [{ type: String }],
-    Status: { type: String, enum: ['public', 'friends', 'group'], default: 'public' },
-    GroupID: { type: mongoose.Schema.Types.ObjectId, ref: 'Group' },
+    Status: { type: String, enum: ['public', 'friends'], default: 'public' },
     CommentCount: { type: Number, default: 0 },
     ReactionCounts: {
         like: { type: Number, default: 0 },

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Image, Globe, Users, Lock, ChevronDown, Video } from 'lucide-react';
+import { X, Image, Globe, Users, ChevronDown, Video } from 'lucide-react';
 import postApi from '../../api/postApi';
 import { useUser } from '../../contexts/UserContext';
 
@@ -10,23 +10,20 @@ const PostModal = ({ isOpen, onClose, onPostCreated, editingPost = null }) => {
   const [loading, setLoading] = useState(false);
   const { datauser } = useUser();
 
-  // File media
+  // Media states
   const [imageFiles, setImageFiles] = useState([]);
-  const [videoFiles, setVideoFiles] = useState([])
+  const [videoFiles, setVideoFiles] = useState([]);
 
+  // ✅ Đã bỏ group
   const statusOptions = [
     { value: 'public', icon: Globe, label: 'Public', desc: 'Everyone can see' },
     { value: 'friends', icon: Users, label: 'Friends', desc: 'Only friends can see' },
-    { value: 'group', icon: Lock, label: 'Group', desc: 'Only group members can view' }
   ];
 
   const selectedOption = statusOptions.find(option => option.value === Status);
 
-
   const handleBackdropClick = (e) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
+    if (e.target === e.currentTarget) onClose();
   };
 
   const selectStatus = (value) => {
@@ -47,6 +44,7 @@ const PostModal = ({ isOpen, onClose, onPostCreated, editingPost = null }) => {
   const removeImage = (index) => {
     setImageFiles(prev => prev.filter((_, i) => i !== index));
   };
+
   const removeVideo = (index) => {
     setVideoFiles(prev => prev.filter((_, i) => i !== index));
   };
@@ -85,7 +83,7 @@ const PostModal = ({ isOpen, onClose, onPostCreated, editingPost = null }) => {
       onClose();
       onPostCreated?.();
     } catch (error) {
-      console.error('Failed to submit post:', error);
+      console.error('❌ Failed to submit post:', error);
     } finally {
       setLoading(false);
     }
@@ -99,7 +97,6 @@ const PostModal = ({ isOpen, onClose, onPostCreated, editingPost = null }) => {
       onClick={handleBackdropClick}
     >
       <div className="w-full max-w-xl rounded-2xl bg-orange-200/20 text-gray-200 shadow-[0_0_30px_rgba(255,215,0,0.05)] border-[2px] border-[#FFB95B] backdrop-blur-xl">
-
 
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800">
@@ -116,12 +113,12 @@ const PostModal = ({ isOpen, onClose, onPostCreated, editingPost = null }) => {
           {/* Avatar + Dropdown */}
           <div className="flex items-start space-x-3 mb-4">
             <img
-              src={datauser.avatar}
+              src={datauser?.avatar}
               alt="User"
               className="w-12 h-12 rounded-full border border-yellow-500/20 shadow-sm"
             />
             <div className="flex flex-col">
-              <h3 className="font-semibold text-[#FFFFFF]">{datauser.name}</h3>
+              <h3 className="font-semibold text-[#FFFFFF]">{datauser?.name}</h3>
 
               <div className="relative mt-1">
                 <button
@@ -146,9 +143,9 @@ const PostModal = ({ isOpen, onClose, onPostCreated, editingPost = null }) => {
                             : 'hover:bg-[#FFE5AE]/30'}`}
                       >
                         <div className={`w-10 h-10 rounded-full flex items-center justify-center
-                          ${option.value === 'public' ? 'bg-green-900 text-green-400'
-                            : option.value === 'friends' ? 'bg-blue-900 text-blue-400'
-                              : 'bg-gray-800 text-gray-400'}`}>
+                          ${option.value === 'public'
+                            ? 'bg-green-900 text-green-400'
+                            : 'bg-blue-900 text-blue-400'}`}>
                           <option.icon size={18} />
                         </div>
                         <div className="flex-1 text-left">
@@ -156,8 +153,7 @@ const PostModal = ({ isOpen, onClose, onPostCreated, editingPost = null }) => {
                           <div className="text-xs font-medium text-black">{option.desc}</div>
                         </div>
                         {Status === option.value && (
-                          <div className="w-4 h-4 bg-[#00FF2B]/90 border-[3px] border-[#00FFD5]/40 rounded-full flex items-center justify-center">
-                          </div>
+                          <div className="w-4 h-4 bg-[#00FF2B]/90 border-[3px] border-[#00FFD5]/40 rounded-full flex items-center justify-center" />
                         )}
                       </button>
                     ))}
@@ -179,7 +175,6 @@ const PostModal = ({ isOpen, onClose, onPostCreated, editingPost = null }) => {
           <div className="border border-yellow-500/30 rounded-xl p-4 mb-4 bg-[#FFF0C6]/30 backdrop-blur-sm">
             <p className="text-sm font-medium text-black mb-3">Add to your post</p>
             <div className="flex space-x-3 items-center">
-
               {/* Image Upload */}
               <label htmlFor="image-upload" className="w-10 h-10 flex items-center justify-center bg-[#00C957] hover:bg-green-800 rounded-full cursor-pointer transition">
                 <Image size={18} className="text-[#CDFFE3]" />
@@ -193,10 +188,10 @@ const PostModal = ({ isOpen, onClose, onPostCreated, editingPost = null }) => {
                 />
               </label>
 
-              {/* Show selected image file name + remove button */}
+              {/* Selected Images */}
               {imageFiles.map((file, index) => (
-                <div className="flex items-center space-x-2 bg-yellow-900/20 rounded px-2 py-1 text-yellow-400 text-sm">
-                  <span>{file.name}</span>
+                <div key={index} className="flex items-center space-x-2 bg-yellow-900/20 rounded px-2 py-1 text-yellow-400 text-sm">
+                  <span>{file.name || file}</span>
                   <button onClick={() => removeImage(index)} className="text-yellow-400 font-bold">&times;</button>
                 </div>
               ))}
@@ -214,14 +209,13 @@ const PostModal = ({ isOpen, onClose, onPostCreated, editingPost = null }) => {
                 />
               </label>
 
-              {/* Show selected video file name + remove button */}
+              {/* Selected Videos */}
               {videoFiles.map((file, index) => (
-                <div className="flex items-center space-x-2 bg-yellow-900/20 rounded px-2 py-1 text-yellow-400 text-sm">
-                  <span>{file.name}</span>
+                <div key={index} className="flex items-center space-x-2 bg-yellow-900/20 rounded px-2 py-1 text-yellow-400 text-sm">
+                  <span>{file.name || file}</span>
                   <button onClick={() => removeVideo(index)} className="text-yellow-400 font-bold">&times;</button>
                 </div>
               ))}
-
             </div>
           </div>
 
@@ -230,10 +224,9 @@ const PostModal = ({ isOpen, onClose, onPostCreated, editingPost = null }) => {
             onClick={handleCreatePost}
             disabled={!Content.trim() || loading}
             className={`w-full py-3 rounded-lg font-semibold transition text-sm
-    ${Content.trim() && !loading
+              ${Content.trim() && !loading
                 ? 'bg-[#89FFD0] hover:bg-[#00FF9A] text-black shadow-lg opacity-80'
-                : 'bg-[#7D7D7D] text-black cursor-not-allowed opacity-50'
-              }`}
+                : 'bg-[#7D7D7D] text-black cursor-not-allowed opacity-50'}`}
           >
             {loading ? (editingPost ? 'Updating...' : 'Posting...') : (editingPost ? 'Update' : 'Post')}
           </button>

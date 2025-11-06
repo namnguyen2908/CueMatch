@@ -5,6 +5,8 @@ const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 require('./cronJobs/UpdatedDaily');
 require('./cronJobs/RunRemind');
+require('./cronJobs/SubscriptionCron');
+require('./cronJobs/SubscriptionReminderJob');
 
 const http = require('http');
 const { Server } = require('socket.io');
@@ -23,6 +25,8 @@ const savedPost = require('./routes/SavedPost');
 const paymentRoutes = require('./routes/Payment');
 const BilliardsClubRoutes = require('./routes/BilliardsClub');
 const BilliardsTableRoutes = require('./routes/BilliardsTable');
+const TableRateRoutes = require('./routes/TableRate');
+const billiardsBookingRoutes = require('./routes/BilliardsBooking');
 
 
 const redisClient = require('./redisClient');
@@ -66,6 +70,8 @@ app.use('/savedPost', savedPost);
 app.use('/payment', paymentRoutes);
 app.use('/billiard-club', BilliardsClubRoutes);
 app.use('/billiard-table', BilliardsTableRoutes);
+app.use('/table-rate', TableRateRoutes);
+app.use('/billiards-booking', billiardsBookingRoutes);
 
 
 // Tạo HTTP server

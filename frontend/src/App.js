@@ -32,6 +32,7 @@ import CreateClub from './pages/Partner/CreateClub';
 import ClubDashboard from './pages/Partner/ClubDashboard';
 import ClubProfile from './pages/Partner/ClubProfile';
 import BilliardsTableManagement from './pages/Partner/BilliardsTableManagement';
+import BookingDashboard from './pages/Partner/BookingDashboard';
 
 function App() {
   return (
@@ -59,6 +60,7 @@ function App() {
                   <Route path='/club-dashboard' element={<ProtectedRoute> <ClubDashboard /> </ProtectedRoute>} />
                   <Route path='/club-dashboard/profile' element={<ProtectedRoute> <ClubProfile /> </ProtectedRoute>} />
                   <Route path='/club-dashboard/table-management' element={<ProtectedRoute> <BilliardsTableManagement /> </ProtectedRoute>} />
+                  <Route path='/club-dashboard/bookings' element={<ProtectedRoute> <BookingDashboard /> </ProtectedRoute>} />
                   <Route path='/friends' element={<ProtectedRoute> <FriendLayout /> </ProtectedRoute>}>
                     <Route index element={<Navigate to="all-friends" />} />
                     <Route path="all-friends" element={<AllFriend />} />

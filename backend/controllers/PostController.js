@@ -5,23 +5,28 @@ const Reaction = require('../models/Reaction');
 const PostController = {
     createPost: async (req, res) => {
         try {
-            const { Content, Status, GroupID } = req.body;
-            const UserID = req.user.id;
+            const { Content, Status } = req.body;
+            const UserID = req.user?.id;
+
             if (!UserID) {
                 return res.status(400).json({ message: 'UserID is required' });
             }
-            if (Status == "group" && !GroupID) {
-                return res.status(400).json({ message: 'GroupID is required when status is "group"' });
+
+            // ✅ Chỉ cho phép status là 'public' hoặc 'friends'
+            const allowedStatuses = ['public', 'friends'];
+            if (Status && !allowedStatuses.includes(Status)) {
+                return res.status(400).json({ message: 'Invalid status value' });
             }
+
             let imageUrls = [];
             let videoUrls = [];
 
             if (req.files) {
                 if (req.files.Image && req.files.Image.length > 0) {
-                    imageUrls = req.files.Image.map(file => file.path)
+                    imageUrls = req.files.Image.map(file => file.path);
                 }
                 if (req.files.Video && req.files.Video.length > 0) {
-                    videoUrls = req.files.Video.map(file => file.path)
+                    videoUrls = req.files.Video.map(file => file.path);
                 }
             }
 
@@ -31,12 +36,16 @@ const PostController = {
                 Image: imageUrls,
                 Video: videoUrls,
                 Status,
-                GroupID,
             });
+
             const savedPost = await newPost.save();
-            return res.status(200).json({ message: 'Post created successfully', post: savedPost });
+            return res.status(200).json({
+                message: 'Post created successfully',
+                post: savedPost
+            });
+
         } catch (err) {
-            console.error('Error in createPost:', err); // log chi tiết lỗi ra console backend
+            console.error('Error in createPost:', err);
             return res.status(500).json({ message: err.message || 'Server error', error: err });
         }
     },

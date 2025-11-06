@@ -1,5 +1,6 @@
 const BilliardsTable = require('../models/BilliardsTable');
 const BilliardsClub = require('../models/BilliardsClub');
+const BilliardsBooking = require('../models/BilliardsBooking');
 
 const BilliardsTableController = {
     createTable: async (req, res) => {
@@ -24,9 +25,27 @@ const BilliardsTableController = {
     getTableByClub: async (req, res) => {
         try {
             const { clubId } = req.params;
-            const tables = await BilliardsTable.find({ Club: clubId });
+            const tables = await BilliardsTable.find({ Club: clubId }).lean();
+            // Với mỗi bàn, tìm booking đang hoạt động nếu có
+            for (let table of tables) {
+                const activeBooking = await BilliardsBooking.findOne({
+                    Table: table._id,
+                    Status: 'checked-in' // hoặc status bạn đang dùng khi bàn đang được sử dụng
+                }).select('_id StartTime User TotalAmount');
+
+                if (activeBooking) {
+                    table.activeBooking = {
+                        _id: activeBooking._id,
+                        StartTime: activeBooking.StartTime,
+                        User: activeBooking.User,
+                        TotalAmount: activeBooking.TotalAmount
+                    };
+                }
+            }
+
             return res.json(tables);
         } catch (error) {
+            console.error(error);
             return res.status(500).json({ message: 'Lỗi lấy danh sách bàn.', error });
         }
     },
