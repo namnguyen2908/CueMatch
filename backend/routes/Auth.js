@@ -14,17 +14,20 @@ router.post('/forgot-password', AuthController.forgotPassword);
 router.post('/reset-password', AuthController.resetPassword);
 
 router.post('/logout', (req, res) => {
+    const isProduction = process.env.NODE_ENV === 'production';
+    const isHttpsFrontend = process.env.FRONTEND_URL && process.env.FRONTEND_URL.startsWith('https://');
+    const useSecureCookies = isProduction || isHttpsFrontend;
+
     const cookieOptions = {
-        path: '/',            // thường mặc định là /
-        httpOnly: true,       // tuỳ vào lúc set cookie
-        secure: false,         // nếu dùng https
-        sameSite: 'Strict'      // nếu cookie cross-site
+        path: '/',
+        httpOnly: true,
+        secure: useSecureCookies,
+        sameSite: useSecureCookies ? 'None' : 'Strict',
     };
 
-    for (let cookieName in req.cookies) {
-        // Clear với options nếu có
-        res.clearCookie(cookieName, cookieOptions);
-    }
+    // Chỉ cần xoá cookie auth chính; tránh clear tất cả cookie khác không cần thiết
+    res.clearCookie('accessToken', cookieOptions);
+    res.clearCookie('refreshToken', cookieOptions);
 
     res.status(200).json({ message: 'Logged out successfully' });
 });
