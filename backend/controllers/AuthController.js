@@ -10,6 +10,11 @@ const { sendResetPasswordOtpEmail } = require('../sendEmail');
 const BilliardsClub = require('../models/BilliardsClub');
 const { queueDashboardUpdate } = require('../services/adminDashboardService');
 
+// Cấu hình cookie cho môi trường production (HTTPS, domain khác)
+const isProduction = process.env.NODE_ENV === 'production';
+const isHttpsFrontend = process.env.FRONTEND_URL && process.env.FRONTEND_URL.startsWith('https://');
+const useSecureCookies = isProduction || isHttpsFrontend;
+
 const generateAccessToken = (user) => {
     return jwt.sign(
         { id: user._id, email: user.Email, role: user.Role },
@@ -104,15 +109,15 @@ const AuthController = {
             res.cookie('accessToken', accessToken, {
                 httpOnly: true,
                 maxAge: 60 * 60 * 1000,
-                sameSite: 'Strict',
-                secure: false, // true nếu dùng HTTPS
+                sameSite: useSecureCookies ? 'None' : 'Strict',
+                secure: useSecureCookies, // cần HTTPS + SameSite=None cho frontend Vercel
             });
 
             res.cookie('refreshToken', refreshToken, {
                 httpOnly: true,
                 maxAge: 7 * 24 * 60 * 60 * 1000,
-                sameSite: 'Strict',
-                secure: false,
+                sameSite: useSecureCookies ? 'None' : 'Strict',
+                secure: useSecureCookies,
             });
 
             res.status(200).json({ message: 'Login successful', user: { id: user._id, Name: user.Name, Avatar: user.Avatar, Role: user.Role, clubId, }, accessToken });
@@ -140,14 +145,14 @@ const AuthController = {
             res.cookie('accessToken', newAccessToken, {
                 httpOnly: true,
                 maxAge: 60 * 60 * 1000,
-                sameSite: 'Strict',
-                secure: false,
+                sameSite: useSecureCookies ? 'None' : 'Strict',
+                secure: useSecureCookies,
             });
             res.cookie('refreshToken', newRefreshToken, {
                 httpOnly: true,
                 maxAge: 7 * 24 * 60 * 60 * 1000,
-                sameSite: 'Strict',
-                secure: false,
+                sameSite: useSecureCookies ? 'None' : 'Strict',
+                secure: useSecureCookies,
             });
             res.status(200).json({ message: 'Token refreshed successfully' });
         })
@@ -195,15 +200,15 @@ const AuthController = {
             const refreshToken = generateRefreshToken(user);
             res.cookie('accessToken', accessToken, {
                 httpOnly: true,
-                maxAge: 1 * 60 * 1000,
-                sameSite: 'Strict',
-                secure: false,
+                maxAge: 60 * 60 * 1000,
+                sameSite: useSecureCookies ? 'None' : 'Strict',
+                secure: useSecureCookies,
             });
             res.cookie('refreshToken', refreshToken, {
                 httpOnly: true,
                 maxAge: 7 * 24 * 60 * 60 * 1000,
-                sameSite: 'Strict',
-                secure: false,
+                sameSite: useSecureCookies ? 'None' : 'Strict',
+                secure: useSecureCookies,
             });
             if (createdNewUser) { queueDashboardUpdate(req.app); }
             return res.status(200).json({ message: 'Login with Google successful',

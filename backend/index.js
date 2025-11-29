@@ -42,8 +42,15 @@ const applySocketMiddleware = require('./middlewares/socketMiddleware');
 dotenv.config();
 
 // Cấu hình origin cho frontend (dùng khi deploy)
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
-const ALLOWED_ORIGINS = [FRONTEND_URL, 'http://localhost:3000', 'http://localhost:5173'].filter(Boolean);
+// Chuẩn hoá để bỏ dấu '/' ở cuối (nếu có), vì header Origin của browser không có '/'
+const RAW_FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
+const NORMALIZED_FRONTEND_URL = RAW_FRONTEND_URL.replace(/\/$/, '');
+
+const ALLOWED_ORIGINS = [
+  NORMALIZED_FRONTEND_URL,   // Vercel frontend (prod)
+  'http://localhost:3000',   // local dev
+  'http://localhost:5173'    // local Vite (nếu có)
+].filter(Boolean);
 
 const app = express();
 
@@ -59,16 +66,10 @@ const connectToMongo = async () => {
 };
 connectToMongo();
 
-const allowedOrigins = [
-  process.env.FRONTEND_URL,         // Vercel frontend
-  'http://localhost:3000',          // local dev
-  'http://localhost:5173'           // local Vite (nếu có)
-].filter(Boolean);
-
 app.use(cors({
   origin: function(origin, callback) {
-    if (!origin) return callback(null, true); // postman, server-to-server
-    if (allowedOrigins.includes(origin)) {
+    if (!origin) return callback(null, true); // Postman, server-to-server
+    if (ALLOWED_ORIGINS.includes(origin)) {
       return callback(null, true);
     }
     return callback(new Error(`CORS error: Origin ${origin} not allowed`));
