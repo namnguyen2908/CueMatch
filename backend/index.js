@@ -59,14 +59,19 @@ const connectToMongo = async () => {
 };
 connectToMongo();
 
+const allowedOrigins = [
+  process.env.FRONTEND_URL,         // Vercel frontend
+  'http://localhost:3000',          // local dev
+  'http://localhost:5173'           // local Vite (nếu có)
+].filter(Boolean);
+
 app.use(cors({
-  origin: function (origin, callback) {
-    // Cho phép các request không có origin (ví dụ: Postman)
-    if (!origin) return callback(null, true);
-    if (ALLOWED_ORIGINS.includes(origin)) {
+  origin: function(origin, callback) {
+    if (!origin) return callback(null, true); // postman, server-to-server
+    if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
-    return callback(new Error('Not allowed by CORS'));
+    return callback(new Error(`CORS error: Origin ${origin} not allowed`));
   },
   credentials: true
 }));
