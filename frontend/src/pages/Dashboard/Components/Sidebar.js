@@ -1,60 +1,53 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { logout } from '../../../api/authApi';
-import socket from '../../../socket';
 
 const Sidebar = ({ isOpen }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  
-  const handleLogout = async () => {
-    try {
-      await logout();
-      socket.disconnect();
-      localStorage.clear();
-      navigate('/');
-    } catch (error) {
-      console.error("Logout failed:", error);
+
+  const menuItems = [
+    { name: 'Overview', path: '/dashboard', icon: '📊' },
+    { name: 'Users', path: '/dashboard/users', icon: '👥' },
+    { name: 'Billiards Clubs', path: '/dashboard/billiards-management', icon: '🎱' },
+    { name: 'Subscription Plans', path: '/dashboard/subscription-plans', icon: '💳' },
+    { name: 'Withdrawals', path: '/dashboard/withdrawals', icon: '💸' },
+  ];
+
+  const handleClick = (item) => {
+    if (item.path) {
+      navigate(item.path);
     }
   };
 
-
-  const menuItems = [
-    { name: 'Dashboard', path: '/dashboard', },
-    { name: 'Customers', path: '/customers', },
-    { name: 'Messages', path: '/messages', },
-    { name: 'Help', path: '/help', },
-    { name: 'Settings', path: '/settings', },
-    { name: 'Password', path: '/password', },
-    { name: 'Subscription Plans', path: '/dashboard/subscription-plans' }, // menu mới
-    { name: 'Sign Out', path: '/signout', }
-  ];
+  const isActive = (path) =>
+    path ? location.pathname === path || location.pathname.startsWith(`${path}/`) : false;
 
   return (
     <aside
-      className={`bg-[#2e1a7b] min-h-screen text-white transition-all duration-300
-        ${isOpen ? 'w-64' : 'w-20 overflow-hidden'}`}
+      className={`bg-gray-900 min-h-screen text-white transition-all duration-200 ${
+        isOpen ? 'w-64' : 'w-20'
+      }`}
     >
-      <div className={`px-8 py-6 flex items-center space-x-3 bg-[#4b3da7] transition-all duration-300`}>
-        <span className={`text-[30px] font-semibold select-none ${isOpen ? 'block' : 'hidden'}`}>CueMatch</span>
+      <div className="px-5 py-6 border-b border-gray-800">
+        <p className="text-xs uppercase tracking-[0.2em] text-gray-400">CueMatch</p>
+        {isOpen && <p className="text-lg font-semibold text-white mt-1">Admin</p>}
       </div>
 
-      <nav className="mt-8 flex flex-col space-y-1 px-4">
-        {menuItems.map((item, index) => {
-          const isActive = location.pathname === item.path;
-
+      <nav className="mt-4 flex flex-col space-y-1 px-3">
+        {menuItems.map((item) => {
+          const active = isActive(item.path);
           return (
             <button
-              key={index}
-              onClick={() => navigate(item.path)}
-              className={`w-full text-left flex items-center space-x-4 px-5 py-3 rounded-lg text-base font-medium transition-colors duration-300 ${
-                isActive
-                  ? 'bg-[#1f1261] text-white shadow-lg'
-                  : 'text-[#c0bde6] hover:bg-[#563ddb] hover:text-white'
+              key={item.name}
+              onClick={() => handleClick(item)}
+              className={`flex items-center w-full px-4 py-2 rounded-lg text-sm font-medium border border-transparent ${
+                active ? 'bg-gray-800 border-gray-700 text-white' : 'text-gray-300 hover:bg-gray-800'
               }`}
             >
-              <span className="text-lg">{item.icon}</span>
-              {isOpen && <span>{item.name}</span>}
+              <span className="text-lg" aria-hidden="true">
+                {item.icon}
+              </span>
+              {isOpen && <span className="ml-3">{item.name}</span>}
             </button>
           );
         })}

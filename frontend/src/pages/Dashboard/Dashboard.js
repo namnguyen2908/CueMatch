@@ -1,80 +1,177 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Layout from './Layout';
-import userApi from '../../api/userApi';
+import adminApi from '../../api/adminApi';
+import socket from '../../socket';
+import ErrorToast from '../../components/ErrorToast/ErrorToast';
 import {
-  PieChart, Pie, Cell, ResponsiveContainer,
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
 } from 'recharts';
 
-const COLORS = ['#4f46e5', '#10b981', '#f59e0b'];
+const ROLE_COLORS = ['#2563eb', '#059669', '#f97316'];
+const STATUS_BADGES = {
+  PAID: 'text-emerald-700 bg-emerald-50 border-emerald-200',
+  PENDING: 'text-amber-700 bg-amber-50 border-amber-200',
+  FAILED: 'text-rose-700 bg-rose-50 border-rose-200',
+};
+
+const formatCurrency = (value = 0) =>
+  new Intl.NumberFormat('vi-VN', {
+    style: 'currency',
+    currency: 'VND',
+    maximumFractionDigits: 0,
+  }).format(value);
+
+const formatDate = (value) =>
+  value ? new Date(value).toLocaleDateString('vi-VN') : '--';
+
+const StatCard = ({ label, value, sub }) => (
+  <div className="bg-white border border-gray-200 rounded-xl p-5">
+    <p className="text-sm text-gray-500 mb-1">{label}</p>
+    <p className="text-2xl font-semibold text-gray-900">{value}</p>
+    {sub && <p className="text-sm text-gray-500 mt-1">{sub}</p>}
+  </div>
+);
 
 const Dashboard = () => {
-  const [userStats, setUserStats] = useState([]);
-  const [recentUsers, setRecentUsers] = useState([]);
+  const [overview, setOverview] = useState(null);
+  const [roleBreakdown, setRoleBreakdown] = useState([]);
   const [userGrowth, setUserGrowth] = useState([]);
+  const [revenueTrend, setRevenueTrend] = useState([]);
+  const [recentPayments, setRecentPayments] = useState([]);
+  const [recentUsers, setRecentUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  useEffect(() => {
-    fetchUserStats();
-    fetchRecentUsers();
-    fetchUserGrowth(); // giả sử bạn có API lấy user theo thời gian
+  const applyDashboardPayload = useCallback((data) => {
+    setOverview(data.overview);
+    setRoleBreakdown(data.roleBreakdown);
+    setUserGrowth(data.userGrowth);
+    setRevenueTrend(data.revenueTrend);
+    setRecentPayments(data.recentPayments);
+    setRecentUsers(data.recentUsers);
   }, []);
 
-  const fetchUserStats = async () => {
-    try {
-      const data = await userApi.getUserStats();
-      const formatted = [
-        { name: 'User', value: data.roles.user || 0 },
-        { name: 'Admin', value: data.roles.admin || 0 },
-        { name: 'Partner', value: data.roles.partner || 0 }
-      ];
-      setUserStats(formatted);
-    } catch (error) {
-      console.error("Error fetching stats", error);
-    }
-  };
+  useEffect(() => {
+    let isMounted = true;
 
-  const fetchRecentUsers = async () => {
-    try {
-      const res = await userApi.getAllUsers({ page: 1, limit: 5 });
-      setRecentUsers(res.data);
-    } catch (error) {
-      console.error("Error fetching recent users", error);
-    }
-  };
+    const fetchDashboard = async () => {
+      try {
+        setLoading(true);
+        const data = await adminApi.getDashboard();
+        if (!isMounted) return;
+        applyDashboardPayload(data);
+      } catch (err) {
+        if (!isMounted) return;
+        console.error('Dashboard load error:', err);
+        setError('Cannot load dashboard data');
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
 
-  const fetchUserGrowth = async () => {
-    try {
-      // 👉 Bạn phải tạo API trả về dữ liệu user theo tháng (hoặc ngày)
-      const res = await userApi.getUserGrowth(); // ví dụ [{month: 'Sep', count: 30}, ...]
-      setUserGrowth(res);
-    } catch (error) {
-      console.error("Error fetching growth", error);
+    fetchDashboard();
+    return () => {
+      isMounted = false;
+    };
+  }, [applyDashboardPayload]);
+
+  useEffect(() => {
+    if (!socket.connected) {
+      socket.connect();
     }
-  };
+
+    const handleDashboardUpdate = (data) => {
+      applyDashboardPayload(data);
+    };
+
+    socket.on('admin_dashboard_update', handleDashboardUpdate);
+
+    return () => {
+      socket.off('admin_dashboard_update', handleDashboardUpdate);
+    };
+  }, [applyDashboardPayload]);
+
+  const combinedTrend = useMemo(() => {
+    if (!userGrowth?.length && !revenueTrend?.length) return [];
+    const dataMap = new Map();
+
+    userGrowth.forEach((entry) => {
+      dataMap.set(entry.month, { month: entry.month, users: entry.count, revenue: 0 });
+    });
+
+    revenueTrend.forEach((entry) => {
+      const existing = dataMap.get(entry.month) || { month: entry.month, users: 0 };
+      dataMap.set(entry.month, { ...existing, revenue: entry.total });
+    });
+
+    return Array.from(dataMap.values()).sort((a, b) =>
+      a.month.localeCompare(b.month)
+    );
+  }, [userGrowth, revenueTrend]);
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="p-6 bg-gray-50 min-h-screen flex items-center justify-center">
+          <p className="text-gray-600">Loading data...</p>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (error) {
+    return (
+      <Layout>
+        <div className="p-6 bg-gray-50 min-h-screen flex items-center justify-center">
+          <p className="text-rose-600">Unable to load dashboard data</p>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
-      <div className="p-6 bg-gray-100 min-h-screen">
-        <h1 className="text-2xl font-bold mb-6 text-gray-800">Admin Dashboard</h1>
+      <div className="p-6 bg-gray-50 min-h-screen">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
+          <StatCard label="Total Users" value={overview?.totalUsers ?? 0} />
+          <StatCard label="Total Posts" value={overview?.totalPosts ?? 0} />
+          <StatCard label="Total Revenue" value={formatCurrency(overview?.totalRevenue ?? 0)} />
+          <StatCard label="Paid Transactions" value={overview?.totalPaidInvoices ?? 0} />
+        </div>
 
-        {/* Biểu đồ thống kê vai trò */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-xl shadow">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">User Roles Distribution</h2>
-            <ResponsiveContainer width="100%" height={250}>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <div className="bg-white border border-gray-200 rounded-xl p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              Role Distribution
+            </h2>
+            <ResponsiveContainer width="100%" height={280}>
               <PieChart>
                 <Pie
-                  data={userStats}
+                  data={roleBreakdown}
                   dataKey="value"
                   nameKey="name"
                   cx="50%"
                   cy="50%"
-                  outerRadius={80}
-                  fill="#8884d8"
+                  outerRadius={90}
                   label
                 >
-                  {userStats.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  {roleBreakdown.map((entry, index) => (
+                    <Cell
+                      key={`cell-${entry.name}`}
+                      fill={ROLE_COLORS[index % ROLE_COLORS.length]}
+                    />
                   ))}
                 </Pie>
                 <Legend />
@@ -82,44 +179,125 @@ const Dashboard = () => {
             </ResponsiveContainer>
           </div>
 
-          {/* Biểu đồ tăng trưởng user theo tháng */}
-          <div className="bg-white p-6 rounded-xl shadow">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">User Growth (Monthly)</h2>
-            <ResponsiveContainer width="100%" height={250}>
-              <LineChart data={userGrowth}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
-                <Line type="monotone" dataKey="count" stroke="#4f46e5" strokeWidth={2} />
+          <div className="bg-white border border-gray-200 rounded-xl p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              User & Revenue Trend
+            </h2>
+            <ResponsiveContainer width="100%" height={280}>
+              <LineChart data={combinedTrend}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <XAxis dataKey="month" stroke="#94a3b8" />
+                <YAxis
+                  yAxisId="left"
+                  stroke="#94a3b8"
+                  tickFormatter={(value) => `${value}`}
+                />
+                <YAxis
+                  yAxisId="right"
+                  orientation="right"
+                  stroke="#94a3b8"
+                  tickFormatter={(value) =>
+                    value >= 1000000 ? `${value / 1000000}tr` : value
+                  }
+                />
+                <Tooltip
+                  formatter={(value, name) =>
+                    name === 'Users' ? value : formatCurrency(value)
+                  }
+                />
+                <Legend />
+                <Line
+                  yAxisId="left"
+                  type="monotone"
+                  dataKey="users"
+                  name="Users"
+                  stroke="#2563eb"
+                  strokeWidth={2}
+                  dot={{ r: 3 }}
+                />
+                <Line
+                  yAxisId="right"
+                  type="monotone"
+                  dataKey="revenue"
+                  name="Revenue"
+                  stroke="#f97316"
+                  strokeWidth={2}
+                  dot={{ r: 3 }}
+                />
               </LineChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        {/* Danh sách người dùng gần đây */}
-        <div className="bg-white p-6 rounded-xl shadow">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">Recent Users</h2>
-          <div className="space-y-4">
-            {recentUsers.map((user) => (
-              <div key={user._id} className="flex items-center justify-between border-b pb-2">
-                <div className="flex items-center space-x-3">
-                  <img
-                    src={user.Avatar}
-                    alt="avatar"
-                    className="w-10 h-10 rounded-full object-cover"
-                  />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="bg-white border border-gray-200 rounded-xl p-6 lg:col-span-2">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              Recent Payments
+            </h2>
+            <div className="space-y-4">
+              {recentPayments.map((payment) => (
+                <div
+                  key={payment.id}
+                  className="flex flex-col md:flex-row md:items-center md:justify-between border-b border-gray-100 pb-3 last:border-b-0"
+                >
                   <div>
-                    <p className="font-medium text-gray-800">{user.Name}</p>
-                    <p className="text-sm text-gray-500">{user.Email}</p>
+                    <p className="font-medium text-gray-900">
+                      {payment.userName}
+                    </p>
+                    <p className="text-sm text-gray-500">{payment.userEmail}</p>
+                  </div>
+                  <div className="mt-2 md:mt-0 md:text-right">
+                    <p className="text-sm text-gray-500">{payment.planName}</p>
+                    <p className="font-semibold text-gray-900">
+                      {formatCurrency(payment.amount)}
+                    </p>
+                  </div>
+                  <div className="mt-2 md:mt-0 flex items-center gap-3">
+                    <span
+                      className={`text-xs font-medium px-3 py-1 rounded-full border ${STATUS_BADGES[payment.status] || 'text-gray-700 bg-gray-100 border-gray-200'
+                        }`}
+                    >
+                      {payment.status}
+                    </span>
+                    <span className="text-sm text-gray-500">
+                      {formatDate(payment.createdAt)}
+                    </span>
                   </div>
                 </div>
-                <span className="text-sm text-gray-500 capitalize">{user.Role}</span>
-              </div>
-            ))}
+              ))}
+              {!recentPayments.length && (
+                <p className="text-sm text-gray-500">
+                  No recent transactions.
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="bg-white border border-gray-200 rounded-xl p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              New Users
+            </h2>
+            <div className="space-y-4">
+              {recentUsers.map((user) => (
+                <div key={user.id} className="border-b pb-3 last:border-b-0">
+                  <p className="font-medium text-gray-900">{user.name}</p>
+                  <p className="text-sm text-gray-500">{user.email}</p>
+                  <div className="flex items-center justify-between text-sm text-gray-500 mt-1">
+                    <span className="capitalize">{user.role}</span>
+                    <span>{formatDate(user.createdAt)}</span>
+                  </div>
+                </div>
+              ))}
+              {!recentUsers.length && (
+                <p className="text-sm text-gray-500">
+                  No new users.
+                </p>
+              )}
+            </div>
           </div>
         </div>
       </div>
+      <ErrorToast error={error} onClose={() => setError('')} />
     </Layout>
   );
 };

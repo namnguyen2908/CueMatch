@@ -10,6 +10,8 @@ router.post('/register', AuthController.register);
 router.post('/google', AuthController.googleLogin);
 router.post('/login', AuthController.login);
 router.post('/refresh', AuthController.refreshToken);
+router.post('/forgot-password', AuthController.forgotPassword);
+router.post('/reset-password', AuthController.resetPassword);
 
 router.post('/logout', (req, res) => {
     const cookieOptions = {
@@ -27,11 +29,29 @@ router.post('/logout', (req, res) => {
     res.status(200).json({ message: 'Logged out successfully' });
 });
 
-router.get('/check', verifyToken, (req, res) => {
-    res.status(200).json({
-        loggedIn: true,
-        user: req.user // { id, email }
-    });
+router.get('/check', verifyToken, async (req, res) => {
+    try {
+        // Lấy Role từ database để đảm bảo chính xác
+        const user = await User.findById(req.user.id).select('Role');
+        res.status(200).json({
+            loggedIn: true,
+            user: {
+                id: req.user.id,
+                email: req.user.email,
+                role: user?.Role || req.user.role // Lấy từ DB hoặc từ token
+            }
+        });
+    } catch (err) {
+        // Fallback: lấy role từ token nếu không query được DB
+        res.status(200).json({
+            loggedIn: true,
+            user: {
+                id: req.user.id,
+                email: req.user.email,
+                role: req.user.role // Từ token
+            }
+        });
+    }
 });
 
 

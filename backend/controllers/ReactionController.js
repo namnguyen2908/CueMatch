@@ -1,6 +1,12 @@
 const Reaction = require('../models/Reaction');
 const Post = require('../models/Post');
 const mongoose = require('mongoose');
+const { createNotification } = require('./NotificationController');
+
+// Helper function to get socket.io instance
+const getSocketIO = (req) => {
+    return req.app.get('socketio');
+};
 
 const REACTION_TYPES = ['like', 'love', 'haha', 'wow', 'sad', 'angry'];
 
@@ -34,6 +40,23 @@ const ReactionController = {
                 await Post.findByIdAndUpdate(PostID, {
                     $inc: { [`ReactionCounts.${Type}`]: 1 }
                 });
+
+                // Tạo thông báo cho chủ bài viết
+                const post = await Post.findById(PostID);
+                if (post && post.UserID.toString() !== UserID.toString()) {
+                    const notification = await createNotification(
+                        post.UserID,
+                        UserID,
+                        'like',
+                        { postId: PostID }
+                    );
+
+                    // Gửi thông báo real-time qua socket
+                    const io = getSocketIO(req);
+                    if (io && notification) {
+                        io.to(`user:${post.UserID}`).emit('new_notification', notification);
+                    }
+                }
 
                 return res.status(201).json({ message: 'Reaction added', data: newReaction });
             }

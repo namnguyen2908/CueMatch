@@ -3,13 +3,12 @@ const router = express.Router();
 const ConversationController = require('../controllers/ConversationController');
 const MessageController = require('../controllers/MessageController');
 const { verifyToken, checkRole } = require('../middlewares/authMiddleware');
-const parser = require('../middlewares/uploadImage');
 
 
 router.post('/create-conversation', verifyToken, ConversationController.createConversation);
 router.get('/get-conversation', verifyToken, ConversationController.getUserConversations);
 
-router.post('/send-message', verifyToken, parser.array('media'), MessageController.sendMessage);
+router.post('/send-message', verifyToken, MessageController.sendMessage);
 router.get('/messages/:ConversationId', verifyToken, MessageController.getMessages);
 
 

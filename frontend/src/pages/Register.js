@@ -3,11 +3,13 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import logoImage from '../assets/logo_bia.png';
 import AuthWarningModal from '../components/AuthWarningModal/AuthWarningModal';
 import { register } from '../api/authApi';
+import Warning from '../components/Warning';
 
 const Register = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [formData, setFormData] = useState({ Name: '', Email: '', Password: '' });
     const [isLoading, setIsLoading] = useState(false);
+    const [warning, setWarning] = useState({ show: false, type: 'error', title: 'Notification', message: '' });
     const navigate = useNavigate();
     const location = useLocation();
     const [showModal, setShowModal] = useState(false);
@@ -27,13 +29,27 @@ const Register = () => {
     const handleRegister = async (e) => {
         e.preventDefault();
         setIsLoading(true);
+        setWarning(prev => ({ ...prev, show: false }));
 
         try {
             await register(formData);
-            alert('Registration successful! Please log in.');
+            setWarning({
+                show: true,
+                type: 'success',
+                title: 'Registration successful',
+                message: 'Your account was created. Please log in.',
+            });
             navigate('/');
         } catch (err) {
-            alert('Registration failed. Please try again.');
+            const errorMessage = err.response?.data?.message || 'Registration failed. Please try again.';
+            setWarning({
+                show: true,
+                type: 'error',
+                title: 'Registration failed',
+                message: errorMessage,
+            });
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -87,7 +103,7 @@ const Register = () => {
                             <div className="relative inline-block">
                                 <div className="w-28 h-28 mx-auto lg:mx-0 bg-white rounded-full shadow-2xl flex items-center justify-center transform hover:scale-110 transition-all duration-500 relative overflow-hidden">
                                     <div className="w-20 h-20 bg-gradient-to-br from-orange-400 via-red-500 to-pink-600 rounded-full flex items-center justify-center shadow-inner">
-                                        <span className="text-white font-bold text-2xl">SC</span>
+                                        <span className="text-white font-bold text-2xl">CM</span>
                                     </div>
                                     {/* Shine effect */}
                                     <div className="absolute top-2 left-2 w-6 h-6 bg-white rounded-full opacity-30 blur-sm"></div>
@@ -98,12 +114,11 @@ const Register = () => {
 
                             <div>
                                 <h1 className="text-5xl lg:text-6xl font-bold text-white mb-4 drop-shadow-lg">
-                                    Join <span className="text-yellow-300 animate-pulse">Soccer</span>
-                                    <br />
-                                    <span className="text-pink-200">Circle</span>
+                                    Step into the <span className="text-yellow-300 animate-pulse">Cue</span>
+                                    <span className="text-pink-200">Match</span> arena
                                 </h1>
                                 <p className="text-xl text-orange-100 font-medium">
-                                    Create Your Account & Start Playing
+                                    Reserve tables, find sparring partners, and track every cue strike in one place.
                                 </p>
                             </div>
                         </div>
@@ -128,15 +143,15 @@ const Register = () => {
                             <div className="text-orange-100/80 space-y-2">
                                 <p className="flex items-center space-x-2">
                                     <span className="w-2 h-2 bg-yellow-400 rounded-full animate-ping"></span>
-                                    <span>Find teammates instantly</span>
+                                    <span>Book premium billiard tables in 30 seconds</span>
                                 </p>
                                 <p className="flex items-center space-x-2">
                                     <span className="w-2 h-2 bg-pink-400 rounded-full animate-ping" style={{ animationDelay: '0.5s' }}></span>
-                                    <span>Join local tournaments</span>
+                                    <span>Match with players at your skill level</span>
                                 </p>
                                 <p className="flex items-center space-x-2">
                                     <span className="w-2 h-2 bg-white rounded-full animate-ping" style={{ animationDelay: '1s' }}></span>
-                                    <span>Track your progress</span>
+                                    <span>Track ELO, club leagues, and event history</span>
                                 </p>
                             </div>
                         </div>
@@ -147,7 +162,7 @@ const Register = () => {
                         <div className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl p-8 lg:p-10 border border-white/20">
                             <div className="mb-8 text-center">
                                 <h2 className="text-3xl font-bold text-gray-800 mb-2">Create Account</h2>
-                                <p className="text-gray-600">Join the community today</p>
+                                <p className="text-gray-600">Join Vietnam’s fastest-growing billiards community</p>
                             </div>
 
                             <div className="space-y-6">
@@ -162,7 +177,7 @@ const Register = () => {
 
                                 <div className="flex items-center space-x-4">
                                     <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
-                                    <span className="text-gray-500 font-medium px-2">or with email</span>
+                                    <span className="text-gray-500 font-medium px-2">or with your email</span>
                                     <div className="flex-1 h-px bg-gradient-to-l from-transparent via-gray-300 to-transparent"></div>
                                 </div>
                                 {/* Name Input */}
@@ -171,8 +186,8 @@ const Register = () => {
                                         type="text"
                                         value={formData.Name}
                                         onChange={e => setFormData({ ...formData, Name: e.target.value })}
-                                        className="w-full px-4 py-4 pl-12 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 group-hover:bg-gray-100"
-                                        placeholder="Enter your full name"
+                                        className="text-black w-full px-4 py-4 pl-12 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 group-hover:bg-gray-100"
+                                        placeholder="Your full name"
                                         required
                                     />
                                     <div className="absolute left-4 top-4 text-gray-400 group-focus-within:text-orange-500 transition-colors">
@@ -188,8 +203,8 @@ const Register = () => {
                                         type="email"
                                         value={formData.Email}
                                         onChange={e => setFormData({ ...formData, Email: e.target.value })}
-                                        className="w-full px-4 py-4 pl-12 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 group-hover:bg-gray-100"
-                                        placeholder="Enter your email"
+                                        className="text-black w-full px-4 py-4 pl-12 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 group-hover:bg-gray-100"
+                                        placeholder="Email address"
                                         required
                                     />
                                     <div className="absolute left-4 top-4 text-gray-400 group-focus-within:text-orange-500 transition-colors">
@@ -205,8 +220,8 @@ const Register = () => {
                                         type={showPassword ? 'text' : 'password'}
                                         value={formData.Password}
                                         onChange={e => setFormData({ ...formData, Password: e.target.value })}
-                                        className="w-full px-4 py-4 pl-12 pr-12 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 group-hover:bg-gray-100"
-                                        placeholder="Create a strong password"
+                                        className="text-black w-full px-4 py-4 pl-12 pr-12 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 group-hover:bg-gray-100"
+                                        placeholder="Create a strong password for CueMatch"
                                         required
                                     />
                                     <div className="absolute left-4 top-4 text-gray-400 group-focus-within:text-orange-500 transition-colors">
@@ -300,6 +315,13 @@ const Register = () => {
                 }
             `}</style>
             <AuthWarningModal show={showModal} onClose={() => setShowModal(false)} />
+            <Warning
+                show={warning.show}
+                type={warning.type}
+                title={warning.title}
+                message={warning.message}
+                onClose={() => setWarning(prev => ({ ...prev, show: false }))}
+            />
         </div>
     );
 };

@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import friendApi from "../../api/friendApi";
+import ErrorToast from "../../components/ErrorToast/ErrorToast";
 import { FaUserTimes, FaSearch, FaUserCheck } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import { useChat } from "../../contexts/ChatContext";
@@ -14,6 +16,7 @@ const AllFriend = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const { openChatWith } = useChat();
   const { onlineUsers } = useOnlineStatus();
+  const navigate = useNavigate();
 
 
 
@@ -23,7 +26,7 @@ const AllFriend = () => {
       setFriends(res.data);
       setFilteredFriends(res.data);
     } catch (err) {
-      setError(err.response?.data?.message || "Lỗi khi tải danh sách bạn bè");
+      setError(err.response?.data?.message || "Error loading friends list");
     } finally {
       setLoading(false);
     }
@@ -41,15 +44,17 @@ const AllFriend = () => {
     setFilteredFriends(filtered);
   }, [searchTerm, friends]);
 
+  const [unfriendError, setUnfriendError] = useState(null);
+
   const handleUnfriend = async (friendId) => {
-    const confirm = window.confirm("Bạn có chắc chắn muốn hủy kết bạn?");
+    const confirm = window.confirm("Are you sure you want to unfriend?");
     if (!confirm) return;
 
     try {
       await friendApi.unfriend(friendId);
       setFriends((prev) => prev.filter((f) => f._id !== friendId));
     } catch (err) {
-      alert(err.response?.data?.message || "Không thể hủy kết bạn");
+      setUnfriendError(err.response?.data?.message || "Cannot unfriend");
     }
   };
 
@@ -59,7 +64,7 @@ const AllFriend = () => {
       const conversation = res.data;
       openChatWith(friend, conversation._id); // mở chatbox
     } catch (err) {
-      console.error("Lỗi khi tạo/lấy conversation:", err);
+      console.error("Error creating/retrieving conversation:", err);
     }
   };
 
@@ -125,12 +130,7 @@ const AllFriend = () => {
     <div className="space-y-6">
       {/* Header with Search and Filters */}
       <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-black dark:text-white mb-1">
-            Your Friends ({filteredFriends.length})
-          </h2>
-          <p className="text-gray-400">Stay connected with your circle</p>
-        </div>
+
 
         <div className="flex gap-3 w-full lg:w-auto">
           {/* Search Bar */}
@@ -198,7 +198,7 @@ const AllFriend = () => {
                 <button
                   onClick={() => handleUnfriend(friend._id)}
                   className="absolute top-4 right-4 p-2 text-red-400 opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-red-800/80 hover:text-red-300 rounded-lg z-10"
-                  title="Hủy kết bạn"
+                  title="Unfriend"
                 >
                   <FaUserTimes size={16} />
                 </button>
@@ -233,7 +233,11 @@ const AllFriend = () => {
 
                   <div className="flex items-center justify-center gap-2 text-sm text-black dark:text-gray-400 mb-4">
                     <FaUserCheck className="text-green-400" />
-                    <span>Bạn bè từ 2023</span>
+                    <span>
+                      Friends since {friend.createdAt 
+                        ? new Date(friend.createdAt).getFullYear() 
+                        : new Date().getFullYear()}
+                    </span>
                   </div>
 
                   {/* Action Buttons */}
@@ -241,7 +245,10 @@ const AllFriend = () => {
                     <button onClick={() => handleMessageClick(friend)} className="flex-1 px-3 py-2 bg-[#3D6BFF] hover:bg-[#698CFF] text-blue-100 text-sm rounded-lg transition-colors">
                       Message
                     </button>
-                    <button className="flex-1 px-3 py-2 bg-[#FF3399]/70 hover:bg-[#FF99CC]/75 text-cyan-100 text-sm rounded-lg transition-colors">
+                    <button 
+                      onClick={() => navigate(`/profile/${friend._id}`)}
+                      className="flex-1 px-3 py-2 bg-[#FF3399]/70 hover:bg-[#FF99CC]/75 text-cyan-100 text-sm rounded-lg transition-colors"
+                    >
                       Profile
                     </button>
                   </div>
@@ -252,6 +259,8 @@ const AllFriend = () => {
           ))}
         </AnimatePresence>
       </motion.div>
+      <ErrorToast error={error} onClose={() => setError(null)} />
+      <ErrorToast error={unfriendError} onClose={() => setUnfriendError(null)} />
     </div>
   );
 };

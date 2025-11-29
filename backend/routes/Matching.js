@@ -13,5 +13,6 @@ router.get('/get-sent-invitation', verifyToken, MatchingController.getSentInvita
 router.post('/cancel-invitation/:invitationId', verifyToken, MatchingController.cancelInvitation);
 router.get('/get-match-history', verifyToken, MatchingController.getMatchHistory);
 router.get('/get-upcoming-matching', verifyToken, MatchingController.getUpcomingMatches);
+router.get('/get-nearby-club', verifyToken, MatchingController.getNearbyClub);
 
 module.exports = router;

@@ -3,12 +3,12 @@ import React, { useEffect, useState } from 'react';
 const Warning = ({
     show,
     type = 'error',
-    title = 'Thông báo',
+    title = 'Notification',
     message = '',
     onClose,
     onConfirm,
-    confirmText = 'Xác nhận',
-    cancelText = 'Hủy',
+    confirmText = 'Confirm',
+    cancelText = 'Cancel',
     showConfirm = false,
     autoClose = false,
     duration = 3000,
@@ -153,7 +153,7 @@ const Warning = ({
                                     className={`px-6 py-2 rounded-xl text-white ${variant.button}`}
                                     onClick={handleClose}
                                 >
-                                    Đóng
+                                    Close
                                 </button>
                             )}
                         </div>

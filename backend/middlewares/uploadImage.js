@@ -15,6 +15,22 @@ const storage = new CloudinaryStorage({
   },
 });
 
-const parser = multer({ storage });
+// File size limits: 100MB max (covers both images and videos)
+// Frontend will validate specific limits (10MB for images, 100MB for videos)
+const limits = {
+  fileSize: 100 * 1024 * 1024, // 100MB max
+};
+
+const parser = multer({ 
+  storage,
+  limits,
+  // Error handler for file size limit exceeded
+  onError: (err, next) => {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      return next(new Error('File size exceeds the maximum limit of 100MB'));
+    }
+    next(err);
+  }
+});
 
 module.exports = parser;

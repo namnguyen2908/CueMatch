@@ -1,5 +1,7 @@
 // src/components/RightBar.jsx
 import React, { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { Users, Calendar, Clock } from "lucide-react";
 import friendApi from "../../api/friendApi";
 import matchingApi from "../../api/matchingApi";
 import { useUser } from "../../contexts/UserContext"; // 👈 Thêm dòng này để lấy user login
@@ -37,54 +39,101 @@ const RightBar = ({ onFriendClick }) => {
   }, []);
 
   return (
-    <aside className="fixed top-[5.7rem] bottom-0 right-0 w-60
-      bg-[#F2F4F7] dark:bg-[#242424] 
-      flex flex-col justify-between py-2 px-4
-      text-black dark:text-orange-200 transition-colors duration-300"
+    <aside className="hidden xl:flex xl:fixed top-[4.5rem] bottom-0 right-0 w-[250px]
+      bg-white/90 dark:bg-luxury-800/90
+      backdrop-blur-xl
+      border-l border-sport-200/30 dark:border-sport-800/30
+      flex flex-col py-6 px-4
+      text-luxury-900 dark:text-luxury-200 transition-colors duration-300 overflow-y-auto
+      shadow-luxury z-10"
     >
-      <div className="flex flex-col justify-start h-full overflow-y-auto">
+      <div className="flex flex-col gap-8 h-full">
         {/* Friends List */}
         <div>
-          <h3 className="text-yellow-400 text-xs font-semibold mt-6 mb-3 ml-1 uppercase tracking-widest">
-            Friends
-          </h3>
+          <div className="flex items-center gap-2 mb-5">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-sport-400 to-sport-500 flex items-center justify-center shadow-sport">
+              <Users className="w-4 h-4 text-white" />
+            </div>
+            <h3 className="text-sm font-bold text-luxury-800 dark:text-luxury-200 font-display">
+              Friends
+            </h3>
+            <span className="ml-auto badge-sport">
+              {friends.length}
+            </span>
+          </div>
 
-          <div className="space-y-1">
-            {friends.map((friend) => (
-              <button
-                key={friend._id}
-                onClick={() => onFriendClick(friend)}
-                className="flex items-center gap-3 w-full px-3 py-2 rounded-md hover:bg-yellow-100 dark:hover:bg-yellow-500/10 transition-colors"
-              >
-                <div className="relative">
-                  <img
-                    src={friend.Avatar || "/default-avatar.png"}
-                    alt={friend.Name}
-                    className="w-10 h-10 rounded-full object-cover"
-                  />
-                  <span className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white dark:border-gray-900 ${onlineUsers.has(friend._id) ? "bg-green-400" : "bg-gray-400"}`}/>
-                </div>
+          <div className="space-y-2">
+            {friends.length === 0 ? (
+              <div className="text-center py-8 px-4 bg-luxury-50/50 dark:bg-luxury-900/50 rounded-xl border border-luxury-200/50 dark:border-luxury-700/50">
+                <Users className="w-12 h-12 text-luxury-300 dark:text-luxury-600 mx-auto mb-2" />
+                <p className="text-xs text-luxury-500 dark:text-luxury-400">No friends yet</p>
+              </div>
+            ) : (
+              friends.map((friend, index) => (
+                <motion.button
+                  key={friend._id}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                  whileHover={{ x: -4, scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => onFriendClick(friend)}
+                  className="flex items-center gap-3 w-full px-3 py-3 rounded-xl 
+                    hover:bg-sport-50/50 dark:hover:bg-sport-900/10 
+                    border border-transparent hover:border-sport-200/50 dark:hover:border-sport-800/50
+                    transition-all duration-200 group
+                    bg-luxury-50/30 dark:bg-luxury-900/30"
+                >
+                  <div className="relative">
+                    <img
+                      src={friend.Avatar || "/default-avatar.png"}
+                      alt={friend.Name}
+                      className="w-11 h-11 rounded-xl object-cover border-2 border-luxury-200 dark:border-luxury-700 group-hover:border-sport-300 dark:group-hover:border-sport-600 transition-colors shadow-sm group-hover:shadow-md ring-2 ring-transparent group-hover:ring-sport-200/50 dark:group-hover:ring-sport-800/50"
+                    />
+                    <span className={`absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-white dark:border-luxury-900 ${
+                      onlineUsers.has(friend._id) 
+                        ? "bg-green-500 shadow-lg shadow-green-500/50 ring-2 ring-green-400/50" 
+                        : "bg-gray-400"
+                    }`}/>
+                  </div>
 
-                <div className="flex flex-col items-start">
-                  <span className="text-xs font-medium text-gray-900 dark:text-orange-100">
-                    {friend.Name}
-                  </span>
-                  <span className="text-xs text-gray-500 dark:text-gray-400">
-                    {onlineUsers.has(friend._id) ? "Online" : "Offline"}
-                  </span>
-                </div>
-              </button>
-            ))}
+                  <div className="flex flex-col items-start flex-1 min-w-0">
+                    <span className="text-sm font-semibold text-luxury-900 dark:text-luxury-100 truncate w-full font-display">
+                      {friend.Name}
+                    </span>
+                    <span className={`text-xs ${
+                      onlineUsers.has(friend._id)
+                        ? "text-green-600 dark:text-green-400 font-medium"
+                        : "text-luxury-500 dark:text-luxury-400"
+                    }`}>
+                      {onlineUsers.has(friend._id) ? "● Online" : "○ Offline"}
+                    </span>
+                  </div>
+                </motion.button>
+              ))
+            )}
           </div>
         </div>
 
-
         {/* Upcoming Matches */}
-        <div className="mt-6">
-          <h3 className="text-green-500 text-sm font-semibold mb-2 ml-1">Upcoming Matches</h3>
-          <div className="space-y-2">
+        <div>
+          <div className="flex items-center gap-2 mb-5">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-green-400 to-green-500 flex items-center justify-center shadow-md">
+              <Calendar className="w-4 h-4 text-white" />
+            </div>
+            <h3 className="text-sm font-bold text-luxury-800 dark:text-luxury-200 font-display">
+              Upcoming Matches
+            </h3>
+            <span className="ml-auto text-xs text-white bg-gradient-to-r from-green-500 to-green-600 px-2.5 py-1 rounded-full font-semibold shadow-sm">
+              {upcomingMatches.length}
+            </span>
+          </div>
+          <div className="space-y-3">
             {upcomingMatches.length === 0 ? (
-              <p className="text-xs text-gray-500 dark:text-gray-400 ml-1">No matches</p>
+              <div className="text-center py-8 px-4 bg-luxury-50/50 dark:bg-luxury-900/50 rounded-xl border border-luxury-200/50 dark:border-luxury-700/50">
+                <Calendar className="w-12 h-12 text-luxury-300 dark:text-luxury-600 mx-auto mb-2" />
+                <p className="text-xs text-luxury-500 dark:text-luxury-400">No upcoming matches</p>
+              </div>
             ) : (
               upcomingMatches.map((match, index) => {
                 const isUserFrom = match.From._id === datauser.id;
@@ -93,27 +142,38 @@ const RightBar = ({ onFriendClick }) => {
                 const timeStr = `${match.TimeStart} - ${match.TimeEnd}`;
 
                 return (
-                  <div
+                  <motion.div
                     key={index}
-                    className="flex items-center gap-2 bg-white dark:bg-[#1f1f1f] p-2 rounded-lg shadow text-xs"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    whileHover={{ scale: 1.02, y: -2 }}
+                    className="sport-card
+                      rounded-xl p-4
+                      hover:border-sport-300 dark:hover:border-sport-700 transition-all duration-200"
                   >
-                    <img
-                      src={opponent.Avatar || "/default-avatar.png"}
-                      alt={opponent.Name}
-                      className="w-6 h-6 rounded-full"
-                    />
-                    <div>
-
-                      <p className="font-medium">{opponent.Name}</p>
-                      <p className="text-[10px] italic text-gray-500 dark:text-gray-400">
-                        {match.PlayType}
-                      </p>
-                      <p className="text-gray-500 dark:text-gray-400 text-[11px]">
-                        {dateFormatted} | {timeStr}
-                      </p>
-
+                    <div className="flex items-start gap-3">
+                      <img
+                        src={opponent.Avatar || "/default-avatar.png"}
+                        alt={opponent.Name}
+                        className="w-10 h-10 rounded-xl object-cover border-2 border-green-300 dark:border-green-700 shadow-sm"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-sm text-luxury-900 dark:text-luxury-100 truncate font-display">
+                          {opponent.Name}
+                        </p>
+                        <p className="text-xs text-sport-600 dark:text-sport-400 font-medium mt-0.5">
+                          {match.PlayType}
+                        </p>
+                        <div className="flex items-center gap-2 mt-2 text-xs text-luxury-500 dark:text-luxury-400">
+                          <Clock className="w-3 h-3" />
+                          <span>{dateFormatted}</span>
+                          <span>•</span>
+                          <span>{timeStr}</span>
+                        </div>
+                      </div>
                     </div>
-                  </div>
+                  </motion.div>
                 );
               })
             )}

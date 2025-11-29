@@ -9,7 +9,7 @@ const ConversationController = {
         const UserId = req.user.id;
 
         if (!MemberIds || MemberIds.length < 1) {
-            return res.status(400).json({ message: 'Danh sách thành viên không hợp lệ' });
+            return res.status(400).json({ message: 'Invalid member list' });
         }
 
         try {
@@ -36,7 +36,7 @@ const ConversationController = {
 
             res.status(201).json(conversation);
         } catch (err) {
-            res.status(500).json({ message: 'Tạo cuộc trò chuyện thất bại', error: err.message });
+            res.status(500).json({ message: 'Create failed conversation', error: err.message });
         }
     },
 
@@ -52,7 +52,7 @@ const ConversationController = {
 
             res.status(200).json(conversations);
         } catch (err) {
-            res.status(500).json({ message: 'Không lấy được danh sách cuộc trò chuyện', error: err.message });
+            res.status(500).json({ message: 'Unable to get conversation list', error: err.message });
         }
     }
 };

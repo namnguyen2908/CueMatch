@@ -11,5 +11,8 @@ router.get('/all-users', verifyToken, checkRole(['admin']), UserController.getAl
 router.get('/stats', verifyToken, checkRole(['admin']), UserController.getUserStats);
 router.delete('/delete-user/:userId', verifyToken, checkRole(['admin']), UserController.deleteUser);
 router.get('/growth', verifyToken, checkRole(['admin']), UserController.getUserGrowth);
+router.post('/heartbeat', verifyToken, UserController.heartbeat);
+router.get('/wallet/balance', verifyToken, UserController.getWalletBalance);
+router.get('/wallet/transactions', verifyToken, UserController.getWalletTransactions);
 
 module.exports = router;

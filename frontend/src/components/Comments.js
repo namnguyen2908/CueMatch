@@ -31,7 +31,7 @@ const Comments = ({ postId }) => {
             setComments(prev => [...prev, { ...newComment, children: [] }]);
             setContent("");
         } catch (err) {
-            console.error("Lỗi khi gửi comment:", err.message);
+            console.error("Error sending comment:", err.message);
         }
     };
 
@@ -68,11 +68,11 @@ const Comments = ({ postId }) => {
 
     return (
         <div className="flex flex-col h-full">
-            <h3 className="text-black dark:text-[#FFFFFF] font-semibold mb-2">Bình luận</h3>
+            <h3 className="text-black dark:text-[#FFFFFF] font-semibold mb-2">Comments</h3>
 
             <div className="flex-1 overflow-y-auto pr-2 space-y-4 scrollbar-hide max-h-[50vh]">
                 {comments.length === 0 ? (
-                    <p className="text-gray-500 dark:text-white italic">Chưa có bình luận nào.</p>
+                    <p className="text-gray-500 dark:text-white italic">No comments yet.</p>
                 ) : (
                     renderComments(comments)
                 )}
@@ -92,11 +92,11 @@ const Comments = ({ postId }) => {
                         type="text"
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
-                        placeholder="Viết bình luận..."
+                        placeholder="Write a comment..."
                         className="bg-transparent flex-1 outline-none text-black dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
                     />
                     <button className="text-[#FF9100] hover:text-[#FFBA51] ml-3 font-semibold transition-transform hover:scale-105">
-                        Gửi
+                        Send
                     </button>
                 </div>
             </form>
@@ -121,7 +121,7 @@ const CommentItem = ({ comment, level, postId, onReplyAdded }) => {
             setIsLiked(res.liked);
             setLikesCount(res.Likes?.length);
         } catch (err) {
-            console.error("Lỗi like comment: ", err.message);
+            console.error("Error liking comment: ", err.message);
         }
     };
 
@@ -138,7 +138,7 @@ const CommentItem = ({ comment, level, postId, onReplyAdded }) => {
             setShowReply(false);
             if (onReplyAdded) onReplyAdded(newReply);
         } catch (err) {
-            console.error("Lỗi gửi phản hồi:", err.message);
+            console.error("Error sending reply:", err.message);
         }
     };
 
@@ -146,7 +146,7 @@ const CommentItem = ({ comment, level, postId, onReplyAdded }) => {
         <div className={`mb-3 mt-3 ${level > 0 ? "ml-6" : ""}`}>
             <div className="flex items-start gap-3">
                 <img
-                    src={comment.UserID?.Avatar || "https://via.placeholder.com/40"}
+                    src={comment.UserID?.Avatar}
                     className="w-9 h-9 rounded-full object-cover"
                     alt=""
                 />
@@ -166,7 +166,7 @@ const CommentItem = ({ comment, level, postId, onReplyAdded }) => {
                                 onClick={() => setShowReply(!showReply)}
                                 className="hover:text-yellow-300"
                             >
-                                Trả lời
+                                Reply
                             </button>
                         )}
                         <span>{new Date(comment.createdAt).toLocaleString()}</span>
@@ -184,7 +184,7 @@ const CommentItem = ({ comment, level, postId, onReplyAdded }) => {
                                     type="text"
                                     value={replyContent}
                                     onChange={(e) => setReplyContent(e.target.value)}
-                                    placeholder={`Trả lời ${comment.UserID?.Name}...`}
+                                    placeholder={`Reply ${comment.UserID?.Name}...`}
                                     className="w-full px-4 py-2 text-sm rounded-full bg-gray-300 dark:bg-gray-900 text-gray-200 outline-none focus:ring-2 focus:ring-[#FFF2DA] transition"
                                 />
                             </div>
@@ -192,7 +192,7 @@ const CommentItem = ({ comment, level, postId, onReplyAdded }) => {
                                 onClick={handleReply}
                                 className="text-[#FF9100] font-medium hover:text-[#FFBA51] mt-1"
                             >
-                                Gửi
+                                Send
                             </button>
                         </div>
                     )}

@@ -32,9 +32,9 @@ const MatchingPage = () => {
       <Header />
       <Sidebar />
 
-      {/* Nội dung chính bên phải */}
+      {/* Main content on the right */}
       <div className="pt-24 pl-64 pr-8 min-h-screen bg-[#0c0c0c]">
-        <h1 className="text-3xl font-bold text-yellow-400 mb-8">Gợi ý bạn chơi phù hợp</h1>
+        <h1 className="text-3xl font-bold text-yellow-400 mb-8">Suggested Players</h1>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {dummyPlayers.map((player) => (
@@ -51,10 +51,10 @@ const MatchingPage = () => {
                 <div>
                   <h2 className="text-xl font-semibold text-yellow-300">{player.name}</h2>
                   <p className="text-gray-400">
-                    Trình độ: <span className="text-white">{player.level}</span>
+                    Level: <span className="text-white">{player.level}</span>
                   </p>
                   <p className="text-gray-400">
-                    Thể loại: <span className="text-white">{player.playStyle}</span>
+                    Play Style: <span className="text-white">{player.playStyle}</span>
                   </p>
                   <p className="text-gray-400">
                     Address: <span className="text-white">{player.district}</span>
@@ -64,19 +64,19 @@ const MatchingPage = () => {
 
               <div className="mt-4 flex items-center justify-between">
                 <div className="text-sm text-gray-300">
-                    Độ phù hợp:
+                    Match Score:
                   <span className="ml-2 font-bold text-yellow-400">{player.matchScore}%</span>
                 </div>
 
                 <div className="flex space-x-2">
                   <button className="bg-yellow-500 hover:bg-yellow-600 text-black font-semibold px-3 py-1 rounded-lg flex items-center gap-1 shadow">
-                    Thách đấu
+                    Challenge
                   </button>
                   <button className="bg-gray-800 hover:bg-yellow-500 hover:text-black text-yellow-400 px-3 py-1 rounded-lg flex items-center gap-1 border border-yellow-500/30">
-                    Kết bạn
+                    Add Friend
                   </button>
                   <button className="bg-yellow-300 hover:bg-yellow-400 text-black px-3 py-1 rounded-lg flex items-center gap-1 shadow">
-                    Giao lưu tại
+                    Meet at
                   </button>
                 </div>
               </div>

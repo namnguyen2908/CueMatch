@@ -21,6 +21,11 @@ const userSchema = new mongoose.Schema({
     UsageThisMonth: {
         type: Map,
         of: Number // ví dụ: { 'matching': 3 }
+    },
+    Wallet: {
+        Balance: { type: Number, default: 0 }, // Số dư ví (VND)
+        TotalEarned: { type: Number, default: 0 }, // Tổng số tiền đã kiếm được
+        TotalWithdrawn: { type: Number, default: 0 } // Tổng số tiền đã rút
     }
 }, { timestamps: true }
 );

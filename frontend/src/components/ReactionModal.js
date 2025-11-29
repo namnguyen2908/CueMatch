@@ -93,7 +93,7 @@ const ReactionModal = ({ groupedReactions, onClose }) => {
             {filteredUsers.map((item, idx) => (
               <li key={idx} className="flex items-center gap-3">
                 <img
-                  src={item.user.avatar || "https://via.placeholder.com/40"}
+                  src={item.user.avatar}
                   alt={item.user.name}
                   className="w-9 h-9 rounded-full object-cover border border-gray-300 dark:border-gray-600"
                 />
@@ -103,7 +103,7 @@ const ReactionModal = ({ groupedReactions, onClose }) => {
           </ul>
         ) : (
           <p className="text-gray-500 dark:text-gray-400 text-sm">
-            Không có ai thả cảm xúc này.
+            No one releases this feeling.
           </p>
         )}
       </div>

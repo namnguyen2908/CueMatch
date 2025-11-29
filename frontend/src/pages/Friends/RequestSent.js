@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import friendApi from "../../api/friendApi";
 import { FaUserTimes, FaPaperPlane, FaClock, FaEye } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
+import ErrorToast from "../../components/ErrorToast/ErrorToast";
 
 const RequestSent = () => {
     const [sentRequests, setSentRequests] = useState([]);
@@ -14,7 +15,7 @@ const RequestSent = () => {
             const res = await friendApi.getSentRequests();
             setSentRequests(res.data);
         } catch (err) {
-            setError(err.response?.data?.message || "Lỗi khi tải danh sách đã gửi");
+            setError(err.response?.data?.message || "Error loading sent requests");
         } finally {
             setLoading(false);
         }
@@ -24,8 +25,10 @@ const RequestSent = () => {
         fetchSentRequests();
     }, []);
 
+    const [cancelError, setCancelError] = useState(null);
+
     const handleCancel = async (toUserId) => {
-        const confirm = window.confirm("Bạn có chắc muốn hủy lời mời?");
+        const confirm = window.confirm("Are you sure you want to cancel this friend request?");
         if (!confirm) return;
 
         setCancellingId(toUserId);
@@ -33,7 +36,7 @@ const RequestSent = () => {
             await friendApi.cancelFriendRequest(toUserId);
             setSentRequests((prev) => prev.filter((r) => r.To._id !== toUserId));
         } catch (err) {
-            alert(err.response?.data?.message || "Không thể hủy lời mời");
+            setCancelError(err.response?.data?.message || "Cannot cancel friend request");
         } finally {
             setCancellingId(null);
         }
@@ -232,6 +235,7 @@ const RequestSent = () => {
                     ))}
                 </AnimatePresence>
             </motion.div>
+            <ErrorToast error={cancelError} onClose={() => setCancelError(null)} />
         </div>
     );
 };

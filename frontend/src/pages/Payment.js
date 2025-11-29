@@ -3,10 +3,16 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Check, Clock, QrCode, AlertCircle, CheckCircle2, XCircle, ArrowLeft } from 'lucide-react';
 import paymentApi from '../api/paymentApi';
 import subscriptionPlanApi from '../api/subscriptionPlanApi';
+import userApi from '../api/userApi';
+import { useSearchParams } from 'react-router-dom';
+import { useUser } from '../contexts/UserContext';
+import Header from '../components/Header/Header';
+import Sidebar from '../components/Sidebar/Sidebar';
 
 const Payment = () => {
   const { planId } = useParams();
   const navigate = useNavigate();
+  const { Datalogin, datauser } = useUser();
 
   const [step, setStep] = useState(1); // 1: Details, 2: QR, 3: Result
   const [qrUrl, setQrUrl] = useState(null);
@@ -15,6 +21,10 @@ const Payment = () => {
   const [loading, setLoading] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState(null); // 'success' or 'failed'
   const [pollingInterval, setPollingInterval] = useState(null);
+  const [hasHandledSuccess, setHasHandledSuccess] = useState(false);
+
+  const [searchParams] = useSearchParams();
+  const isRenew = searchParams.get('renew') === 'true';
   // Step 1: Load plan details
   useEffect(() => {
     const loadPlanDetails = async () => {
@@ -24,7 +34,7 @@ const Payment = () => {
         setPlanDetails(res);
       } catch (error) {
         console.error('Error loading plan details:', error);
-        alert('Không thể tải thông tin gói. Vui lòng thử lại!');
+        alert('Unable to load plan information. Please try again!');
         navigate('/pricing');
       } finally {
         setLoading(false);
@@ -38,7 +48,11 @@ const Payment = () => {
   const handleProceedToPayment = async () => {
     try {
       setLoading(true);
-      const res = await paymentApi.createPaymentOrder({ planId });
+      setHasHandledSuccess(false); // Reset flag for new payment
+      const res = isRenew
+        ? await paymentApi.renewSubscription({ planId })
+        : await paymentApi.createPaymentOrder({ planId });
+
       setQrUrl(res.qrUrl);
       setOrderCode(res.orderCode);
       setStep(2);
@@ -51,20 +65,60 @@ const Payment = () => {
             clearInterval(interval);
             setPaymentStatus('success');
             setStep(3);
+            
+            // Handle partner package purchase
+            if (planDetails?.Type === 'partner' && !hasHandledSuccess) {
+              setHasHandledSuccess(true);
+              try {
+                // Fetch updated user info from server
+                const updatedUser = await userApi.getUserDetail();
+                
+                // Update local storage with new role (backend has already updated role to 'partner')
+                if (updatedUser) {
+                  const userData = {
+                    id: updatedUser.id || updatedUser._id,
+                    name: updatedUser.Name,
+                    avatar: updatedUser.Avatar,
+                    clubId: updatedUser.clubId,
+                    role: 'partner', // Backend has already updated role to 'partner' for partner plans
+                  };
+                  Datalogin(userData);
+                  
+                  // Redirect to create club page after a short delay
+                  setTimeout(() => {
+                    navigate('/partner/create-club');
+                  }, 2000);
+                }
+              } catch (error) {
+                console.error('Error fetching updated user info:', error);
+                // Update role anyway since backend has already updated it
+                if (datauser) {
+                  const userData = {
+                    ...datauser,
+                    role: 'partner',
+                  };
+                  Datalogin(userData);
+                }
+                // Still redirect even if fetch fails
+                setTimeout(() => {
+                  navigate('/partner/create-club');
+                }, 2000);
+              }
+            }
           } else if (statusRes.status === 'FAILED') {
             clearInterval(interval);
             setPaymentStatus('failed');
             setStep(3);
           }
         } catch (e) {
-          console.error('Lỗi kiểm tra trạng thái đơn:', e);
+          console.error('Error checking order status:', e);
         }
       }, 3000);
 
       setPollingInterval(interval);
     } catch (error) {
-      console.error('Lỗi khi tạo đơn thanh toán:', error);
-      alert('Không thể tạo đơn thanh toán. Vui lòng thử lại!');
+      console.error('Error creating payment order:', error);
+      alert('Unable to create payment order. Please try again!');
       navigate('/pricing');
     } finally {
       setLoading(false);
@@ -81,7 +135,16 @@ const Payment = () => {
   }, [pollingInterval]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-orange-50 to-amber-50 dark:bg-gradient-to-br dark:from-gray-950 dark:via-slate-900 dark:to-gray-950 flex items-center justify-center p-6">
+    <div className="relative min-h-screen overflow-hidden
+      bg-gradient-to-br from-slate-50 via-orange-50 to-amber-50
+      dark:bg-gradient-to-br dark:from-gray-950 dark:via-slate-900 dark:to-gray-950">
+      <div className="fixed inset-0 bg-mesh-light dark:bg-mesh-dark pointer-events-none opacity-40"></div>
+      <Header />
+      <div className="pt-24 md:pt-28 relative z-10 flex flex-col lg:flex-row min-h-screen">
+        <div className="hidden lg:block w-[250px] flex-shrink-0">
+          <Sidebar />
+        </div>
+        <div className="flex-1 flex items-center justify-center px-4 sm:px-6 pb-12">
       <div className="w-full max-w-2xl">
         {/* Progress Steps */}
         <div className="mb-8">
@@ -296,10 +359,16 @@ const Payment = () => {
                     </div>
                   </div>
                   <button
-                    onClick={() => navigate('/pricing')}
+                    onClick={() => {
+                      if (planDetails?.Type === 'partner') {
+                        navigate('/partner/create-club');
+                      } else {
+                        navigate('/pricing');
+                      }
+                    }}
                     className="w-full px-6 py-3 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 text-white font-bold hover:shadow-xl transition-all duration-300"
                   >
-                    Back to Pricing
+                    {planDetails?.Type === 'partner' ? 'Create Your Club' : 'Back to Pricing'}
                   </button>
                 </div>
               ) : (
@@ -355,6 +424,8 @@ const Payment = () => {
               )}
             </div>
           )}
+        </div>
+      </div>
         </div>
       </div>
     </div>

@@ -1,17 +1,163 @@
-body {
-  margin: 0;
-  padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;500;600;700;800;900&family=Bebas+Neue&display=swap');
+@import url('https://unpkg.com/leaflet/dist/leaflet.css');
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
-}
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-luxury-200 dark:border-luxury-800;
+  }
+
+  body {
+    @apply bg-gradient-to-br from-sport-50 via-white to-sport-100/50 
+           dark:from-luxury-950 dark:via-luxury-900 dark:to-luxury-800
+           text-luxury-900 dark:text-luxury-100
+           font-sans antialiased;
+    margin: 0;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  code {
+    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    @apply w-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-luxury-100 dark:bg-luxury-900;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-sport-400 dark:bg-sport-600 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-sport-500 dark:bg-sport-500;
+  }
+}
+
+@layer components {
+  /* Glassmorphism Card */
+  .glass-card {
+    @apply bg-white/80 dark:bg-luxury-800/80 
+           backdrop-blur-xl 
+           border border-white/20 dark:border-luxury-700/30
+           shadow-luxury;
+  }
+
+  /* Sporty Card */
+  .sport-card {
+    @apply bg-white dark:bg-luxury-800
+           rounded-2xl
+           border border-sport-200/50 dark:border-sport-800/50
+           shadow-sport hover:shadow-sport-lg
+           transition-all duration-300;
+  }
+
+  /* Premium Button */
+  .btn-premium {
+    @apply bg-gradient-sport 
+           text-white font-semibold
+           px-6 py-3 rounded-xl
+           shadow-sport hover:shadow-sport-lg
+           transform hover:scale-[1.02] active:scale-[0.98]
+           transition-all duration-300
+           relative overflow-hidden;
+  }
+
+  .btn-premium::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent
+           -translate-x-full group-hover:translate-x-full
+           transition-transform duration-700;
+  }
+
+  /* Elegant Input */
+  .input-elegant {
+    @apply w-full px-4 py-3
+           bg-luxury-50 dark:bg-luxury-900/50
+           border border-luxury-200 dark:border-luxury-700
+           rounded-xl
+           text-luxury-900 dark:text-luxury-100
+           placeholder-luxury-400 dark:placeholder-luxury-500
+           focus:outline-none focus:ring-2 focus:ring-sport-400/50 dark:focus:ring-sport-500/50
+           focus:border-sport-400 dark:focus:border-sport-500
+           transition-all duration-200;
+  }
+
+  /* Sporty Badge */
+  .badge-sport {
+    @apply inline-flex items-center px-3 py-1
+           bg-gradient-to-r from-sport-400 to-sport-500
+           text-white text-xs font-semibold
+           rounded-full
+           shadow-glow-orange;
+  }
+
+  /* Luxury Divider */
+  .divider-luxury {
+    @apply h-px bg-gradient-to-r from-transparent via-luxury-300 dark:via-luxury-700 to-transparent;
+  }
+}
+
+@layer utilities {
+  /* Text Gradients */
+  .text-gradient-sport {
+    @apply bg-gradient-to-r from-sport-500 to-sport-700 dark:from-sport-400 dark:to-sport-600
+           bg-clip-text text-transparent;
+  }
+
+  .text-gradient-gold {
+    @apply bg-gradient-to-r from-gold-400 to-gold-600
+           bg-clip-text text-transparent;
+  }
+
+  /* Animated Background */
+  .bg-animated {
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
+  }
+
+  @keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Sporty Pattern Overlay */
+  .pattern-sport {
+    background-image: 
+      radial-gradient(circle at 2px 2px, rgba(249, 115, 22, 0.1) 1px, transparent 0);
+    background-size: 40px 40px;
+  }
+
+  /* Luxury Pattern Overlay */
+  .pattern-luxury {
+    background-image: 
+      linear-gradient(45deg, rgba(0, 0, 0, 0.02) 25%, transparent 25%),
+      linear-gradient(-45deg, rgba(0, 0, 0, 0.02) 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, rgba(0, 0, 0, 0.02) 75%),
+      linear-gradient(-45deg, transparent 75%, rgba(0, 0, 0, 0.02) 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+  }
+}

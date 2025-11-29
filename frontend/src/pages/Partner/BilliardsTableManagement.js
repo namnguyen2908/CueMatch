@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Sidebar from './Sidebar';
+import PartnerLayout from './PartnerLayout';
 import tableApi from '../../api/tableApi';
 import tableRateApi from '../../api/tableRateApi';
 import billiardsBookingApi from '../../api/billiardsBookingApi';
@@ -14,70 +14,46 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearSca
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
 
 const BilliardsTableManagement = () => {
-    const [sidebarOpen, setSidebarOpen] = useState(true);
     const [tables, setTables] = useState([]);
     const [loading, setLoading] = useState(true);
     const [deletingId, setDeletingId] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterType, setFilterType] = useState('');
-    const [filterStatus, setFilterStatus] = useState({
-        occupied: false,
-        available: false,
-    });
-
-
-    // Walk-in bookings currently active
+    const [filterStatus, setFilterStatus] = useState({ occupied: false, available: false });
     const [activeWalkInBookings, setActiveWalkInBookings] = useState([]);
     const [modalEndOpen, setModalEndOpen] = useState(false);
     const [endBookingInfo, setEndBookingInfo] = useState(null);
-    ////
 
     const { datauser } = useUser();
     const clubId = datauser?.clubId;
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editMode, setEditMode] = useState(false);
-    const [formData, setFormData] = useState({
-        TableNumber: '',
-        Type: 'Pool',
-        Status: 'available',
-    });
+    const [formData, setFormData] = useState({ TableNumber: '', Type: 'Pool', Status: 'available' });
     const [editingTableId, setEditingTableId] = useState(null);
     const [submitting, setSubmitting] = useState(false);
-
     const [priceModalOpen, setPriceModalOpen] = useState(false);
-    const [tablePrices, setTablePrices] = useState({
-        Pool: '',
-        Carom: '',
-        Snooker: '',
-    });
+    const [tablePrices, setTablePrices] = useState({ Pool: '', Carom: '', Snooker: '' });
     const [priceLoading, setPriceLoading] = useState(false);
 
-
-
-    // Thống kê số bàn theo trạng thái
     const tableStatusStats = {
         available: tables.filter((t) => t.Status === 'available').length,
         reserved: tables.filter((t) => t.Status === 'reserved').length,
         occupied: tables.filter((t) => t.Status === 'occupied').length,
     };
 
-    // Thống kê theo loại bàn
     const tableTypeStats = {
         Pool: tables.filter((t) => t.Type === 'Pool').length,
         Carom: tables.filter((t) => t.Type === 'Carom').length,
         Snooker: tables.filter((t) => t.Type === 'Snooker').length,
     };
 
-
-    const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
-
     const fetchTables = async () => {
         setLoading(true);
         try {
             const data = await tableApi.getTableByClub(clubId);
             setTables(data);
-        } catch (error) {
+        } catch {
             toast.error('Failed to fetch tables');
         } finally {
             setLoading(false);
@@ -87,45 +63,36 @@ const BilliardsTableManagement = () => {
     const handlePrepareEndPlay = async (bookingId) => {
         try {
             const res = await billiardsBookingApi.previewEndPlay(bookingId);
-            setEndBookingInfo(res);  // res có: booking, duration, rate, totalAmountEstimate
+            setEndBookingInfo(res);
             setModalEndOpen(true);
-        } catch (err) {
-            toast.error(err?.message || 'Lỗi khi lấy thông tin kết thúc');
+        } catch {
+            toast.error('Error fetching end play information');
         }
     };
 
     const handleOpenTable = async (tableId) => {
         try {
             const now = new Date();
-            const res = await billiardsBookingApi.openNow({
-                tableId,
-                clubId,
-                startTime: now.toISOString(),
-            });
-
-            toast.success("Đã mở bàn thành công");
-            fetchTables(); // Cập nhật trạng thái
+            const res = await billiardsBookingApi.openNow({ tableId, clubId, startTime: now.toISOString() });
+            toast.success("Table opened successfully");
+            fetchTables();
             setActiveWalkInBookings(prev => [...prev, res.booking]);
-        } catch (err) {
-            toast.error(err || "Không thể mở bàn");
+        } catch {
+            toast.error('Error opening table');
         }
     };
 
     const handleEndPlay = async (bookingId) => {
         try {
-            console.log("Kết thúc booking ID:", bookingId);  // Kiểm tra log
             const res = await billiardsBookingApi.endPlay(bookingId);
-            toast.success(`Đã kết thúc bàn. Tổng tiền: ${res.totalAmount} VND`);
-
-            fetchTables();  // cập nhật lại bảng
+            toast.success(`Table ended. Total: ${res.totalAmount} VND`);
+            fetchTables();
             setActiveWalkInBookings(prev => prev.filter(b => b._id !== bookingId));
-            setModalEndOpen(false); // Đóng modal sau khi kết thúc
-        } catch (err) {
-            console.error("Lỗi khi kết thúc bàn:", err);
-            toast.error(err?.response?.data?.message || "Không thể kết thúc bàn");
+            setModalEndOpen(false);
+        } catch {
+            toast.error("Cannot end table");
         }
     };
-
 
     const fetchTablePrices = async () => {
         setPriceLoading(true);
@@ -135,13 +102,12 @@ const BilliardsTableManagement = () => {
                 tableRateApi.getTableRate(clubId, 'Carom').catch(() => null),
                 tableRateApi.getTableRate(clubId, 'Snooker').catch(() => null),
             ]);
-
             setTablePrices({
                 Pool: pool?.data?.PricePerHour || '',
                 Carom: carom?.data?.PricePerHour || '',
                 Snooker: snooker?.data?.PricePerHour || '',
             });
-        } catch (err) {
+        } catch {
             toast.error('Failed to load table prices');
         } finally {
             setPriceLoading(false);
@@ -149,65 +115,45 @@ const BilliardsTableManagement = () => {
     };
 
     useEffect(() => {
-        if (priceModalOpen && clubId) {
-            fetchTablePrices();
-        }
+        if (priceModalOpen && clubId) fetchTablePrices();
     }, [priceModalOpen, clubId]);
-
 
     const handleSavePrices = async () => {
         try {
             for (const type of ['Pool', 'Carom', 'Snooker']) {
                 const price = tablePrices[type];
                 if (!price || isNaN(price)) continue;
-
-                await tableRateApi.updateTableRate(clubId, type, {
-                    PricePerHour: parseInt(price),
-                }).catch(async (err) => {
+                await tableRateApi.updateTableRate(clubId, type, { PricePerHour: parseInt(price) }).catch(async (err) => {
                     if (err.response?.status === 404) {
-                        await tableRateApi.createTableRate(clubId, {
-                            Type: type,
-                            PricePerHour: parseInt(price),
-                        });
+                        await tableRateApi.createTableRate(clubId, { Type: type, PricePerHour: parseInt(price) });
                     }
                 });
             }
-
             toast.success('Prices updated successfully');
             setPriceModalOpen(false);
-        } catch (error) {
+        } catch {
             toast.error('Failed to update prices');
         }
     };
 
-
     const getTableImage = (type) => {
         switch (type) {
-            case 'Pool':
-                return Pool;
-            case 'Carom':
-                return Carrom;
-            case 'Snooker':
-                return Pool;
-            default:
-                return Pool;
+            case 'Pool': return Pool;
+            case 'Carom': return Carrom;
+            case 'Snooker': return Pool;
+            default: return Pool;
         }
     };
 
-    useEffect(() => {
-        if (clubId) fetchTables();
-    }, [clubId]);
+    useEffect(() => { if (clubId) fetchTables(); }, [clubId]);
 
     const filteredTables = tables.filter((table) => {
         const matchNumber = table.TableNumber.toLowerCase().includes(searchTerm.toLowerCase());
         const matchType = filterType ? table.Type === filterType : true;
-
         const statusFilters = Object.entries(filterStatus).filter(([_, value]) => value).map(([key]) => key);
         const matchStatus = statusFilters.length > 0 ? statusFilters.includes(table.Status) : true;
-
         return matchNumber && matchType && matchStatus;
     });
-
 
     const handleDelete = async (id) => {
         if (!window.confirm('Are you sure you want to delete this table?')) return;
@@ -216,7 +162,7 @@ const BilliardsTableManagement = () => {
             await tableApi.deleteTable(id);
             toast.success('Table deleted successfully');
             fetchTables();
-        } catch (error) {
+        } catch {
             toast.error('Failed to delete table');
         } finally {
             setDeletingId(null);
@@ -232,11 +178,7 @@ const BilliardsTableManagement = () => {
 
     const openEditModal = (table) => {
         setEditMode(true);
-        setFormData({
-            TableNumber: table.TableNumber,
-            Type: table.Type,
-            Status: table.Status || 'available',
-        });
+        setFormData({ TableNumber: table.TableNumber, Type: table.Type, Status: table.Status || 'available' });
         setEditingTableId(table._id);
         setIsModalOpen(true);
     };
@@ -247,7 +189,6 @@ const BilliardsTableManagement = () => {
             toast.warning('Please enter a table number');
             return;
         }
-
         setSubmitting(true);
         try {
             if (editMode) {
@@ -257,24 +198,18 @@ const BilliardsTableManagement = () => {
                 await tableApi.createTable({ ...formData, Club: clubId });
                 toast.success('Table created successfully');
             }
-
             setIsModalOpen(false);
             fetchTables();
-        } catch (error) {
-            toast.error(error.response?.data?.message || 'Action failed');
+        } catch {
+            toast.error('Action failed');
         } finally {
             setSubmitting(false);
         }
     };
 
     return (
-        <div className="flex min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-950">
-            <Sidebar sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
-
-            <main
-                className="flex flex-col flex-1 overflow-auto transition-all duration-300 p-8"
-                style={{ marginLeft: sidebarOpen ? '16rem' : '4rem' }}
-            >
+        <PartnerLayout>
+            <div className="p-8">
                 {/* Header Section */}
                 <div className="mb-8">
 
@@ -531,7 +466,6 @@ const BilliardsTableManagement = () => {
                         ))}
                     </div>
                 )}
-            </main>
             {/* Modal Create/Update */}
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadeIn">
@@ -751,7 +685,8 @@ const BilliardsTableManagement = () => {
                     </div>
                 </div>
             )}
-        </div>
+            </div>
+        </PartnerLayout>
     );
 };
 

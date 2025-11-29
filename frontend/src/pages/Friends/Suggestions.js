@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import friendApi from "../../api/friendApi";
 import { FaSearch, FaUsers, FaStar, FaRocket } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
+import ErrorToast from "../../components/ErrorToast/ErrorToast";
 
 const Suggestions = () => {
   const [suggestions, setSuggestions] = useState([]);
@@ -9,7 +10,7 @@ const Suggestions = () => {
   const [sendingRequest, setSendingRequest] = useState(null);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-const [filteredSuggestions, setFilteredSuggestions] = useState([]);
+  const [filteredSuggestions, setFilteredSuggestions] = useState([]);
 
   const fetchSuggestions = async () => {
     try {
@@ -17,31 +18,33 @@ const [filteredSuggestions, setFilteredSuggestions] = useState([]);
       setSuggestions(res.data);
       setFilteredSuggestions(res.data);
     } catch (err) {
-      setError(err.response?.data?.message || "Không thể tải gợi ý");
+      setError(err.response?.data?.message || "Cannot load suggestions");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-  const filtered = suggestions.filter((user) =>
-    user.Name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-  setFilteredSuggestions(filtered);
-}, [searchTerm, suggestions]);
+    const filtered = suggestions.filter((user) =>
+      user.Name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredSuggestions(filtered);
+  }, [searchTerm, suggestions]);
 
   useEffect(() => {
     fetchSuggestions();
   }, []);
 
+  const [requestError, setRequestError] = useState(null);
+
   const handleSendRequest = async (userId) => {
     setSendingRequest(userId);
     try {
       await friendApi.sendFriendRequest(userId);
-      // Xoá khỏi danh sách sau khi gửi
+      // Remove from list after sending
       setSuggestions((prev) => prev.filter((user) => user._id !== userId));
     } catch (err) {
-      alert(err.response?.data?.message || "Không thể gửi lời mời");
+      setRequestError(err.response?.data?.message || "Cannot send friend request");
     } finally {
       setSendingRequest(null);
     }
@@ -124,22 +127,17 @@ const [filteredSuggestions, setFilteredSuggestions] = useState([]);
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-black dark:text-white mb-1">
-            Friend Suggestions ({suggestions.length})
-          </h2>
-          <p className="text-gray-400">People you might know and want to connect with</p>
-        </div>
+
         <div className="relative w-full sm:w-80">
-    <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
-    <input
-      type="text"
-      placeholder="Search suggestions..."
-      value={searchTerm}
-      onChange={(e) => setSearchTerm(e.target.value)}
-      className="w-full pl-12 pr-4 py-3 bg-white/10 border-[#9B9B9B] dark:bg-white/5 border dark:border-white/20 dark:border-white/10 rounded-xl text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#FFBF26] focus:border-transparent transition-all"
-    />
-  </div>
+          <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search suggestions..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-12 pr-4 py-3 bg-white/10 border-[#9B9B9B] dark:bg-white/5 border dark:border-white/20 dark:border-white/10 rounded-xl text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#FFBF26] focus:border-transparent transition-all"
+          />
+        </div>
       </div>
 
       {/* Suggestions Grid */}
@@ -227,12 +225,6 @@ const [filteredSuggestions, setFilteredSuggestions] = useState([]);
                     )}
                   </motion.button>
                 </div>
-                {/* Suggestion rank indicator */}
-                {index < 5 && (
-                  <div className="absolute top-4 left-4 w-8 h-8 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-lg">
-                    {index + 1}
-                  </div>
-                )}
                 {/* Glowing border effect */}
                 <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-orange-600/20 via-yellow-400/20 to-orange-200/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl" />
 
@@ -241,6 +233,7 @@ const [filteredSuggestions, setFilteredSuggestions] = useState([]);
           ))}
         </AnimatePresence>
       </motion.div>
+      <ErrorToast error={requestError} onClose={() => setRequestError(null)} />
     </div>
   );
 };

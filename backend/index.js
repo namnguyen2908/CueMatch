@@ -7,6 +7,8 @@ require('./cronJobs/UpdatedDaily');
 require('./cronJobs/RunRemind');
 require('./cronJobs/SubscriptionCron');
 require('./cronJobs/SubscriptionReminderJob');
+require('./cronJobs/BookingAutoComplete');
+require('./cronJobs/BookingAutoCheckIn');
 
 const http = require('http');
 const { Server } = require('socket.io');
@@ -23,10 +25,14 @@ const matchingRoutes = require('./routes/Matching');
 const subscriptionPlan = require('./routes/SubscriptionPlan');
 const savedPost = require('./routes/SavedPost');
 const paymentRoutes = require('./routes/Payment');
+const adminRoutes = require('./routes/Admin');
 const BilliardsClubRoutes = require('./routes/BilliardsClub');
 const BilliardsTableRoutes = require('./routes/BilliardsTable');
 const TableRateRoutes = require('./routes/TableRate');
 const billiardsBookingRoutes = require('./routes/BilliardsBooking');
+const notificationRoutes = require('./routes/Notification');
+const searchRoutes = require('./routes/Search');
+const withdrawalRoutes = require('./routes/Withdrawal');
 
 
 const redisClient = require('./redisClient');
@@ -72,6 +78,10 @@ app.use('/billiard-club', BilliardsClubRoutes);
 app.use('/billiard-table', BilliardsTableRoutes);
 app.use('/table-rate', TableRateRoutes);
 app.use('/billiards-booking', billiardsBookingRoutes);
+app.use('/notifications', notificationRoutes);
+app.use('/admin', adminRoutes);
+app.use('/search', searchRoutes);
+app.use('/withdrawal', withdrawalRoutes);
 
 
 // Tạo HTTP server
@@ -95,34 +105,54 @@ io.on('connection', (socket) => {
   console.log('🔌 Socket connected. UserID:', userId);
 
   if (userId) {
-    // Nếu user reconnect sớm (sau reload), hủy timeout cũ
+    socket.join(`user:${userId}`);
+    console.log(`🔔 User ${userId} joined notification room`);
+
     if (userDisconnectTimers.has(userId)) {
       clearTimeout(userDisconnectTimers.get(userId));
       userDisconnectTimers.delete(userId);
     }
 
-    redisClient.set(`online:${userId}`, 'true');
-    console.log(`✅ User ${userId} is online`);
-    socket.broadcast.emit('user_online', userId);
-    
-    // Gửi danh sách online cho chính user đó
     (async () => {
-      const keys = await redisClient.keys('online:*');
-      const onlineUserIds = keys.map(k => k.split(':')[1]);
-      socket.emit('online_users', onlineUserIds);
+      try {
+        await redisClient.setEx(`online:${userId}`, 60, 'true');
+        console.log(`✅ User ${userId} is online (TTL: 60s)`);
+        socket.broadcast.emit('user_online', userId);
+        
+        // Gửi danh sách online cho chính user đó
+        const keys = await redisClient.keys('online:*');
+        const onlineUserIds = keys.map(k => k.split(':')[1]);
+        socket.emit('online_users', onlineUserIds);
+      } catch (err) {
+        console.error(`❌ Error setting user online status:`, err);
+      }
     })();
+  }
+
+  if (socket.user?.role === 'admin') {
+    socket.join('admins');
+    console.log('👑 Admin connected, joined admins room');
   }
 
   socket.on('disconnect', () => {
     if (userId) {
-      // Đặt timeout chờ khoảng 5–10 giây trước khi thực sự xóa Redis
+      // Không xóa Redis key ngay lập tức
+      // Key sẽ tự động expire sau 60 giây nếu không có heartbeat ping
+      // Điều này cho phép user reconnect nhanh (reload page) mà không bị đánh dấu offline
+      console.log(`🔌 User ${userId} disconnected. Key will expire in 60s if no heartbeat.`);
+      
+      // Cập nhật LastSeen sau một khoảng thời gian ngắn
+      // (không cần xóa Redis key vì TTL sẽ tự động xử lý)
       const timer = setTimeout(async () => {
-        await redisClient.del(`online:${userId}`);
-        await User.findByIdAndUpdate(userId, { LastSeen: new Date() });
-        console.log(`❌ User ${userId} went offline`);
-        socket.broadcast.emit('user_offline', userId);
+        const isStillOnline = await redisClient.get(`online:${userId}`);
+        if (isStillOnline !== 'true') {
+          // Key đã expire (không còn heartbeat), user thực sự offline
+          await User.findByIdAndUpdate(userId, { LastSeen: new Date() });
+          console.log(`❌ User ${userId} went offline (no heartbeat)`);
+          io.emit('user_offline', userId);
+        }
         userDisconnectTimers.delete(userId);
-      }, 5000);
+      }, 65000); // Chờ 65 giây để đảm bảo TTL đã expire
 
       userDisconnectTimers.set(userId, timer);
     }
@@ -136,6 +166,36 @@ io.on('connection', (socket) => {
   socket.on('send_message', (message) => {
     const conversationId = message.ConversationId;
     io.to(conversationId).emit('receive_message', message);
+  });
+
+  // Matching socket events
+  socket.on('join_matching', () => {
+    if (userId) {
+      socket.join(`matching:${userId}`);
+      console.log(`User ${userId} joined matching room`);
+    }
+  });
+
+  socket.on('leave_matching', () => {
+    if (userId) {
+      socket.leave(`matching:${userId}`);
+      console.log(`User ${userId} left matching room`);
+    }
+  });
+
+  // Booking socket events - join/leave club room for real-time updates
+  socket.on('join_club_room', (clubId) => {
+    if (clubId) {
+      socket.join(`club:${clubId}`);
+      console.log(`User ${userId} joined club room: club:${clubId}`);
+    }
+  });
+
+  socket.on('leave_club_room', (clubId) => {
+    if (clubId) {
+      socket.leave(`club:${clubId}`);
+      console.log(`User ${userId} left club room: club:${clubId}`);
+    }
   });
 });
 

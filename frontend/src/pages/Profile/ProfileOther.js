@@ -12,7 +12,7 @@ import { createConversation } from "../../api/messageApi";
 import { useOnlineStatus } from "../../contexts/StatusContext";
 
 const ProfileOther = () => {
-    const { userId } = useParams(); // URL có dạng: /profile/:userId
+    const { userId } = useParams();
     const [user, setUser] = useState(null);
     const [activeTab, setActiveTab] = useState("posts");
     const [selectedPost, setSelectedPost] = useState(null);
@@ -20,7 +20,6 @@ const ProfileOther = () => {
     const { openChatWith } = useChat();
     const [relationshipStatus, setRelationshipStatus] = useState("none");
     const { onlineUsers } = useOnlineStatus();
-
     const postListRef = useRef();
 
     useEffect(() => {
@@ -63,7 +62,7 @@ const ProfileOther = () => {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const data = await userApi.getUserDetail(userId); // pass userId
+                const data = await userApi.getUserDetail(userId);
                 setUser(data);
             } catch (err) {
                 console.error("Failed to fetch user:", err);
@@ -77,9 +76,9 @@ const ProfileOther = () => {
         try {
             const res = await createConversation({ MemberIds: [user._id], Type: 'single' });
             const conversation = res.data;
-            openChatWith(user, conversation._id); // mở chatbox
+            openChatWith(user, conversation._id);
         } catch (err) {
-            console.error("Lỗi khi tạo/lấy conversation:", err);
+            console.error("Error creating or retrieving conversation:", err);
         }
     };
 
@@ -143,7 +142,6 @@ const ProfileOther = () => {
         <div className="min-h-screen bg-gray-100 dark:bg-[#18191a]">
             <Header />
 
-            {/* Cover Photo */}
             <div className="bg-gray-200 dark:bg-[#242526] border-b border-gray-300 dark:border-[#3a3b3c] pb-[1rem]">
                 <div className="max-w-5xl mx-auto">
                     <div className="relative">
@@ -153,11 +151,9 @@ const ProfileOther = () => {
                                 alt="Cover"
                                 className="w-full h-full object-cover brightness-[0.75]"
                             />
-                            {/* <div className="absolute inset-0 bg-gradient-to-t from-[#00000099] to-transparent" /> */}
                         </div>
                     </div>
 
-                    {/* Profile Info */}
                     <div className="px-4 sm:px-6 pb-4">
                         <div className="flex flex-col sm:flex-row sm:items-end flex-wrap sm:justify-between gap-4">
                             <div className="flex flex-col sm:flex-row sm:items-end gap-4 -mt-8 sm:-mt-[5.5rem] sm:flex-wrap sm:gap-x-6 sm:gap-y-2">
@@ -190,7 +186,6 @@ const ProfileOther = () => {
                                 </div>
                             </div>
 
-                            {/* Action: Message / Follow */}
                             <div className="flex gap-3 sm:pb-4">
                                 <button
                                     onClick={handleMessageClick}
@@ -206,7 +201,6 @@ const ProfileOther = () => {
                                         Unfriend
                                     </button>
                                 )}
-
                                 {relationshipStatus === "sent" && (
                                     <button
                                         onClick={handleCancelFriendRequest}
@@ -215,7 +209,6 @@ const ProfileOther = () => {
                                         Cancel Request
                                     </button>
                                 )}
-
                                 {relationshipStatus === "received" && (
                                     <div className="flex gap-2">
                                         <button
@@ -232,7 +225,6 @@ const ProfileOther = () => {
                                         </button>
                                     </div>
                                 )}
-
                                 {relationshipStatus === "none" && (
                                     <button
                                         onClick={handleSendFriendRequest}
@@ -247,9 +239,7 @@ const ProfileOther = () => {
                 </div>
             </div>
 
-            {/* Main Content */}
             <div className="max-w-6xl mx-auto px-4 sm:px-2 py-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Left column: user info */}
                 <div className="md:col-span-1 bg-gray-100 dark:bg-[#242526] rounded-xl p-6 shadow-lg h-fit sticky top-24">
                     <h2 className="text-gray-900 dark:text-[#e4e6ea] text-2xl font-bold mb-6">About</h2>
                     <div className="space-y-6">
@@ -257,7 +247,6 @@ const ProfileOther = () => {
                             <h3 className="text-gray-900 dark:text-[#e4e6ea] font-semibold mb-2">📧 Email</h3>
                             <p className="text-gray-700 dark:text-[#b0b3b8]">{user.Email}</p>
                         </div>
-
                         {user.DateOfBirth && (
                             <div>
                                 <h3 className="text-gray-900 dark:text-[#e4e6ea] font-semibold mb-2">🎂 Date of Birth</h3>
@@ -270,7 +259,6 @@ const ProfileOther = () => {
                                 </p>
                             </div>
                         )}
-
                         {user.Bio && (
                             <div>
                                 <h3 className="text-gray-900 dark:text-[#e4e6ea] font-semibold mb-2">📝 Bio</h3>
@@ -280,7 +268,6 @@ const ProfileOther = () => {
                     </div>
                 </div>
 
-                {/* Right column: post list */}
                 <div className="md:col-span-2 space-y-6">
                     <PostList
                         isProfile
@@ -291,7 +278,6 @@ const ProfileOther = () => {
                 </div>
             </div>
 
-            {/* Modal post detail */}
             <PostDetailModal
                 post={selectedPost}
                 isOpen={!!selectedPost}

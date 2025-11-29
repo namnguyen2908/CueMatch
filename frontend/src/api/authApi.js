@@ -18,4 +18,17 @@ export const logout = () => {
   return api.post('/auth/logout');
 };
 
+export const requestPasswordOtp = (Email) => {
+    return api.post('/auth/forgot-password', { Email });
+};
+
+export const resetPassword = ({ Email, otp, Password }) => {
+    return api.post('/auth/reset-password', { Email, otp, Password });
+};
+
+// Kiểm tra xem user đã đăng nhập chưa (token còn hạn)
+export const checkAuth = () => {
+    return api.get('/auth/check');
+};
+
 export default api;

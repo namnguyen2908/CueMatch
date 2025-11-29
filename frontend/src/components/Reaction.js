@@ -1,52 +1,59 @@
 import React, { useState, useRef, useEffect } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faThumbsUp,
-  faHeart,
-  faFaceGrinSquintTears,
-  faFaceSurprise,
-  faFaceSadCry,
-  faFaceTired,
-} from "@fortawesome/free-solid-svg-icons";
 import reactionApi from "../api/reactionApi";
 
-// Danh sách reaction
-const reactions = [
+export const REACTION_CONFIG = [
   {
     type: "like",
-    icon: faThumbsUp,
-    color: "#0055ff",
-    bg: "#0055ff",
+    label: "Like",
+    emoji: "👍",
+    color: "#1877F2",
+    bg: "#E7F3FF",
   },
   {
     type: "love",
-    icon: faHeart,
-    color: "#ff0b0b",
+    label: "Love",
+    emoji: "❤️",
+    color: "#F02849",
+    bg: "#FFE4EA",
+  },
+  {
+    type: "care",
+    label: "Care",
+    emoji: "🤗",
+    color: "#FFD76A",
+    bg: "#FFF4D4",
   },
   {
     type: "haha",
-    icon: faFaceGrinSquintTears,
-    color: "#ffd062",
+    label: "Haha",
+    emoji: "😂",
+    color: "#F7B125",
+    bg: "#FFF2D5",
   },
   {
     type: "wow",
-    icon: faFaceSurprise,
-    color: "#ffff2d",
+    label: "Wow",
+    emoji: "😮",
+    color: "#F7B125",
+    bg: "#FFF2D5",
   },
   {
     type: "sad",
-    icon: faFaceSadCry,
-    color: "#ffc95c",
+    label: "Sad",
+    emoji: "😢",
+    color: "#F7B125",
+    bg: "#FFEFE1",
   },
   {
     type: "angry",
-    icon: faFaceTired,
-    color: "#ff9d2d",
+    label: "Angry",
+    emoji: "😡",
+    color: "#E9710F",
+    bg: "#FFE4DB",
   },
 ];
 
-// Tạo map để dễ truy xuất theo type
-const reactionMap = reactions.reduce((acc, r) => {
+export const REACTION_MAP = REACTION_CONFIG.reduce((acc, r) => {
   acc[r.type] = r;
   return acc;
 }, {});
@@ -78,7 +85,7 @@ const Reaction = ({ post, onReacted }) => {
       setShowPicker(false);
     } catch (err) {
       console.error("Lỗi khi gửi reaction:", err);
-      alert("Có lỗi xảy ra khi gửi reaction!");
+      alert("An error occurred while sending reaction!");
       setCurrentUserReaction(post?.CurrentUserReaction || null);
     } finally {
       setLoading(false);
@@ -96,7 +103,7 @@ const Reaction = ({ post, onReacted }) => {
     }, 200);
   };
 
-  const currentReaction = currentUserReaction ? reactionMap[currentUserReaction] : null;
+  const currentReaction = currentUserReaction ? REACTION_MAP[currentUserReaction] : null;
 
   return (
     <div
@@ -106,45 +113,44 @@ const Reaction = ({ post, onReacted }) => {
     >
       <button
         disabled={loading}
-        className={`flex items-center gap-2 transition-all 
-    ${currentReaction ? "text-red-400" : "hover:text-red-400"} 
-    dark:text-white dark:hover:text-yellow-400`}
+        className={`flex items-center gap-2 rounded-full px-3 py-1.5 transition-colors ${
+          currentReaction ? "bg-luxury-100 text-sport-600" : "text-luxury-600 dark:text-luxury-200"
+        }`}
       >
-        {currentReaction ? (
-          <FontAwesomeIcon
-            icon={currentReaction.icon}
-            color={currentReaction.color}
-            className="text-lg"
-          />
-        ) : (
-          <FontAwesomeIcon icon={faHeart} className="text-lg" />
-        )}
-        <span>{currentReaction ? currentReaction.type.charAt(0).toUpperCase() + currentReaction.type.slice(1) : "Heart"}</span>
+        <span className="text-xl leading-none">{currentReaction ? currentReaction.emoji : "👍"}</span>
+        <span className="text-sm font-semibold">
+          {currentReaction ? currentReaction.label : "React"}
+        </span>
       </button>
 
       {showPicker && (
-  <div
-    className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-50 
-      flex gap-2 
-      bg-gray-100 dark:bg-[#222] 
-      border border-yellow-500/20 
-      rounded-full px-3 py-2 shadow-lg 
-      transition-all"
-    onMouseEnter={handleMouseEnter}
-    onMouseLeave={handleMouseLeave}
-  >
-    {reactions.map((r) => (
-      <button
-        key={r.type}
-        onClick={() => handleReaction(r.type)}
-        title={r.type}
-        className={`text-xl transition-transform hover:scale-125 p-1 rounded-full 
-          ${currentUserReaction === r.type ? "opacity-100" : "opacity-70"} 
-          hover:bg-gray-200 dark:hover:bg-gray-700`}
-      >
-        <FontAwesomeIcon icon={r.icon} color={r.color} />
-      </button>
-    ))}
+        <div
+          className="absolute bottom-full mb-3 left-0 translate-x-0 z-[1050]
+            flex gap-1 overflow-visible
+            bg-white dark:bg-[#1d1d1d]
+            border border-luxury-200/60 dark:border-luxury-800/60
+            rounded-2xl px-4 py-2 shadow-2xl
+            transition-all"
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
+          {REACTION_CONFIG.map((r) => (
+            <button
+              key={r.type}
+              onClick={() => handleReaction(r.type)}
+              title={r.label}
+              className={`flex flex-col items-center gap-0.5 px-2 py-1 rounded-2xl transition-all text-xs ${
+                currentUserReaction === r.type
+                  ? "bg-luxury-50 dark:bg-luxury-900/60 shadow"
+                  : "opacity-80"
+              }`}
+            >
+              <span className="text-xl">{r.emoji}</span>
+              <span className="text-[9px] font-semibold text-luxury-600 dark:text-luxury-200">
+                {r.label}
+              </span>
+            </button>
+          ))}
         </div>
       )}
     </div>

@@ -34,6 +34,24 @@ const userApi = {
     getUserGrowth: async () => {
         const res = await api.get('/user/growth');
         return res.data;
+    },
+
+    // Heartbeat để renew TTL trong Redis
+    heartbeat: async () => {
+        const res = await api.post('/user/heartbeat');
+        return res.data;
+    },
+
+    // Get wallet balance
+    getWalletBalance: async () => {
+        const res = await api.get('/user/wallet/balance');
+        return res.data;
+    },
+
+    // Get wallet transactions
+    getWalletTransactions: async (page = 1, limit = 10) => {
+        const res = await api.get('/user/wallet/transactions', { params: { page, limit } });
+        return res.data;
     }
 }
 

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import friendApi from "../../api/friendApi";
 import { FaUserCheck, FaUserTimes, FaClock, FaHeart } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
+import ErrorToast from "../../components/ErrorToast/ErrorToast";
 
 const FriendRequests = () => {
   const [requests, setRequests] = useState([]);
@@ -14,7 +15,7 @@ const FriendRequests = () => {
       const res = await friendApi.getReceivedRequests();
       setRequests(res.data);
     } catch (err) {
-      setError(err.response?.data?.message || "Lỗi khi tải lời mời");
+      setError(err.response?.data?.message || "Error loading friend requests");
     } finally {
       setLoading(false);
     }
@@ -24,20 +25,22 @@ const FriendRequests = () => {
     fetchRequests();
   }, []);
 
+  const [actionError, setActionError] = useState(null);
+
   const handleAccept = async (fromUserId) => {
     setProcessingId(fromUserId);
     try {
       await friendApi.acceptFriendRequest(fromUserId);
       setRequests((prev) => prev.filter((r) => r.From._id !== fromUserId));
     } catch (err) {
-      alert(err.response?.data?.message || "Không thể chấp nhận lời mời");
+      setActionError(err.response?.data?.message || "Cannot accept friend request");
     } finally {
       setProcessingId(null);
     }
   };
 
   const handleReject = async (fromUserId) => {
-    const confirm = window.confirm("Bạn có chắc chắn muốn từ chối lời mời?");
+    const confirm = window.confirm("Are you sure you want to decline this friend request?");
     if (!confirm) return;
 
     setProcessingId(fromUserId);
@@ -45,7 +48,7 @@ const FriendRequests = () => {
       await friendApi.rejectFriendRequest(fromUserId);
       setRequests((prev) => prev.filter((r) => r.From._id !== fromUserId));
     } catch (err) {
-      alert(err.response?.data?.message || "Không thể từ chối lời mời");
+      setActionError(err.response?.data?.message || "Cannot decline friend request");
     } finally {
       setProcessingId(null);
     }
@@ -230,6 +233,7 @@ const FriendRequests = () => {
           ))}
         </AnimatePresence>
       </motion.div>
+      <ErrorToast error={actionError} onClose={() => setActionError(null)} />
     </div>
   );
 };

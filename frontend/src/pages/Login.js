@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import AuthWarningModal from '../components/AuthWarningModal/AuthWarningModal';
-import { login, googleLogin } from '../api/authApi';
+import { login, googleLogin, checkAuth } from '../api/authApi';
 import Warning from '../components/Warning';
 import { useGoogleLogin } from '@react-oauth/google';
 import { useUser } from '../contexts/UserContext';
 import { reconnectSocket } from '../socket';
+import userApi from '../api/userApi';
 
 const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
@@ -13,10 +14,94 @@ const Login = () => {
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
     const [warning, setWarning] = useState({ show: false, type: 'error', message: '' });
-    const { Datalogin } = useUser();
+    const { Datalogin, datauser } = useUser();
     // Modal warning logic
     const location = useLocation();
     const [showModal, setShowModal] = useState(false);
+    const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+    const hasCheckedAuth = useRef(false);
+
+    // Tự động kiểm tra token khi component mount
+    useEffect(() => {
+        const autoLogin = async () => {
+            // Chỉ check một lần
+            if (hasCheckedAuth.current) {
+                return;
+            }
+            hasCheckedAuth.current = true;
+
+            try {
+                // Kiểm tra xem có token không (thông qua /auth/check)
+                const res = await checkAuth();
+                
+                if (res && res.status === 200 && res.data.loggedIn) {
+                    console.log('✅ Login: Token còn hạn, tự động đăng nhập');
+                    console.log('🔍 Login: Check auth response:', res.data);
+                    
+                    // Lấy role từ checkAuth response (đã có role từ database)
+                    const userRole = res.data.user?.role;
+                    console.log('🔍 Login: User role from checkAuth:', userRole);
+                    
+                    if (!userRole) {
+                        console.error('❌ Login: Không tìm thấy role, hiển thị form đăng nhập');
+                        setIsCheckingAuth(false);
+                        return;
+                    }
+                    
+                    // Lấy thông tin user đầy đủ
+                    const userInfo = await userApi.getUserDetail();
+                    console.log('🔍 Login: User info from getUserDetail:', userInfo);
+                    
+                    if (userInfo) {
+                        const clubIdString = userInfo.clubId ? String(userInfo.clubId) : null;
+                        
+                        const userDataToStore = {
+                            id: userInfo.id || userInfo._id,
+                            name: userInfo.Name,
+                            avatar: userInfo.Avatar,
+                            clubId: clubIdString,
+                            role: userRole, // Dùng role từ checkAuth, không phải từ userInfo
+                        };
+                        
+                        console.log('🔍 Login: User data to store:', userDataToStore);
+                        
+                        Datalogin(userDataToStore);
+                        reconnectSocket();
+                        
+                        // Redirect theo role
+                        if (userRole === 'admin' || userRole === 'administrator') {
+                            console.log('🔍 Login: Redirecting admin to /dashboard');
+                            navigate('/dashboard', { replace: true });
+                        } else if (userRole === 'partner') {
+                            const hasClub = clubIdString && clubIdString !== 'null' && clubIdString !== 'undefined';
+                            if (!hasClub) {
+                                console.log('🔍 Login: Redirecting partner (no club) to /partner/create-club');
+                                navigate('/partner/create-club', { replace: true });
+                            } else {
+                                console.log('🔍 Login: Redirecting partner (has club) to /club-dashboard');
+                                navigate('/club-dashboard', { replace: true });
+                            }
+                        } else if (userRole === 'user') {
+                            console.log('🔍 Login: Redirecting user to /homefeed');
+                            navigate('/homefeed', { replace: true });
+                        } else {
+                            // Fallback: nếu role không xác định, redirect về homefeed
+                            console.log('⚠️ Login: Unknown role:', userRole, '- redirecting to /homefeed');
+                            navigate('/homefeed', { replace: true });
+                        }
+                        return; // Không hiển thị form login
+                    }
+                }
+            } catch (err) {
+                // Token không hợp lệ hoặc đã hết hạn, hiển thị form login bình thường
+                console.log('ℹ️ Login: Token không hợp lệ hoặc đã hết hạn, hiển thị form đăng nhập');
+            } finally {
+                setIsCheckingAuth(false);
+            }
+        };
+
+        autoLogin();
+    }, [navigate, Datalogin]);
 
     useEffect(() => {
         if (location.state?.showModal) {
@@ -36,13 +121,18 @@ const Login = () => {
         try {
             const res = await login(formData);
             const { user } = res.data;
-
-            Datalogin({
+            const clubIdString = user.clubId ? String(user.clubId) : null;
+            const userDataToStore = {
                 id: user.id,
                 name: user.Name,
                 avatar: user.Avatar,
-                clubId: user.clubId,
-            });
+                clubId: clubIdString,
+                role: user.Role,
+            };
+            Datalogin(userDataToStore);
+            
+            // Verify it was saved
+            const savedData = localStorage.getItem('user');
 
             reconnectSocket(); // ✅ socket sẽ dùng được token
             switch(res?.data?.user?.Role) {
@@ -53,7 +143,14 @@ const Login = () => {
                     }
                 case 'partner':
                     {
-                        navigate('/club-dashboard');
+                        // Nếu partner chưa có club, chuyển đến trang tạo club
+                        // Kiểm tra clubId - có thể là string, object, hoặc null/undefined
+                        const hasClub = clubIdString && clubIdString !== 'null' && clubIdString !== 'undefined';
+                        if (!hasClub) {
+                            navigate('/partner/create-club');
+                        } else {
+                            navigate('/club-dashboard');
+                        }
                         break;
                     }
                 case 'user':
@@ -76,13 +173,18 @@ const Login = () => {
                 const res = await googleLogin(response.code);
                 const { user } = res.data;
 
-                Datalogin({
+                // Convert clubId sang string nếu là object
+                const clubIdString = user.clubId ? String(user.clubId) : null;
+                const userDataToStore = {
                     id: user.id,
                     name: user.Name,
                     avatar: user.Avatar,
-                    clubId: user.clubId,
-                });
+                    clubId: clubIdString,
+                    role: user.Role,
+                };
+                Datalogin(userDataToStore);
 
+                const savedData = localStorage.getItem('user');
                 reconnectSocket();
                 switch(res?.data?.user?.Role) {
                 case 'admin':
@@ -92,7 +194,14 @@ const Login = () => {
                     }
                 case 'partner':
                     {
-                        navigate('/club-dashboard');
+                        // Nếu partner chưa có club, chuyển đến trang tạo club
+                        // Kiểm tra clubId - có thể là string, object, hoặc null/undefined
+                        const hasClub = clubIdString && clubIdString !== 'null' && clubIdString !== 'undefined';
+                        if (!hasClub) {
+                            navigate('/partner/create-club');
+                        } else {
+                            navigate('/club-dashboard');
+                        }
                         break;
                     }
                 case 'user':
@@ -123,6 +232,18 @@ const Login = () => {
         delay: i * 0.5,
         size: Math.random() * 20 + 30
     }));
+
+    // Hiển thị loading khi đang check auth
+    if (isCheckingAuth) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-orange-400 via-orange-500 to-red-600 flex items-center justify-center">
+                <div className="text-center">
+                    <div className="w-16 h-16 border-4 border-white border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                    <p className="text-white font-medium">Checking login status...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-orange-400 via-orange-500 to-red-600 relative overflow-hidden">
@@ -159,7 +280,7 @@ const Login = () => {
                             <div className="relative inline-block">
                                 <div className="w-24 h-24 mx-auto lg:mx-0 bg-white rounded-full shadow-2xl flex items-center justify-center transform hover:rotate-12 transition-transform duration-300">
                                     <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-600 rounded-full flex items-center justify-center shadow-inner">
-                                        <span className="text-white font-bold text-xl">SC</span>
+                                        <span className="text-white font-bold text-xl">CM</span>
                                     </div>
                                 </div>
                                 <div className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-400 rounded-full animate-bounce"></div>
@@ -170,7 +291,7 @@ const Login = () => {
                                     Cue<span className="text-yellow-300">Match</span>
                                 </h1>
                                 <p className="text-xl text-orange-100 font-medium">
-                                    Find Your Team, Live the Game Together
+                                    Explore the world of billiards – any game, any time
                                 </p>
                             </div>
                         </div>
@@ -218,7 +339,7 @@ const Login = () => {
                                         type="email"
                                         value={formData.Email}
                                         onChange={e => setFormData({ ...formData, Email: e.target.value })}
-                                        className="w-full px-4 py-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 peer"
+                                        className="text-black w-full px-4 py-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 peer"
                                         placeholder="Enter your email"
                                         required
                                     />
@@ -235,7 +356,7 @@ const Login = () => {
                                         type={showPassword ? 'text' : 'password'}
                                         value={formData.Password}
                                         onChange={e => setFormData({ ...formData, Password: e.target.value })}
-                                        className="w-full px-4 py-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300"
+                                        className="text-black w-full px-4 py-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300"
                                         placeholder="Enter your password"
                                         required
                                     />
@@ -300,7 +421,7 @@ const Login = () => {
             <Warning
                 show={warning.show}
                 type={warning.type}
-                title="Lỗi đăng nhập"
+                title="Login error"
                 message={warning.message}
                 onClose={() => setWarning({ ...warning, show: false })}
             />

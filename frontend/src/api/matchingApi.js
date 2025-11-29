@@ -45,7 +45,12 @@ const matchingApi = {
     getUpcomingMatches: async () => {
         const res = await api.get('/matching/get-upcoming-matching');
         return res.data;
-    }
+    },
+
+    getNearbyClubs: async (lat, lng, radius = 5) => {
+        const res = await api.get('/matching/get-nearby-club', { params: { lat, lng, radius } });
+        return res.data;
+    },
 };
 
 export default matchingApi;

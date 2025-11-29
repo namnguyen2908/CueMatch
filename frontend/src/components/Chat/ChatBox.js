@@ -35,23 +35,23 @@ const ChatBox = ({ user, onClose, index, conversationId }) => {
       const res = await apiSendMessage(formData);
       setInput('');
     } catch (err) {
-      console.error("Gửi tin nhắn thất bại", err);
+      console.error("Failed to send message", err);
     }
   };
 
   return (
     <div
-      className="fixed bottom-0 h-100 w-80 bg-[#f9f9f9] text-black dark:bg-[#1e1f22] dark:text-white rounded-t-lg shadow-lg border border-gray-300 dark:border-gray-700 flex flex-col overflow-hidden z-50 transition-all duration-300"
+      className="fixed bottom-4 w-80 text-gray-900 dark:text-gray-50 rounded-2xl border border-gray-200/70 dark:border-gray-700/70 bg-white/90 dark:bg-gray-900/80 backdrop-blur-lg flex flex-col overflow-hidden z-50"
       style={{ right: `${rightOffset}px` }}
     >
       {/* Header */}
-      <div className="flex items-center justify-between h-16 px-3 py-2 bg-[#e5e5e5] dark:bg-[#2a2a2d] border-b border-gray-300 dark:border-gray-600">
+      <div className="flex items-center justify-between h-14 px-4 border-b border-gray-200/80 dark:border-gray-700">
         <div className="flex items-center gap-2 relative">
           <div className="relative">
             <img
               src={user.Avatar}
               alt={user.Name}
-              className="w-8 h-8 rounded-full cursor-pointer"
+              className="w-9 h-9 rounded-full cursor-pointer border border-gray-200 dark:border-gray-700"
               onClick={() => navigate(`/profile/${user._id}`)}
             />
             <span
@@ -61,25 +61,36 @@ const ChatBox = ({ user, onClose, index, conversationId }) => {
   `}
             />
           </div>
-          <div className="text-sm font-semibold">{user.Name}</div>
+          <div>
+            <div className="text-sm font-semibold leading-tight">{user.Name}</div>
+            <div className="text-[11px] text-gray-500 dark:text-gray-400">
+              {onlineUsers.has(user._id) ? "Active now" : "Offline"}
+            </div>
+          </div>
         </div>
-        <div className="flex items-center gap-1">
-          <button onClick={() => setMinimized(!minimized)} className="hover:text-yellow-500 dark:hover:text-yellow-400">
+        <div className="flex items-center gap-1 text-gray-400">
+          <button
+            onClick={() => setMinimized(!minimized)}
+            className="hover:text-gray-700 dark:hover:text-gray-200 p-1 rounded-full transition-colors"
+          >
             <Minus size={18} />
           </button>
-          <button onClick={onClose} className="hover:text-red-500 dark:hover:text-red-400">
+          <button
+            onClick={onClose}
+            className="hover:text-red-500 dark:hover:text-red-400 p-1 rounded-full transition-colors"
+          >
             <X size={18} />
           </button>
         </div>
       </div>
 
-      {/* Nội dung chat */}
+      {/* Chat content */}
       {!minimized && (
         <>
-          <div className="p-3 space-y-2 overflow-y-auto h-[22rem] flex flex-col scrollbar-hide">
+          <div className="px-4 py-3 space-y-3 overflow-y-auto h-[22rem] flex flex-col scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
             {messages.length === 0 ? (
-              <div className="text-gray-500 dark:text-gray-400 text-sm italic text-center pt-10">
-                Chưa có tin nhắn nào
+              <div className="text-gray-400 dark:text-gray-500 text-sm italic text-center pt-10">
+                No messages yet
               </div>
             ) : (
               messages.map((msg) => {
@@ -90,10 +101,11 @@ const ChatBox = ({ user, onClose, index, conversationId }) => {
                     className={`flex ${isSelf ? 'justify-end' : 'justify-start'}`}
                   >
                     <div
-                      className={`mt-[-2.5px] mb-[-2.5px] px-4 py-2 rounded-[20px] text-sm max-w-[75%] break-words ${isSelf
-                        ? 'bg-orange-500 text-black'
-                        : 'bg-gray-300 text-black dark:bg-gray-500 dark:text-white'
-                        }`}
+                      className={`px-4 py-2 rounded-2xl text-sm max-w-[80%] break-words ${
+                        isSelf
+                          ? 'bg-gradient-to-r from-orange-500 to-pink-500 text-white shadow-sm'
+                          : 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-50 border border-gray-200/60 dark:border-gray-700/60'
+                      }`}
                     >
                       {msg.Text}
                     </div>
@@ -105,19 +117,19 @@ const ChatBox = ({ user, onClose, index, conversationId }) => {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Nhập tin nhắn */}
-          <div className="flex items-center p-2 border-t border-gray-300 dark:border-gray-700">
+          {/* Message input */}
+          <div className="flex items-center gap-2 px-4 py-3 border-t border-gray-200/80 dark:border-gray-700">
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && sendMessage()}
               placeholder="Aa"
-              className="flex-1 bg-[#e5e5e5] dark:bg-[#2a2a2d] text-sm text-black dark:text-white px-3 py-2 rounded-full focus:outline-none"
+              className="flex-1 bg-gray-100 dark:bg-gray-800 text-sm text-gray-900 dark:text-gray-100 px-4 py-2 rounded-full focus:outline-none focus:ring-2 focus:ring-orange-400/40"
             />
             <button
               onClick={sendMessage}
-              className="ml-2 p-2 bg-blue-500 hover:bg-blue-600 rounded-full"
+              className="p-2 bg-orange-500 hover:bg-orange-600 text-white rounded-full transition-colors"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

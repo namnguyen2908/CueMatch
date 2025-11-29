@@ -12,14 +12,14 @@ export const ChatProvider = ({ children }) => {
   const [openChats, setOpenChats] = useState([]);
   const [messagesMap, setMessagesMap] = useState({}); // { conversationId: [messages] }
 
-  // 🟢 Khi người dùng đăng nhập, gửi socket init
+  // Initialize socket when user logs in
   useEffect(() => {
     if (datauser?.id) {
       socket.emit('init_user', datauser.id);
     }
   }, [datauser]);
 
-  // 🔁 Lắng nghe tin nhắn mới
+  // Listen for incoming messages
   useEffect(() => {
     const handleReceiveMessage = (message) => {
       const { ConversationId } = message;
@@ -39,7 +39,7 @@ export const ChatProvider = ({ children }) => {
     };
   }, [datauser]);
 
-  // 🧩 Mở khung chat (nếu chưa có)
+  // Open a chat window (if not already open)
   const openChatWith = async (user, conversationId) => {
     const alreadyOpen = openChats.some(chat => chat.conversationId === conversationId);
     if (alreadyOpen) return;
@@ -64,7 +64,7 @@ export const ChatProvider = ({ children }) => {
         return updated;
       });
     } catch (err) {
-      console.error("Lỗi khi lấy tin nhắn:", err);
+      console.error("Error fetching messages:", err);
     }
   };
 

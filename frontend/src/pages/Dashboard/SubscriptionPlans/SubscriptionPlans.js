@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ErrorToast from '../../../components/ErrorToast/ErrorToast';
 import { Plus, Edit2, Power, PowerOff, AlertCircle, Loader2 } from 'lucide-react';
 import subscriptionPlanApi from '../../../api/subscriptionPlanApi';
 import Layout from '../Layout';
@@ -257,6 +258,7 @@ const SubscriptionPlans = () => {
           mode={modalMode}
         />
       </div>
+      <ErrorToast error={error} onClose={() => setError(null)} />
     </Layout>
   );
 };
