@@ -2,7 +2,7 @@ import axios from 'axios';
 // import { refreshToken } from './authApi'; // Gọi lại chính API làm mới token
 
 const api = axios.create({
-  baseURL: 'http://localhost:8000',
+  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:8000',
   withCredentials: true,
 });
 
