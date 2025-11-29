@@ -40,6 +40,11 @@ const User = require('./models/User');
 const applySocketMiddleware = require('./middlewares/socketMiddleware');
 
 dotenv.config();
+
+// Cấu hình origin cho frontend (dùng khi deploy)
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
+const ALLOWED_ORIGINS = [FRONTEND_URL, 'http://localhost:3000', 'http://localhost:5173'].filter(Boolean);
+
 const app = express();
 
 app.use((req, res, next) => {
@@ -55,7 +60,14 @@ const connectToMongo = async () => {
 connectToMongo();
 
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: function (origin, callback) {
+    // Cho phép các request không có origin (ví dụ: Postman)
+    if (!origin) return callback(null, true);
+    if (ALLOWED_ORIGINS.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error('Not allowed by CORS'));
+  },
   credentials: true
 }));
 app.use(cookieParser());
@@ -90,7 +102,7 @@ const server = http.createServer(app);
 // Khởi tạo socket.io
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: ALLOWED_ORIGINS,
     methods: ["GET", "POST"],
     credentials: true
   }
